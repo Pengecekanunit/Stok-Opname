@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Stok Opname Offline + Watermark Alamat</title>
+  
+  <!-- CSS Framework (Tailwind CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Dexie.js (Database Offline IndexedDB) -->
+  <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+  <!-- SheetJS (Impor/Ekspor Excel Offline) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- JSZip (Untuk Download Banyak Foto Sekaligus) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
+
+  <!-- Header -->
+  <header class="bg-indigo-700 text-white p-4 shadow-md sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold tracking-wide">📦 Stok Opname System</h1>
+      <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500 text-white font-medium">Auto-Address Watermark</span>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto p-4 space-y-6 mt-2">
+
+    <!-- Tab Navigation -->
+    <div class="flex border-b border-slate-300 bg-white rounded-t-lg overflow-hidden shadow-sm">
+      <button onclick="switchTab('unit')" id="tab-unit" class="flex-1 py-3 px-4 text-center font-semibold text-indigo-700 border-b-2 border-indigo-700 bg-indigo-50">
+        🏍️ Opname Unit
+      </button>
+      <button onclick="switchTab('kelengkapan')" id="tab-kelengkapan" class="flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+        🪖 Kelengkapan Motor
+      </button>
+      <button onclick="switchTab('data')" id="tab-data" class="flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+        ⚙️ Impor & Ekspor Data
+      </button>
+    </div>
+
+    <!-- TAB 1: STOK OPNAME UNIT -->
+    <section id="sec-unit" class="bg-white p-5 rounded-b-lg shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+        <h2 class="text-lg font-bold text-slate-700">Pencarian Unit Motor</h2>
+        <div id="stat-ringkasan" class="text-xs font-semibold text-slate-500">
+          <!-- Diisi via JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Input Pencarian -->
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1">Cari No. Rangka / No. Mesin / Tipe / Warna</label>
+          <input type="text" id="search-unit" onkeyup="cariUnit()" placeholder="Ketik nomor rangka, mesin, atau tipe..." 
+                 class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-lg">
+        </div>
+      </div>
+
+      <!-- Hasil Pencarian -->
+      <div id="hasil-cari-unit" class="space-y-4 mt-4">
+        <p class="text-slate-400 text-sm italic">Gunakan kolom pencarian di atas untuk menemukan data unit.</p>
+      </div>
+    </section>
+
+    <!-- TAB 2: STOK OPNAME KELENGKAPAN -->
+    <section id="sec-kelengkapan" class="bg-white p-5 rounded-b-lg shadow-sm space-y-4 hidden">
+      <h2 class="text-lg font-bold text-slate-700">Input Opname Kelengkapan Motor</h2>
+      
+      <form id="form-kelengkapan" onsubmit="simpanKelengkapan(event)" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1">Kategori Items</label>
+          <select id="kel-kategori" onchange="updateSubKategori()" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+            <option value="Helm">🪖 Helm</option>
+            <option value="Aki">🔋 Aki Motor</option>
+            <option value="Spion">🪞 Spion</option>
+            <option value="Lainnya">📦 Lainnya</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1">Jenis / Spesifikasi / Voltase</label>
+          <select id="kel-jenis" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+            <!-- Diisi JavaScript -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1">Jumlah Fisik (Qty)</label>
+          <input type="number" id="kel-qty" required min="1" value="1" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1">Lokasi Rak / Catatan</label>
+          <input type="text" id="kel-catatan" placeholder="Contoh: Rak A-02 / Dus Segel" class="w-full p-3 border border-slate-300 rounded-lg">
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-lg shadow">
+          💾 Simpan Data Kelengkapan
+        </button>
+      </form>
+
+      <hr class="my-6">
+      <h3 class="font-bold text-slate-700">Riwayat Opname Kelengkapan</h3>
+      <div id="list-kelengkapan" class="space-y-2 text-sm"></div>
+    </section>
+
+    <!-- TAB 3: IMPOR & EKSPOR DATA LOKAL -->
+    <section id="sec-data" class="bg-white p-5 rounded-b-lg shadow-sm space-y-6 hidden">
+      
+      <!-- Impor Excel Master -->
+      <div class="border p-4 rounded-lg border-indigo-100 bg-indigo-50/50 space-y-2">
+        <h3 class="font-bold text-indigo-900">1. Impor Master Unit dari Excel</h3>
+        <p class="text-xs text-slate-600">Pilih file Excel master data unit motor untuk dimasukkan ke dalam database perangkat ini.</p>
+        <input type="file" id="file-excel" accept=".xlsx, .xls, .csv" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700">
+        <button onclick="imporExcelUnit()" class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm shadow">
+          📥 Muat Data Master Ke Perangkat
+        </button>
+      </div>
+
+      <!-- Download Excel Hasil Opname & Foto -->
+      <div class="border p-4 rounded-lg border-emerald-100 bg-emerald-50/50 space-y-3">
+        <h3 class="font-bold text-emerald-900">2. Download Hasil Stok Opname & Foto Bukti</h3>
+        <p class="text-xs text-slate-600">Unduh data hasil opname dalam bentuk file Excel (.xlsx) atau unduh seluruh foto fisik unit sekaligus (ZIP).</p>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <button onclick="eksporHasilUnitLocal()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm shadow">
+            📊 Download Excel Unit
+          </button>
+          <button onclick="eksporHasilKelengkapanLocal()" class="flex-1 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-sm shadow">
+            📊 Download Excel Kelengkapan
+          </button>
+        </div>
+        <div>
+          <button onclick="downloadSemuaFotoZip()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg text-sm shadow flex justify-center items-center gap-2">
+            🖼️ Download Semua Foto Fisik (ZIP JPG)
+          </button>
+        </div>
+      </div>
+
+      <!-- Reset Database -->
+      <div class="border p-4 rounded-lg border-red-200 bg-red-50 space-y-2">
+        <h3 class="font-bold text-red-800">3. Bersihkan Database Perangkat</h3>
+        <p class="text-xs text-slate-600">Hapus seluruh data master dan hasil opname yang tersimpan di browser ini.</p>
+        <button onclick="hapusSemuaData()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg text-sm shadow">
+          🗑️ Hapus Semua Data Lokal
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL POPUP KELENGKAPAN UNIT -->
+  <div id="modal-kelengkapan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-5 transform transition-all">
+      <div class="border-b pb-3">
+        <h3 class="text-lg font-bold text-slate-800">📋 Checklist Kelengkapan Unit</h3>
+        <p class="text-xs text-slate-500 mt-1">Pilih kelengkapan fisik yang tersedia pada unit ini:</p>
+      </div>
+
+      <input type="hidden" id="modal-unit-id">
+      <input type="hidden" id="modal-unit-status">
+
+      <div class="space-y-3 text-sm">
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-spion" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🪞 Spion</span>
+        </label>
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-aki" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🔋 Aki</span>
+        </label>
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-toolkit" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🧰 Tool Kit</span>
+        </label>
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-plat" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🔲 Plat Holder</span>
+        </label>
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-helm" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🪖 Helm</span>
+        </label>
+      </div>
+
+      <div class="flex justify-end space-x-3 pt-3 border-t">
+        <button onclick="tutupModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-300">
+          Batal
+        </button>
+        <button onclick="konfirmasiSimpanOpname()" class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 shadow">
+          💾 Simpan & Konfirmasi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- 1. SETUP DATABASE DEXIE ---
+    const db = new Dexie('StokOpnameDB');
+    db.version(4).stores({
+      unit: '++id, no_rangka, no_mesin, tipe_unit, warna, warehouse, status, waktu_opname, foto',
+      kelengkapan: '++id, kategori, jenis, qty, catatan, waktu_opname'
+    });
+
+    // Variable global lokasi & alamat
+    let currentCoords = "";
+    let currentAddress = "Mencari alamat lokasi...";
+
+    // Mengambil Koordinat & Alamat dari OpenStreetMap Reverse Geocoding
+    function getRealTimeLocation() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          currentAddress = "GPS Tidak Didukung Browser";
+          return resolve();
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            currentCoords = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+
+            try {
+              // API OpenStreetMap Reverse Geocode
+              const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`);
+              const data = await response.json();
+              
+              if (data && data.display_name) {
+                // Potong alamat agar tidak terlalu panjang di foto
+                currentAddress = data.display_name.substring(0, 85) + "...";
+              } else {
+                currentAddress = "Alamat Tidak Ditemukan";
+              }
+            } catch (err) {
+              currentAddress = "Gagal memuat nama alamat (Cek Internet)";
+            }
+            resolve();
+          },
+          (err) => {
+            currentAddress = "Akses GPS Tidak Diizinkan";
+            currentCoords = "-";
+            resolve();
+          },
+          { enableHighAccuracy: true, timeout: 5000 }
+        );
+      });
+    }
+
+    // Panggil saat aplikasi pertama dibuka
+    getRealTimeLocation();
+
+    // --- 2. TAB NAVIGATION & RINGKASAN ---
+    function switchTab(tab) {
+      ['unit', 'kelengkapan', 'data'].forEach(t => {
+        document.getElementById(`sec-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).className = "flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600";
+      });
+      document.getElementById(`sec-${tab}`).classList.remove('hidden');
+      document.getElementById(`tab-${tab}`).className = "flex-1 py-3 px-4 text-center font-semibold text-indigo-700 border-b-2 border-indigo-700 bg-indigo-50";
+
+      if (tab === 'unit') {
+        updateRingkasanUnit();
+      } else if (tab === 'kelengkapan') {
+        updateSubKategori();
+        loadListKelengkapan();
+      }
+    }
+
+    async function updateRingkasanUnit() {
+      const total = await db.unit.count();
+      const sudah = await db.unit.filter(u => u.status !== null && u.status !== '').count();
+      document.getElementById('stat-ringkasan').innerText = `Total Master: ${total} | Terperiksa: ${sudah}`;
+    }
+
+    // --- 3. HELPER KOMPRESI & WATERMARK ALAMAT FOTO ---
+    async function compressAndWatermarkImage(file, noRangka = "", maxWidth = 1024, quality = 0.75) {
+      // Perbarui alamat & lokasi terbaru
+      await getRealTimeLocation();
+
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Waktu dan Tanggal Realtime
+            const now = new Date();
+            const timeStr = now.toLocaleDateString('id-ID', {
+              day: '2-digit', month: 'short', year: 'numeric'
+            }) + " " + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            // Cetak Box Latar Belakang Watermark
+            const boxHeight = 85;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.70)';
+            ctx.fillRect(0, height - boxHeight, width, boxHeight);
+
+            // Teks Header Unit & Waktu
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 15px sans-serif';
+            ctx.fillText(`📍 STOK OPNAME - ${noRangka}`, 15, height - 58);
+
+            ctx.fillStyle = '#FFD700'; // Warna Emas untuk Jam & GPS
+            ctx.font = '12px monospace';
+            ctx.fillText(`🕒 ${timeStr}  |  GPS: ${currentCoords}`, 15, height - 38);
+
+            // Teks Alamat Lengkap
+            ctx.fillStyle = '#00FFCC'; // Warna Toska untuk Alamat
+            ctx.font = '11px sans-serif';
+            ctx.fillText(`🏠 ${currentAddress}`, 15, height - 16);
+
+            const resultBase64 = canvas.toDataURL('image/jpeg', quality);
+            resolve(resultBase64);
+          };
+        };
+      });
+    }
+
+    function downloadSingleFotoJPG(base64Data, filename) {
+      const link = document.createElement('a');
+      link.href = base64Data;
+      link.download = filename.endsWith('.jpg') ? filename : `${filename}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function handleFileSelect(unitId, isCam) {
+      const inputId = isCam ? `foto-cam-${unitId}` : `foto-gal-${unitId}`;
+      const fileInput = document.getElementById(inputId);
+      const label = document.getElementById(`foto-status-${unitId}`);
+      
+      if (fileInput.files && fileInput.files[0]) {
+        label.innerText = `⏳ Memproses foto & menempelkan alamat lokasi...`;
+        label.className = "text-xs text-amber-600 font-bold mt-1";
+      }
+    }
+
+    // --- 4. IMPOR EXCEL LOKAL ---
+    async function imporExcelUnit() {
+      const fileInput = document.getElementById('file-excel');
+      if (!fileInput.files.length) return alert('Pilih file Excel terlebih dahulu!');
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const rawJson = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+          if (rawJson.length === 0) return alert('File Excel kosong!');
+
+          const mappedData = rawJson.map(row => {
+            let item = {};
+            Object.keys(row).forEach(key => {
+              const k = key.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+              const val = String(row[key] || '').trim();
+              if (k.includes('rangka') || k.includes('chasis') || k.includes('frame')) item.no_rangka = val;
+              else if (k.includes('mesin') || k.includes('engine')) item.no_mesin = val;
+              else if (k.includes('tipe') || k.includes('type') || k.includes('model')) item.tipe_unit = val;
+              else if (k.includes('warna') || k.includes('color')) item.warna = val;
+              else if (k.includes('warehouse') || k.includes('lokasi')) item.warehouse = val;
+              else if (k.includes('tahun')) item.tahun = val;
+            });
+
+            return {
+              no_rangka: item.no_rangka || '-',
+              no_mesin: item.no_mesin || '-',
+              tipe_unit: item.tipe_unit || 'Unit Motor',
+              warna: item.warna || '-',
+              warehouse: item.warehouse || '-',
+              tahun: item.tahun || '-',
+              status: null,
+              waktu_opname: null,
+              foto: null,
+              kelengkapan: { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false }
+            };
+          });
+
+          await db.unit.clear();
+          await db.unit.bulkAdd(mappedData);
+
+          alert(`✅ Berhasil mengimpor ${mappedData.length} data unit ke database lokal!`);
+          updateRingkasanUnit();
+          switchTab('unit');
+        } catch (err) {
+          alert('Gagal membaca file Excel.');
+          console.error(err);
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    // --- 5. SEARCH UNIT & POPUP KELENGKAPAN ---
+    async function cariUnit() {
+      const keyword = document.getElementById('search-unit').value.trim().toLowerCase();
+      const container = document.getElementById('hasil-cari-unit');
+      
+      if (keyword.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-sm italic">Gunakan kolom pencarian di atas untuk menemukan data unit.</p>`;
+        return;
+      }
+
+      const results = await db.unit
+        .filter(u => 
+          (u.no_rangka && u.no_rangka.toLowerCase().includes(keyword)) ||
+          (u.no_mesin && u.no_mesin.toLowerCase().includes(keyword)) ||
+          (u.tipe_unit && u.tipe_unit.toLowerCase().includes(keyword)) ||
+          (u.warna && u.warna.toLowerCase().includes(keyword)) ||
+          (u.warehouse && u.warehouse.toLowerCase().includes(keyword))
+        )
+        .limit(20)
+        .toArray();
+
+      if (results.length === 0) {
+        container.innerHTML = `<p class="text-red-500 font-medium text-sm">❌ Unit dengan kata kunci "${keyword}" tidak ditemukan.</p>`;
+        return;
+      }
+
+      container.innerHTML = results.map(u => {
+        const k = u.kelengkapan || { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false };
+
+        return `
+          <div class="p-4 border rounded-lg shadow-sm ${u.status ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'}">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-bold text-slate-800 text-base">${u.tipe_unit} <span class="text-xs font-normal text-slate-500">(${u.warna})</span></p>
+                <p class="text-xs font-mono text-slate-600 mt-1">Rangka: <b>${u.no_rangka}</b></p>
+                <p class="text-xs font-mono text-slate-600">Mesin &nbsp;&nbsp;: <b>${u.no_mesin}</b></p>
+                ${u.warehouse !== '-' ? `<p class="text-xs text-indigo-600 font-medium mt-1">📍 Warehouse: ${u.warehouse}</p>` : ''}
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full font-semibold ${u.status ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}">
+                ${u.status || 'Belum Opname'}
+              </span>
+            </div>
+
+            <!-- Display Kelengkapan yang Sudah Tersimpan -->
+            ${u.status ? `
+              <div class="mt-3 pt-3 border-t border-slate-200 text-xs text-slate-600">
+                <p class="font-bold mb-1">📋 Kelengkapan Terdata:</p>
+                <div class="flex flex-wrap gap-2">
+                  <span class="px-2 py-0.5 rounded ${k.spion ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Spion: ${k.spion ? '✓' : '✕'}</span>
+                  <span class="px-2 py-0.5 rounded ${k.aki ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Aki: ${k.aki ? '✓' : '✕'}</span>
+                  <span class="px-2 py-0.5 rounded ${k.toolkit ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Toolkit: ${k.toolkit ? '✓' : '✕'}</span>
+                  <span class="px-2 py-0.5 rounded ${k.plat_holder ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Plat Holder: ${k.plat_holder ? '✓' : '✕'}</span>
+                  <span class="px-2 py-0.5 rounded ${k.helm ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Helm: ${k.helm ? '✓' : '✕'}</span>
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- Tombol Unggah Foto -->
+            <div class="mt-3 pt-3 border-t border-slate-200">
+              <label class="block text-xs font-bold text-slate-700 mb-2">📷 Upload Foto Fisik Unit <span class="text-red-500">*Wajib</span>:</label>
+              
+              <div class="flex flex-wrap gap-2">
+                <input type="file" id="foto-cam-${u.id}" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(${u.id}, true)">
+                <label for="foto-cam-${u.id}" class="inline-flex items-center gap-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg cursor-pointer shadow-sm">
+                  📷 Ambil Kamera
+                </label>
+
+                <input type="file" id="foto-gal-${u.id}" accept="image/*" class="hidden" onchange="handleFileSelect(${u.id}, false)">
+                <label for="foto-gal-${u.id}" class="inline-flex items-center gap-1 px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg cursor-pointer shadow-sm">
+                  🖼️ Pilih Galeri
+                </label>
+              </div>
+
+              <div id="foto-status-${u.id}" class="text-xs text-slate-400 italic mt-1">Sistem akan otomatis mencetak Tanggal, Waktu, & Nama Alamat di foto.</div>
+              
+              ${u.foto ? `
+                <div class="mt-2 flex items-center gap-3">
+                  <img src="${u.foto}" class="h-28 w-auto rounded border border-slate-300 object-cover shadow-sm" alt="Foto Fisik">
+                  <button onclick="downloadSingleFotoJPG('${u.foto}', 'FOTO_${u.no_rangka}.jpg')" 
+                          class="px-2.5 py-1 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded shadow">
+                    💾 Download Foto
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Tombol Status -->
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button onclick="prosesPilihStatus(${u.id}, 'ADA / SESUAI')" class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 shadow-sm">✓ ADA / SESUAI</button>
+              <button onclick="prosesPilihStatus(${u.id}, 'BEDA LOKASI')" class="px-3 py-1.5 bg-amber-500 text-white text-xs font-bold rounded-lg hover:bg-amber-600 shadow-sm">⚠ BEDA LOKASI</button>
+              <button onclick="prosesPilihStatus(${u.id}, 'TIDAK ADA')" class="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700 shadow-sm">✕ TIDAK ADA</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Validation foto & trigger popup
+    async function prosesPilihStatus(id, status) {
+      const unit = await db.unit.get(id);
+      const fileCam = document.getElementById(`foto-cam-${id}`);
+      const fileGal = document.getElementById(`foto-gal-${id}`);
+      
+      if (status === 'TIDAK ADA') {
+        let fotoBase64 = unit.foto || null;
+        if (fileCam && fileCam.files.length > 0) {
+          fotoBase64 = await compressAndWatermarkImage(fileCam.files[0], unit.no_rangka);
+        } else if (fileGal && fileGal.files.length > 0) {
+          fotoBase64 = await compressAndWatermarkImage(fileGal.files[0], unit.no_rangka);
+        }
+
+        await db.unit.update(id, {
+          status: status,
+          foto: fotoBase64,
+          kelengkapan: { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false },
+          waktu_opname: new Date().toLocaleString('id-ID')
+        });
+        updateRingkasanUnit();
+        cariUnit();
+        return;
+      }
+
+      const adaFotoLama = unit.foto && unit.foto !== '';
+      const adaFotoCam = fileCam && fileCam.files.length > 0;
+      const adaFotoGal = fileGal && fileGal.files.length > 0;
+
+      if (!adaFotoLama && !adaFotoCam && !adaFotoGal) {
+        return alert('⚠️ Wajib mengunggah/mengambil foto fisik unit terlebih dahulu!');
+      }
+
+      document.getElementById('modal-unit-id').value = id;
+      document.getElementById('modal-unit-status').value = status;
+      
+      const k = unit.kelengkapan || {};
+      document.getElementById('modal-spion').checked = !!k.spion;
+      document.getElementById('modal-aki').checked = !!k.aki;
+      document.getElementById('modal-toolkit').checked = !!k.toolkit;
+      document.getElementById('modal-plat').checked = !!k.plat_holder;
+      document.getElementById('modal-helm').checked = !!k.helm;
+
+      document.getElementById('modal-kelengkapan').classList.remove('hidden');
+    }
+
+    function tutupModal() {
+      document.getElementById('modal-kelengkapan').classList.add('hidden');
+    }
+
+    async function konfirmasiSimpanOpname() {
+      const id = parseInt(document.getElementById('modal-unit-id').value);
+      const status = document.getElementById('modal-unit-status').value;
+
+      const fileCam = document.getElementById(`foto-cam-${id}`);
+      const fileGal = document.getElementById(`foto-gal-${id}`);
+      const unit = await db.unit.get(id);
+
+      let fotoBase64 = unit.foto || null;
+      if (fileCam && fileCam.files.length > 0) {
+        fotoBase64 = await compressAndWatermarkImage(fileCam.files[0], unit.no_rangka);
+      } else if (fileGal && fileGal.files.length > 0) {
+        fotoBase64 = await compressAndWatermarkImage(fileGal.files[0], unit.no_rangka);
+      }
+
+      const kelengkapanData = {
+        spion: document.getElementById('modal-spion').checked,
+        aki: document.getElementById('modal-aki').checked,
+        toolkit: document.getElementById('modal-toolkit').checked,
+        plat_holder: document.getElementById('modal-plat').checked,
+        helm: document.getElementById('modal-helm').checked
+      };
+
+      await db.unit.update(id, {
+        status: status,
+        foto: fotoBase64,
+        kelengkapan: kelengkapanData,
+        waktu_opname: new Date().toLocaleString('id-ID')
+      });
+
+      tutupModal();
+      updateRingkasanUnit();
+      cariUnit();
+    }
+
+    // --- 6. MODUL OPNAME KELENGKAPAN ---
+    const opsiJenis = {
+      'Helm': ['New', 'TRX3/HMJ', 'S', 'STYLO', 'CROSS', 'EV', 'CBR150', 'CBR250', 'CUV E', 'CBU', 'CROSS/NEW', 'CB150R'],
+      'Aki': ['3A/4V', '3,5A/5V', '5A/6V', '7A'],
+      'Spion': ['ADV (KOWA)', 'BEAT (K1AL)', 'BEAT STREET (K1AL-SS)', 'CB150 VERZA CB 150 R (K18A)', 'CBR150 (K45N)', 'CB150X (GLS)', 'CBR 250RR (K64N)', 'CUV E (K3NA)', 'ICON', 'EM1 E', 'GENIO (K0JA)', 'PCX 160 (K97G)', 'REVO SUPRA X (K03S)', 'VARIO 125 (K2VG)', 'SCOOPY (K2FA & K2FV)', 'SUPRA GTR (K56F)', 'SUPERCUB', 'ST 125 DAX', 'CT125', 'SONIC (K56A)', 'STYLO (K3VA)', 'VARIO 160 (K2S)', 'CRF (K84A)'],
+      'Lainnya': ['Tool Kit', 'Plat holder']
+    };
+
+    function updateSubKategori() {
+      const kat = document.getElementById('kel-kategori').value;
+      const selectJenis = document.getElementById('kel-jenis');
+      selectJenis.innerHTML = opsiJenis[kat].map(j => `<option value="${j}">${j}</option>`).join('');
+    }
+
+    async function simpanKelengkapan(e) {
+      e.preventDefault();
+      await db.kelengkapan.add({
+        kategori: document.getElementById('kel-kategori').value,
+        jenis: document.getElementById('kel-jenis').value,
+        qty: parseInt(document.getElementById('kel-qty').value),
+        catatan: document.getElementById('kel-catatan').value,
+        waktu_opname: new Date().toLocaleString('id-ID')
+      });
+
+      document.getElementById('kel-qty').value = "1";
+      document.getElementById('kel-catatan').value = "";
+      alert('Data kelengkapan berhasil disimpan!');
+      loadListKelengkapan();
+    }
+
+    async function hapusKelengkapanItem(id) {
+      if (confirm('Hapus item kelengkapan ini?')) {
+        await db.kelengkapan.delete(id);
+        loadListKelengkapan();
+      }
+    }
+
+    async function loadListKelengkapan() {
+      const data = await db.kelengkapan.reverse().limit(10).toArray();
+      const container = document.getElementById('list-kelengkapan');
+      if(data.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 italic text-sm">Belum ada data diinput hari ini.</p>`;
+        return;
+      }
+      container.innerHTML = data.map(d => `
+        <div class="flex justify-between items-center border-b pb-2">
+          <div>
+            <p class="font-semibold text-slate-700">${d.kategori} - ${d.jenis}</p>
+            <p class="text-xs text-slate-500">${d.catatan || 'Tanpa Catatan'} (${d.waktu_opname})</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <span class="font-bold text-indigo-700 text-base">${d.qty} Pcs</span>
+            <button onclick="hapusKelengkapanItem(${d.id})" class="text-red-500 hover:text-red-700 text-xs font-semibold">✕ Hapus</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- 7. EKSPOR EXCEL & DOWNLOAD ZIP FOTO ---
+    async function eksporHasilUnitLocal() {
+      const data = await db.unit.toArray();
+      if(data.length === 0) return alert('Belum ada data unit.');
+
+      const exportData = data.map(u => {
+        const k = u.kelengkapan || {};
+
+        return {
+          "No. Rangka": u.no_rangka,
+          "No. Mesin": u.no_mesin,
+          "Tipe Unit": u.tipe_unit,
+          "Warna": u.warna,
+          "Warehouse": u.warehouse,
+          "Tahun": u.tahun,
+          "Status Opname": u.status || "Belum Opname",
+          "Spion": k.spion ? "✓" : "-",
+          "Aki": k.aki ? "✓" : "-",
+          "Tool Kit": k.toolkit ? "✓" : "-",
+          "Plat Holder": k.plat_holder ? "✓" : "-",
+          "Helm": k.helm ? "✓" : "-",
+          "Waktu Opname": u.waktu_opname || "-",
+          "Ada Foto Bukti": u.foto ? "Ya" : "Tidak"
+        };
+      });
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Opname Unit");
+      XLSX.writeFile(wb, `Hasil_Opname_Unit_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    async function eksporHasilKelengkapanLocal() {
+      const data = await db.kelengkapan.toArray();
+      if(data.length === 0) return alert('Belum ada data kelengkapan.');
+
+      const exportData = data.map(k => ({
+        "Kategori": k.kategori,
+        "Jenis / Spesifikasi": k.jenis,
+        "Jumlah (Qty)": k.qty,
+        "Catatan / Lokasi": k.catatan || "-",
+        "Waktu Opname": k.waktu_opname
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Opname Kelengkapan");
+      XLSX.writeFile(wb, `Hasil_Opname_Kelengkapan_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    async function downloadSemuaFotoZip() {
+      const dataFoto = await db.unit.filter(u => u.foto !== null && u.foto !== '').toArray();
+      
+      if (dataFoto.length === 0) {
+        return alert('⚠️ Belum ada foto fisik unit yang diunggah.');
+      }
+
+      if (typeof JSZip === 'undefined') {
+        return alert('Library JSZip belum siap.');
+      }
+
+      const zip = new JSZip();
+      const folder = zip.folder("Foto_Bukti_Opname");
+
+      dataFoto.forEach(u => {
+        const base64Data = u.foto.split(',')[1];
+        const fileName = `FOTO_${u.no_rangka.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
+        folder.file(fileName, base64Data, { base64: true });
+      });
+
+      alert(`📦 Memproses ${dataFoto.length} foto ke dalam file ZIP...`);
+
+      zip.generateAsync({ type: 'blob' }).then(function(content) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = `Foto_Fisik_Opname_${new Date().toISOString().slice(0,10)}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+
+    async function hapusSemuaData() {
+      if (confirm('Yakin ingin menghapus SELURUH data lokal di perangkat ini? Data tidak bisa dikembalikan.')) {
+        await db.unit.clear();
+        await db.kelengkapan.clear();
+        alert('Database telah dibersihkan!');
+        location.reload();
+      }
+    }
+
+    // Inisialisasi awal
+    updateRingkasanUnit();
+  </script>
+</body>
+</html>
