@@ -15,28 +15,301 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <style>
+    .laporan-header {
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      padding: 12px 16px 16px;
+    }
+
+    .laporan-title {
+      font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+      font-weight: 800;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #0f172a;
+      text-align: center;
+      margin: 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #cbd5e1;
+    }
+
+    .laporan-field {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .laporan-date-row {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .laporan-date-field {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .laporan-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #475569;
+      text-align: center;
+    }
+
+    .laporan-input {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.98rem;
+      text-align: center;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .laporan-input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+
+    .official-table-card {
+      border: 1px solid #b8c2d1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+      break-inside: auto;
+      page-break-inside: auto;
+    }
+
+    #container-audit-ksu {
+      display: block;
+    }
+
+    #container-audit-ksu > .official-table-card + .official-table-card {
+      margin-top: 8px;
+    }
+
+    .official-table-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(180deg, #1d3150 0%, #243d5c 100%);
+      color: #ffffff;
+      padding: 8px 12px;
+      font-weight: 800;
+      font-size: 0.76rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    .official-table-wrap {
+      overflow-x: auto;
+    }
+
+    .official-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.66rem;
+      color: #0f172a;
+    }
+
+    .official-table th,
+    .official-table td {
+      border: 1px solid #cbd5e1;
+      padding: 5px 6px;
+      vertical-align: middle;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .official-table thead th {
+      background: #f3f4f6;
+      color: #0f172a;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+
+    .official-table tfoot td {
+      background: #f3f4f6;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .official-signoff {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 170px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 10px 14px 12px;
+      text-align: center;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.08);
+    }
+
+    .official-signoff .title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: 0.01em;
+      text-transform: none;
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .official-signoff .role {
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-top: 2px;
+      margin-bottom: 0;
+      line-height: 1.4;
+    }
+
+    .official-signoff .line {
+      border-bottom: 2px solid #2f2f2f;
+      margin: 14px 18px 6px;
+      min-height: 24px;
+    }
+
+    .official-signoff .person {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      margin: 0;
+      letter-spacing: 0.03em;
+    }
+
+    .signoff-4-col {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .signoff-2-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
     /* Styling khusus untuk mode cetak/download PDF profesional */
     @media print {
       @page {
         size: A4 portrait;
-        margin: 12mm 15mm;
+        margin: 4mm 5mm;
       }
       body {
         background-color: #fff !important;
         color: #000 !important;
         font-family: 'Arial', sans-serif !important;
-        padding-bottom: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
       header, #tab-nav, #sec-unit, #sec-data, #form-kelengkapan-container, .no-print {
         display: none !important;
       }
+      main {
+        max-width: none !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
       #sec-kelengkapan {
         display: block !important;
         padding: 0 !important;
+        margin: 0 !important;
         box-shadow: none !important;
         border: none !important;
+        background: #fff !important;
+      }
+      .laporan-header,
+      .official-table-card,
+      .official-signoff {
+        box-shadow: none !important;
+      }
+      .official-table {
+        font-size: 0.52rem !important;
+      }
+      .official-table th,
+      .official-table td {
+        padding: 3px 4px !important;
+      }
+      .signoff-4-col {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 3mm !important;
+      }
+      .signoff-2-col {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 3mm !important;
+      }
+      .official-signoff {
+        min-height: 130px !important;
+        padding: 6px 8px !important;
+      }
+      .official-signoff .title {
+        font-size: 0.62rem !important;
+      }
+      .official-signoff .role {
+        font-size: 0.5rem !important;
+      }
+      .official-signoff .line {
+        margin: 6px 12px 3px !important;
+        min-height: 8px !important;
+      }
+      .official-signoff .person {
+        font-size: 0.5rem !important;
+      }
+      .laporan-date-row {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 6mm !important;
+        margin-top: 3mm !important;
+      }
+      .laporan-date-field {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+      }
+      .laporan-title {
+        font-size: 0.9rem !important;
+        letter-spacing: 0.08em !important;
+      }
+      .laporan-label {
+        font-size: 8px !important;
+      }
+      .laporan-input {
+        min-height: 28px !important;
+        padding: 4px 8px !important;
+        font-size: 0.8rem !important;
       }
       .input-print-hide {
         border: none !important;
@@ -45,8 +318,16 @@
         font-weight: bold !important;
         color: #000 !important;
       }
+      input[type="date"] {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+      }
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        display: none !important;
+      }
       .page-break {
-        page-break-inside: avoid;
+        page-break-inside: auto;
+        break-inside: auto;
       }
       table {
         border-collapse: collapse !important;
@@ -54,8 +335,8 @@
       }
       th, td {
         border: 1px solid #333 !important;
-        padding: 4px 6px !important;
-        font-size: 10px !important;
+        padding: 3px 4px !important;
+        font-size: 8px !important;
       }
       th {
         background-color: #f1f5f9 !important;
@@ -115,192 +396,204 @@
 
     <!-- TAB 2: REKAPITULASI AUDIT STOK KSU -->
     <section id="sec-kelengkapan" class="bg-white p-6 rounded-b-lg shadow-sm space-y-6 hidden">
-      
-      <!-- KOP LAPORAN UNTUK HASIL PRINT/PDF -->
-      <div class="hidden print:block border-b-2 border-slate-800 pb-3 mb-4">
-        <div class="flex justify-between items-center">
-          <div>
-            <h1 class="text-xl font-extrabold text-slate-900 tracking-wider">BERITA ACARA AUDIT STOK KSU</h1>
-            <p class="text-xs text-slate-600">Laporan Hasil Rekapitulasi Kelengkapan Sarana Unit & Stok Fisik</p>
+      <div class="no-print flex gap-2 border-b border-slate-200 pb-3 mb-2">
+        <button onclick="switchKSUContent('audit')" id="ksu-tab-audit" class="flex-1 py-2.5 px-3 text-sm font-bold text-indigo-700 border-b-2 border-indigo-700 bg-indigo-50 rounded-t-lg">
+          📄 Berita Acara & Rekap Audit KSU
+        </button>
+        <button onclick="switchKSUContent('input-fisik')" id="ksu-tab-input-fisik" class="flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
+          📦 Input Fisik Gudang
+        </button>
+      </div>
+
+      <div id="sec-berita-acara-ksu" class="space-y-6">
+        <!-- KOP LAPORAN UNTUK HASIL PRINT/PDF -->
+        <div class="hidden print:block border-b-2 border-slate-800 pb-3 mb-4">
+          <div class="flex justify-center items-center">
+            <div class="w-full text-center">
+              <h1 class="text-xl font-extrabold text-slate-900 tracking-wider">BERITA ACARA AUDIT STOK KSU</h1>
+              <p class="text-xs text-slate-600">Laporan Hasil Rekapitulasi Kelengkapan Sarana Unit & Stok Fisik</p>
+            </div>
           </div>
-          <div class="text-right text-xs text-slate-500">
-            <p class="font-bold text-slate-800">DOKUMEN AUDIT RESMI</p>
-            <p>Form: BA-KSU/AUDIT/01</p>
+        </div>
+
+        <!-- HEADER ACTION BAR (UI ONLY) -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b pb-3 gap-3 no-print">
+          <div>
+            <h2 class="text-xl font-extrabold text-slate-800">BERITA ACARA AUDIT STOK KSU</h2>
+            <p class="text-xs text-slate-500">Laporan Rekapitulasi Kelengkapan Unit & Stok Fisik Gudang</p>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button onclick="cetakLaporanKSU()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-1">
+              📥 Cetak / Download PDF Rekap
+            </button>
+            <button onclick="muatRekapKelengkapan()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg font-semibold shadow">
+              🔄 Refresh Audit
+            </button>
+          </div>
+        </div>
+
+        <!-- HEADER INFORMASI CABANG & RANGE TANGGAL AUDIT -->
+        <div class="laporan-header">
+          <h3 class="laporan-title">Informasi Pelaksanaan Audit</h3>
+
+          <div class="mt-5 flex justify-center">
+            <div class="w-full max-w-3xl">
+              <div class="laporan-field">
+                <label class="laporan-label">Nama Cabang / Pos Dealer</label>
+                <input type="text" id="cabang-nama" oninput="simpanHeaderAudit()" placeholder="Contoh: HONDA BINTANG MOTOR CIBINONG"
+                       class="laporan-input input-print-hide">
+              </div>
+            </div>
+          </div>
+
+          <div class="laporan-date-row">
+            <div class="laporan-date-field">
+              <label class="laporan-label">Tanggal Mulai Audit</label>
+              <input type="date" id="cabang-tanggal-mulai" onchange="simpanHeaderAudit()"
+                     class="laporan-input input-print-hide">
+            </div>
+            <div class="laporan-date-field">
+              <label class="laporan-label">Tanggal Selesai Audit</label>
+              <input type="date" id="cabang-tanggal-selesai" onchange="simpanHeaderAudit()"
+                     class="laporan-input input-print-hide">
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="no-print border-b pb-3">
+            <h3 class="text-lg font-extrabold text-slate-800">Rekap Audit KSU</h3>
+            <p class="text-xs text-slate-500">Ringkasan data audit kelengkapan unit dan stok fisik gudang</p>
+          </div>
+          <div id="container-audit-ksu" class="space-y-6">
+            <!-- Tabel ACCU, HELM, SPION, TOOL KIT, PLAT HOLDER, SAFETY RIDING di-render otomatis -->
+          </div>
+        </div>
+
+        <!-- KOLOM TANDA TANGAN FORMAL & PROFESIONAL -->
+        <div class="pt-6 mt-8 border-t border-slate-400 page-break">
+          <div class="space-y-6 text-center text-xs">
+
+            <p class="text-lg font-black text-slate-800 uppercase tracking-wide">DISEPAKATI,</p>
+
+            <div class="signoff-4-col">
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="title">Dibuat Oleh,</p>
+                  <p class="role">Tim Auditor / Opname</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">Auditor</p>
+                </div>
+              </div>
+
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="title">Diperiksa Oleh,</p>
+                  <p class="role">Kepala Gudang / Logistics</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">Head Warehouse</p>
+                </div>
+              </div>
+
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="title">Disetujui Oleh,</p>
+                  <p class="role">Admin Dept. Head</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">ADH Cabang</p>
+                </div>
+              </div>
+
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="title">Disetujui Oleh,</p>
+                  <p class="role">Kepala Cabang</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">Branch Manager</p>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-lg font-black text-slate-800 uppercase tracking-wide mt-4">MENGETAHUI,</p>
+
+            <div class="signoff-2-col">
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="title">Mengetahui,</p>
+                  <p class="role">Supervisor Audit</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">Supervisor</p>
+                </div>
+              </div>
+
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="title">Mengetahui,</p>
+                  <p class="role">Manager Operasional</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">Manager Ops</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- HEADER ACTION BAR (UI ONLY) -->
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b pb-3 gap-3 no-print">
-        <div>
-          <h2 class="text-xl font-extrabold text-slate-800">BERITA ACARA AUDIT STOK KSU</h2>
-          <p class="text-xs text-slate-500">Laporan Rekapitulasi Kelengkapan Unit & Stok Fisik Gudang</p>
+      <div id="sec-input-fisik-ksu" class="hidden space-y-6">
+        <div id="form-kelengkapan-container" class="space-y-4 no-print">
+          <h3 class="font-bold text-slate-700">📦 Input Hasil Penghitungan Fisik Gudang (Loose / Sparepart)</h3>
+
+          <form id="form-kelengkapan" onsubmit="simpanKelengkapan(event)" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Kategori Items</label>
+              <select id="kel-kategori" onchange="updateSubKategori()" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+                <option value="Aki">🔋 ACCU / Aki Motor</option>
+                <option value="Helm">🪖 Helm</option>
+                <option value="Spion">🪞 Spion</option>
+                <option value="ToolKit">🧰 Tool Kit</option>
+                <option value="PlatHolder">🔲 Plat Holder</option>
+                <option value="SafetyRiding">🦺 Safety Riding</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Klasifikasi / Jenis Tipe</label>
+              <select id="kel-jenis" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+                <!-- Diisi JavaScript -->
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Jumlah Fisik di Gudang (Qty)</label>
+              <input type="number" id="kel-qty" required min="0" value="1" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Lokasi Rak / Catatan</label>
+              <input type="text" id="kel-catatan" placeholder="Contoh: Rak A-02 / Dus Segel" class="w-full p-3 border border-slate-300 rounded-lg">
+            </div>
+
+            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-lg shadow">
+              💾 Simpan Data Fisik Gudang
+            </button>
+          </form>
+
+          <h4 class="font-bold text-slate-700 pt-2">Riwayat Input Fisik Gudang</h4>
+          <div id="list-kelengkapan" class="space-y-2 text-sm"></div>
         </div>
-        
-        <div class="flex flex-wrap gap-2">
-          <button onclick="cetakLaporanKSU()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-1">
-            📥 Cetak / Download PDF Rekap
-          </button>
-          <button onclick="muatRekapKelengkapan()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg font-semibold shadow">
-            🔄 Refresh Audit
-          </button>
-        </div>
-      </div>
-
-      <!-- HEADER INFORMASI CABANG & RANGE TANGGAL AUDIT -->
-      <div class="bg-slate-50 border border-slate-300 p-4 rounded-lg space-y-3">
-        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider border-b pb-1">Informasi Pelaksanaan Audit</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="sm:col-span-1">
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Cabang / Pos Dealer:</label>
-            <input type="text" id="cabang-nama" oninput="simpanHeaderAudit()" placeholder="Contoh: HONDA BINTANG MOTOR CIBINONG" 
-                   class="w-full p-2 border border-slate-300 rounded text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 bg-white input-print-hide">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Mulai Audit:</label>
-            <input type="date" id="cabang-tanggal-mulai" onchange="simpanHeaderAudit()" 
-                   class="w-full p-2 border border-slate-300 rounded text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 bg-white input-print-hide">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Selesai Audit:</label>
-            <input type="date" id="cabang-tanggal-selesai" onchange="simpanHeaderAudit()" 
-                   class="w-full p-2 border border-slate-300 rounded text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 bg-white input-print-hide">
-          </div>
-        </div>
-      </div>
-
-      <!-- Container Tabel Kategori Audit -->
-      <div id="container-audit-ksu" class="space-y-6">
-        <!-- Tabel ACCU, HELM, SPION, TOOL KIT, PLAT HOLDER, SAFETY RIDING di-render otomatis -->
-      </div>
-
-      <!-- KOLOM TANDA TANGAN FORMAL & PROFESIONAL -->
-      <div class="pt-6 mt-8 border-t border-slate-400 page-break">
-        <p class="text-xs font-bold text-slate-700 text-center uppercase tracking-wider mb-6">LEMBAR PENGESAHAN LAPORAN AUDIT STOK KSU</p>
-        
-        <div class="space-y-6 text-center text-xs">
-          
-          <!-- BARIS 1: DIBUAT & DIPERIKSA -->
-          <div class="grid grid-cols-2 gap-8 max-w-2xl mx-auto">
-            <div class="flex flex-col justify-between h-32 border border-slate-300 p-3 rounded-lg bg-slate-50/50">
-              <div>
-                <p class="font-bold text-slate-800">Dibuat Oleh,</p>
-                <p class="text-slate-500 text-[11px]">Tim Auditor / Petugas Opname</p>
-              </div>
-              <div>
-                <p class="font-bold text-slate-800 border-b border-slate-400 pb-1 mb-1">( .................................... )</p>
-                <p class="text-[10px] text-slate-500">Auditor</p>
-              </div>
-            </div>
-
-            <div class="flex flex-col justify-between h-32 border border-slate-300 p-3 rounded-lg bg-slate-50/50">
-              <div>
-                <p class="font-bold text-slate-800">Diperiksa Oleh,</p>
-                <p class="text-slate-500 text-[11px]">Kepala Gudang / Logistics</p>
-              </div>
-              <div>
-                <p class="font-bold text-slate-800 border-b border-slate-400 pb-1 mb-1">( .................................... )</p>
-                <p class="text-[10px] text-slate-500">Head Warehouse</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- BARIS 2: MENGETAHUI (SPV AUDIT & MANAGER OPERASIONAL) -->
-          <div class="grid grid-cols-2 gap-8 max-w-2xl mx-auto">
-            <div class="flex flex-col justify-between h-32 border border-slate-300 p-3 rounded-lg bg-slate-50/50">
-              <div>
-                <p class="font-bold text-slate-800">Mengetahui,</p>
-                <p class="text-slate-500 text-[11px]">Supervisor Audit</p>
-              </div>
-              <div>
-                <p class="font-bold text-slate-800 border-b border-slate-400 pb-1 mb-1">( .................................... )</p>
-                <p class="text-[10px] text-slate-500">SPV Audit</p>
-              </div>
-            </div>
-
-            <div class="flex flex-col justify-between h-32 border border-slate-300 p-3 rounded-lg bg-slate-50/50">
-              <div>
-                <p class="font-bold text-slate-800">Mengetahui,</p>
-                <p class="text-slate-500 text-[11px]">Manager Operasional</p>
-              </div>
-              <div>
-                <p class="font-bold text-slate-800 border-b border-slate-400 pb-1 mb-1">( .................................... )</p>
-                <p class="text-[10px] text-slate-500">Manager Ops</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- BARIS 3: DISETUJUI (ADH & KEPALA CABANG) -->
-          <div class="grid grid-cols-2 gap-8 max-w-2xl mx-auto">
-            <div class="flex flex-col justify-between h-32 border border-slate-300 p-3 rounded-lg bg-slate-50/50">
-              <div>
-                <p class="font-bold text-slate-800">Disetujui Oleh,</p>
-                <p class="text-slate-500 text-[11px]">Administration Dept. Head</p>
-              </div>
-              <div>
-                <p class="font-bold text-slate-800 border-b border-slate-400 pb-1 mb-1">( .................................... )</p>
-                <p class="text-[10px] text-slate-500">ADH Cabang</p>
-              </div>
-            </div>
-
-            <div class="flex flex-col justify-between h-32 border border-slate-300 p-3 rounded-lg bg-slate-50/50">
-              <div>
-                <p class="font-bold text-slate-800">Disetujui Oleh,</p>
-                <p class="text-slate-500 text-[11px]">Kepala Cabang</p>
-              </div>
-              <div>
-                <p class="font-bold text-slate-800 border-b border-slate-400 pb-1 mb-1">( .................................... )</p>
-                <p class="text-[10px] text-slate-500">Branch Manager</p>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <hr class="border-slate-200 no-print">
-
-      <!-- INPUT ITEM KELENGKAPAN LOOSE DI GUDANG -->
-      <div id="form-kelengkapan-container" class="space-y-4 no-print">
-        <h3 class="font-bold text-slate-700">📦 Input Hasil Penghitungan Fisik Gudang (Loose / Sparepart)</h3>
-        
-        <form id="form-kelengkapan" onsubmit="simpanKelengkapan(event)" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1">Kategori Items</label>
-            <select id="kel-kategori" onchange="updateSubKategori()" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
-              <option value="Aki">🔋 ACCU / Aki Motor</option>
-              <option value="Helm">🪖 Helm</option>
-              <option value="Spion">🪞 Spion</option>
-              <option value="ToolKit">🧰 Tool Kit</option>
-              <option value="PlatHolder">🔲 Plat Holder</option>
-              <option value="SafetyRiding">🦺 Safety Riding</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1">Klasifikasi / Jenis Tipe</label>
-            <select id="kel-jenis" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
-              <!-- Diisi JavaScript -->
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1">Jumlah Fisik di Gudang (Qty)</label>
-            <input type="number" id="kel-qty" required min="0" value="1" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-slate-600 mb-1">Lokasi Rak / Catatan</label>
-            <input type="text" id="kel-catatan" placeholder="Contoh: Rak A-02 / Dus Segel" class="w-full p-3 border border-slate-300 rounded-lg">
-          </div>
-
-          <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-lg shadow">
-            💾 Simpan Data Fisik Gudang
-          </button>
-        </form>
-
-        <h4 class="font-bold text-slate-700 pt-2">Riwayat Input Fisik Gudang</h4>
-        <div id="list-kelengkapan" class="space-y-2 text-sm"></div>
       </div>
 
     </section>
@@ -578,9 +871,44 @@
       if (tab === 'unit') {
         updateRingkasanUnit();
       } else if (tab === 'kelengkapan') {
+        switchKSUContent('berita-acara');
         updateSubKategori();
         loadListKelengkapan();
         muatRekapKelengkapan();
+      }
+    }
+
+    function switchKSUContent(content) {
+      const panelByContent = {
+        audit: 'sec-berita-acara-ksu',
+        'input-fisik': 'sec-input-fisik-ksu'
+      };
+      const buttonByContent = {
+        audit: 'ksu-tab-audit',
+        'input-fisik': 'ksu-tab-input-fisik'
+      };
+
+      Object.values(panelByContent).forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+
+      Object.values(buttonByContent).forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.className = 'flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg';
+        }
+      });
+
+      const target = panelByContent[content] || panelByContent.audit;
+      const activeButton = buttonByContent[content] || buttonByContent.audit;
+
+      if (document.getElementById(target)) {
+        document.getElementById(target).classList.remove('hidden');
+      }
+
+      if (document.getElementById(activeButton)) {
+        document.getElementById(activeButton).className = 'flex-1 py-2.5 px-3 text-sm font-bold text-indigo-700 border-b-2 border-indigo-700 bg-indigo-50 rounded-t-lg';
       }
     }
 
@@ -655,17 +983,17 @@
       });
 
       const kategoriAudit = [
-        { key: 'Aki', title: 'A. ACCU / AKI', labelJenis: 'JENIS AKI' },
-        { key: 'Helm', title: 'B. HELM', labelJenis: 'JENIS HELM' },
-        { key: 'Spion', title: 'C. SPION', labelJenis: 'JENIS SPION' },
-        { key: 'ToolKit', title: 'D. TOOL KIT', labelJenis: 'JENIS TOOL KIT' },
-        { key: 'PlatHolder', title: 'E. PLAT HOLDER', labelJenis: 'JENIS PLAT HOLDER' },
-        { key: 'SafetyRiding', title: 'F. SAFETY RIDING', labelJenis: 'JENIS SAFETY RIDING' }
+        { key: 'Aki', title: 'AKI / ACCU MOTOR', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' },
+        { key: 'Helm', title: 'HELM', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' },
+        { key: 'Spion', title: 'SPION', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' },
+        { key: 'ToolKit', title: 'TOOL KIT', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' },
+        { key: 'PlatHolder', title: 'PLAT HOLDER', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' },
+        { key: 'SafetyRiding', title: 'SAFETY RIDING', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' }
       ];
 
       let htmlResult = '';
 
-      kategoriAudit.forEach(kat => {
+      kategoriAudit.forEach((kat, index) => {
         const daftarJenis = opsiJenis[kat.key] || [];
         let totalSistem = 0;
         let totalGudang = 0;
@@ -691,10 +1019,10 @@
 
           if (selisih > 0) {
             statusText = 'Plus';
-            rowBgClass = 'bg-emerald-50 text-emerald-900 font-medium';
+            rowBgClass = 'bg-green-100 text-green-900 font-medium';
           } else if (selisih < 0) {
             statusText = 'Minus';
-            rowBgClass = 'bg-amber-50 text-amber-900 font-medium';
+            rowBgClass = 'bg-red-100 text-red-900 font-medium';
           }
 
           rowsHtml += `
@@ -702,8 +1030,8 @@
               <td class="p-2 text-center font-bold border-r border-slate-300">${idx + 1}</td>
               <td class="p-2 font-medium border-r border-slate-300">${jenis}</td>
               <td class="p-2 text-center border-r border-slate-300">${sQty}</td>
-              <td class="p-2 text-center border-r border-slate-300">${gQty}</td>
               <td class="p-2 text-center border-r border-slate-300">${uQty}</td>
+              <td class="p-2 text-center border-r border-slate-300">${gQty}</td>
               <td class="p-2 text-center font-bold border-r border-slate-300">${selisih}</td>
               <td class="p-2 text-center font-bold">${statusText}</td>
             </tr>
@@ -711,32 +1039,33 @@
         });
 
         htmlResult += `
-          <div class="border border-slate-400 rounded-lg overflow-hidden shadow-sm bg-white page-break">
-            <div class="bg-slate-100 p-2.5 font-bold text-slate-800 border-b border-slate-400 text-xs sm:text-sm">
-              ${kat.title}
+          <div class="official-table-card">
+            <div class="official-table-header-bar">
+              <div>${index + 1}. ${kat.title}</div>
+              <div>SATUAN: ${kat.satuan}</div>
             </div>
-            <div class="overflow-x-auto">
-              <table class="w-full text-xs text-left border-collapse">
-                <thead class="bg-amber-100 text-slate-800 font-bold border-b border-slate-400">
+            <div class="official-table-wrap">
+              <table class="official-table">
+                <thead>
                   <tr>
-                    <th class="p-2 text-center border-r border-slate-400 w-10">NO</th>
-                    <th class="p-2 border-r border-slate-400">${kat.labelJenis}</th>
-                    <th class="p-2 text-center border-r border-slate-400 w-16 sm:w-20">SISTEM</th>
-                    <th class="p-2 text-center border-r border-slate-400 w-16 sm:w-20">GUDANG</th>
-                    <th class="p-2 text-center border-r border-slate-400 w-20 sm:w-24">DI UNIT</th>
-                    <th class="p-2 text-center border-r border-slate-400 w-16 sm:w-20">SELISIH</th>
-                    <th class="p-2 text-center w-20">STATUS</th>
+                    <th style="width: 42px;">NO</th>
+                    <th>${kat.labelJenis}</th>
+                    <th style="width: 90px;">STOK SISTEM</th>
+                    <th style="width: 90px;">TERPASANG UNIT</th>
+                    <th style="width: 90px;">FISIK GUDANG</th>
+                    <th style="width: 90px;">TOTAL FISIK</th>
+                    <th style="width: 90px;">SELISIH</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${rowsHtml}
-                  <tr class="bg-yellow-200 font-bold text-slate-900 border-t-2 border-slate-400">
-                    <td colspan="2" class="p-2 text-center border-r border-slate-400">TOTAL</td>
-                    <td class="p-2 text-center border-r border-slate-400">${totalSistem}</td>
-                    <td class="p-2 text-center border-r border-slate-400">${totalGudang}</td>
-                    <td class="p-2 text-center border-r border-slate-400">${totalUnit}</td>
-                    <td class="p-2 text-center border-r border-slate-400">${totalSelisih}</td>
-                    <td class="p-2 text-center"></td>
+                  <tr>
+                    <td colspan="2" class="text-center font-bold">TOTAL</td>
+                    <td class="text-center">${totalSistem}</td>
+                    <td class="text-center">${totalUnit}</td>
+                    <td class="text-center">${totalGudang}</td>
+                    <td class="text-center">${totalGudang + totalUnit}</td>
+                    <td class="text-center">${totalSelisih}</td>
                   </tr>
                 </tbody>
               </table>
