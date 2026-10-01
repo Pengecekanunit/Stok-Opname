@@ -235,7 +235,7 @@
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      header, #tab-nav, #sec-unit, #sec-data, #form-kelengkapan-container, .no-print {
+      header, #tab-nav, #sec-unit, #sec-data, #sec-belum-opname, #form-kelengkapan-container, .no-print {
         display: none !important;
       }
       main {
@@ -263,6 +263,13 @@
       .official-table th,
       .official-table td {
         padding: 3px 4px !important;
+      }
+      .official-table thead th {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        overflow-wrap: anywhere;
+        line-height: 1.15 !important;
       }
       .signoff-4-col {
         grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
@@ -318,6 +325,10 @@
         font-weight: bold !important;
         color: #000 !important;
       }
+      #cabang-nama {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+      }
       input[type="date"] {
         appearance: none !important;
         -webkit-appearance: none !important;
@@ -365,6 +376,9 @@
       <button onclick="switchTab('kelengkapan')" id="tab-kelengkapan" class="flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
         📊 Rekap Audit KSU
       </button>
+      <button onclick="switchTab('belum-opname')" id="tab-belum-opname" class="flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+        📋 Unit Belum Opname
+      </button>
       <button onclick="switchTab('data')" id="tab-data" class="flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
         ⚙️ Impor & Ekspor Data
       </button>
@@ -392,6 +406,25 @@
       <div id="hasil-cari-unit" class="space-y-4 mt-4">
         <p class="text-slate-400 text-sm italic">Gunakan kolom pencarian di atas untuk menemukan data unit.</p>
       </div>
+    </section>
+
+    <section id="sec-belum-opname" class="bg-white p-5 rounded-b-lg shadow-sm space-y-4 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-slate-700">Daftar Unit Belum Opname</h2>
+          <p id="stat-belum-opname" class="text-xs text-slate-500 mt-1">Memuat daftar unit...</p>
+        </div>
+        <button onclick="muatUnitBelumOpname()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg">
+          🔄 Perbarui Daftar
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <select id="filter-warehouse-belum-opname" onchange="muatUnitBelumOpname()" class="w-full p-3 border border-slate-300 rounded-lg bg-white">
+          <option value="">Semua Warehouse</option>
+        </select>
+        <input type="search" id="filter-belum-opname" oninput="muatUnitBelumOpname()" placeholder="Cari nomor mesin atau tipe unit..." class="w-full p-3 border border-slate-300 rounded-lg">
+      </div>
+      <div id="list-unit-belum-opname" class="space-y-4"></div>
     </section>
 
     <!-- TAB 2: REKAPITULASI AUDIT STOK KSU -->
@@ -440,9 +473,28 @@
           <div class="mt-5 flex justify-center">
             <div class="w-full max-w-3xl">
               <div class="laporan-field">
-                <label class="laporan-label">Nama Cabang / Pos Dealer</label>
-                <input type="text" id="cabang-nama" oninput="simpanHeaderAudit()" placeholder="Contoh: HONDA BINTANG MOTOR CIBINONG"
-                       class="laporan-input input-print-hide">
+                <label class="laporan-label" for="cabang-nama">Nama Cabang / Pos Dealer</label>
+                <select id="cabang-nama" onchange="simpanHeaderAudit()" class="laporan-input input-print-hide">
+                  <option value="">Pilih Nama Cabang</option>
+                  <option>PT Bintang Alam Jaya III Jurumudi (Tangerang)</option>
+                  <option>PT Bintang Motor Jaya III Cinere</option>
+                  <option>PT Bintang Motor Jaya I Cikarang</option>
+                  <option>PT Bintang Motor Jaya IV Buaran</option>
+                  <option>PT Bintang Mulia Jaya III Bengkulu</option>
+                  <option>PT Bintang Motor Jaya V Pontianak</option>
+                  <option>PT Bintang Alam Jaya I Cibitung</option>
+                  <option>PT Bintang Alam Jaya II Banjaran</option>
+                  <option>PT Bintang Motor Jaya II Cirebon</option>
+                  <option>PT Bintang Niaga Jaya Cibinong</option>
+                  <option>PT Bintang Kharisma Jaya I Bandar Lampung</option>
+                  <option>PT Bintang Kharisma Jaya II Gisting</option>
+                  <option>PT Bintang Mulia Jaya II Lampung Timur</option>
+                  <option>PT Bintang Kharisma Jaya III Makassar</option>
+                  <option>PT Bintang Kharisma Jaya IV Palopo</option>
+                  <option>PT Bintang Mulia Jaya I Palembang</option>
+                  <option>PT Bintang Mulia Jaya IV Lahat</option>
+                  <option>PT Bintang Mulia Jaya V Sekayu</option>
+                </select>
               </div>
             </div>
           </div>
@@ -480,7 +532,6 @@
             <div class="signoff-4-col">
               <div class="official-signoff">
                 <div class="mt-1">
-                  <p class="title">Dibuat Oleh,</p>
                   <p class="role">Tim Auditor / Opname</p>
                 </div>
                 <div>
@@ -491,7 +542,6 @@
 
               <div class="official-signoff">
                 <div class="mt-1">
-                  <p class="title">Diperiksa Oleh,</p>
                   <p class="role">Kepala Gudang / Logistics</p>
                 </div>
                 <div>
@@ -502,7 +552,6 @@
 
               <div class="official-signoff">
                 <div class="mt-1">
-                  <p class="title">Disetujui Oleh,</p>
                   <p class="role">Admin Dept. Head</p>
                 </div>
                 <div>
@@ -513,7 +562,6 @@
 
               <div class="official-signoff">
                 <div class="mt-1">
-                  <p class="title">Disetujui Oleh,</p>
                   <p class="role">Kepala Cabang</p>
                 </div>
                 <div>
@@ -528,7 +576,6 @@
             <div class="signoff-2-col">
               <div class="official-signoff">
                 <div class="mt-1">
-                  <p class="title">Mengetahui,</p>
                   <p class="role">Supervisor Audit</p>
                 </div>
                 <div>
@@ -539,7 +586,6 @@
 
               <div class="official-signoff">
                 <div class="mt-1">
-                  <p class="title">Mengetahui,</p>
                   <p class="role">Manager Operasional</p>
                 </div>
                 <div>
@@ -712,9 +758,11 @@
     // Set Default Tanggal Hari Ini & Load LocalStorage
     document.addEventListener("DOMContentLoaded", () => {
       const today = new Date().toISOString().split('T')[0];
+      const branchSelect = document.getElementById('cabang-nama');
+      const savedBranch = localStorage.getItem('ksu_cabang');
+      branchSelect.value = [...branchSelect.options].some(option => option.value === savedBranch) ? savedBranch : '';
       document.getElementById('cabang-tanggal-mulai').value = localStorage.getItem('ksu_tgl_mulai') || today;
       document.getElementById('cabang-tanggal-selesai').value = localStorage.getItem('ksu_tgl_selesai') || today;
-      document.getElementById('cabang-nama').value = localStorage.getItem('ksu_cabang') || 'HONDA BINTANG MOTOR CIBINONG';
     });
 
     function simpanHeaderAudit() {
@@ -861,7 +909,7 @@
 
     // --- 2. TAB NAVIGATION & RINGKASAN ---
     function switchTab(tab) {
-      ['unit', 'kelengkapan', 'data'].forEach(t => {
+      ['unit', 'kelengkapan', 'belum-opname', 'data'].forEach(t => {
         document.getElementById(`sec-${t}`).classList.add('hidden');
         document.getElementById(`tab-${t}`).className = "flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600";
       });
@@ -875,7 +923,91 @@
         updateSubKategori();
         loadListKelengkapan();
         muatRekapKelengkapan();
+      } else if (tab === 'belum-opname') {
+        muatUnitBelumOpname();
       }
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]);
+    }
+
+    async function muatUnitBelumOpname() {
+      const container = document.getElementById('list-unit-belum-opname');
+      const summary = document.getElementById('stat-belum-opname');
+      const query = document.getElementById('filter-belum-opname').value.trim().toLocaleLowerCase();
+      const warehouseFilter = document.getElementById('filter-warehouse-belum-opname');
+      const selectedWarehouse = warehouseFilter.value;
+      const units = await db.unit.filter(unit => unit.status == null || unit.status === '').toArray();
+      const warehouses = [...new Set(units.map(unit => String(unit.warehouse || '-').trim() || '-'))]
+        .sort((warehouseA, warehouseB) => warehouseA.localeCompare(warehouseB, 'id'));
+
+      warehouseFilter.innerHTML = '<option value="">Semua Warehouse</option>' + warehouses
+        .map(warehouse => `<option value="${escapeHTML(warehouse)}">${escapeHTML(warehouse === '-' ? 'Warehouse tidak tercantum' : warehouse)}</option>`)
+        .join('');
+      if (warehouses.includes(selectedWarehouse)) warehouseFilter.value = selectedWarehouse;
+
+      const activeWarehouse = warehouseFilter.value;
+      const filteredUnits = units.filter(unit => {
+        const warehouse = String(unit.warehouse || '-').trim() || '-';
+        const matchesWarehouse = !activeWarehouse || warehouse === activeWarehouse;
+        const matchesQuery = [unit.no_mesin, unit.tipe_unit]
+          .some(value => String(value || '').toLocaleLowerCase().includes(query));
+        return matchesWarehouse && matchesQuery;
+      });
+      const groupedUnits = new Map();
+
+      filteredUnits.forEach(unit => {
+        const warehouse = String(unit.warehouse || '-').trim() || '-';
+        if (!groupedUnits.has(warehouse)) groupedUnits.set(warehouse, []);
+        groupedUnits.get(warehouse).push(unit);
+      });
+
+      summary.textContent = query || activeWarehouse
+        ? `${filteredUnits.length} dari ${units.length} unit belum opname cocok dengan filter`
+        : `${units.length} unit belum opname di ${groupedUnits.size} warehouse`;
+
+      if (filteredUnits.length === 0) {
+        container.innerHTML = `<p class="text-slate-500 text-sm">${units.length ? 'Tidak ada unit yang cocok dengan pencarian.' : 'Semua unit sudah memiliki status opname.'}</p>`;
+        return;
+      }
+
+      container.innerHTML = [...groupedUnits.entries()]
+        .sort(([warehouseA], [warehouseB]) => warehouseA.localeCompare(warehouseB, 'id'))
+        .map(([warehouse, warehouseUnits]) => `
+          <section class="border-t border-slate-200 pt-3">
+            <div class="flex justify-between items-center gap-2 mb-2">
+              <h3 class="font-bold text-slate-700">📍 ${escapeHTML(warehouse === '-' ? 'Warehouse tidak tercantum' : warehouse)}</h3>
+              <span class="text-xs text-slate-500">${warehouseUnits.length} unit</span>
+            </div>
+            <div class="divide-y divide-slate-200">
+              ${warehouseUnits.map(unit => `
+                <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-1 sm:gap-4 items-center py-3">
+                  <p class="text-sm text-slate-600"><span class="font-semibold text-slate-500">No. Mesin:</span> <span class="font-mono font-bold text-slate-800">${escapeHTML(unit.no_mesin || '-')}</span></p>
+                  <p class="text-sm text-slate-700"><span class="font-semibold text-slate-500">Tipe:</span> ${escapeHTML(unit.tipe_unit || '-')}</p>
+                  <button onclick="opnameUnitDariDaftar(${unit.id})" class="justify-self-start sm:justify-self-end px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded">
+                    Periksa Unit
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        `).join('');
+    }
+
+    async function opnameUnitDariDaftar(id) {
+      const unit = await db.unit.get(id);
+      if (!unit) return;
+      switchTab('unit');
+      const searchInput = document.getElementById('search-unit');
+      searchInput.value = unit.no_mesin || unit.tipe_unit || '';
+      cariUnit();
     }
 
     function switchKSUContent(content) {
@@ -1051,7 +1183,7 @@
                     <th style="width: 42px;">NO</th>
                     <th>${kat.labelJenis}</th>
                     <th style="width: 90px;">STOK SISTEM</th>
-                    <th style="width: 90px;">TERPASANG UNIT</th>
+                    <th style="width: 100px;">TERPASANG UNIT</th>
                     <th style="width: 90px;">FISIK GUDANG</th>
                     <th style="width: 90px;">TOTAL FISIK</th>
                     <th style="width: 90px;">SELISIH</th>
