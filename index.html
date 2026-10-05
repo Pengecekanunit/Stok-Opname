@@ -740,7 +740,7 @@
           </div>
         </div>
         <div id="list-barang-minus" class="overflow-x-auto"></div>
-        <div id="total-harga-minus-ksu" class="text-right text-base font-extrabold text-slate-900 border-t-2 border-slate-500 pt-2">TOTAL KESELURUHAN HARGA MINUS: -</div>
+        <div id="total-harga-minus-ksu" class="text-right text-base font-extrabold text-slate-900 border-t-2 border-slate-500 pt-2">TOTAL KESELURUHAN HARGA: -</div>
         <div id="minus-signoff-print-container" class="minus-signoff-print-only"></div>
       </section>
 
@@ -1155,7 +1155,7 @@
             ];
           } else if (isTotal) {
             values = [
-              'TOTAL', '',
+              'TOTAL AKHIR', '',
               Number(sourceCells[1]?.textContent.trim() || 0),
               Number(sourceCells[2]?.textContent.trim() || 0),
               Number(sourceCells[3]?.textContent.trim() || 0),
@@ -1356,7 +1356,7 @@
         });
 
         const totalRow = valuationSheet.addRow([
-          'TOTAL', '', categoryTotals.system, categoryTotals.physical, categoryTotals.difference,
+          'TOTAL AKHIR', '', categoryTotals.system, categoryTotals.physical, categoryTotals.difference,
           '', '', null, '', null, null, ''
         ]);
         totalRow.height = 23;
@@ -1471,7 +1471,8 @@
       });
 
       const mainCards = [...document.querySelectorAll('#container-audit-ksu .official-table-card:not(.minus-price-card)')];
-      const totalPriceRows = [];
+      const totalPriceRowsPlus = [];
+      const totalPriceRowsMinus = [];
       const storedPricesForExport = (() => {
         try { return JSON.parse(localStorage.getItem('ksu_harga_barang_minus') || '{}'); }
         catch (error) { return {}; }
@@ -1528,13 +1529,14 @@
           row.getCell(4).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
           if (price !== null) {
             row.getCell(6).value = { formula: `ABS(C${row.number})*D${row.number}` };
-            if (status === 'Minus') totalPriceRows.push(row.number);
+            if (status === 'Minus') totalPriceRowsMinus.push(row.number);
+            else if (status === 'Plus') totalPriceRowsPlus.push(row.number);
           }
           row.getCell(6).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
         });
       });
 
-      const grandTotalRow = worksheet.addRow(['TOTAL KESELURUHAN HARGA MINUS']);
+      const grandTotalRow = worksheet.addRow(['TOTAL KESELURUHAN HARGA']);
       worksheet.mergeCells(`A${grandTotalRow.number}:E${grandTotalRow.number}`);
       grandTotalRow.height = 26;
       grandTotalRow.eachCell({ includeEmpty: true }, cell => {
@@ -1543,9 +1545,10 @@
         cell.alignment = { horizontal: 'right', vertical: 'middle' };
         cell.border = border;
       });
-      grandTotalRow.getCell(6).value = totalPriceRows.length
-        ? { formula: `SUM(${totalPriceRows.map(rowNumber => `F${rowNumber}`).join(',')})` }
-        : 0;
+      
+      const plusFormula = totalPriceRowsPlus.length ? `SUM(${totalPriceRowsPlus.map(r => `F${r}`).join(',')})` : '0';
+      const minusFormula = totalPriceRowsMinus.length ? `SUM(${totalPriceRowsMinus.map(r => `F${r}`).join(',')})` : '0';
+      grandTotalRow.getCell(6).value = { formula: `${plusFormula}-${minusFormula}` };
       grandTotalRow.getCell(6).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
 
       const signatureSection = document.querySelector('.signoff-print-only');
@@ -2014,7 +2017,7 @@
         if (showTotal) {
           rowsHtml += `
             <tr class="table-total-row font-bold bg-slate-50 border-t-2 border-slate-400">
-              <td colspan="2" class="p-2 text-center">TOTAL</td>
+              <td colspan="2" class="p-2 text-center">TOTAL AKHIR</td>
               <td class="p-2 text-center">${totals.sistem}</td>
               <td class="p-2 text-center">${totals.terpasang}</td>
               <td class="p-2 text-center">${totals.gudang}</td>
@@ -2091,7 +2094,7 @@
         summary.textContent = 'Belum ada nilai Total Fisik minus pada Rekap Audit KSU.';
         container.innerHTML = '<p class="text-slate-500 text-sm">Daftar Minus dan Plus akan tampil setelah ada hasil Total Fisik minus.</p>';
         const totalElement = document.getElementById('total-harga-minus-ksu');
-        if (totalElement) totalElement.textContent = 'TOTAL KESELURUHAN HARGA MINUS: Rp 0';
+        if (totalElement) totalElement.textContent = 'TOTAL KESELURUHAN HARGA: Rp 0';
         return;
       }
 
@@ -2157,13 +2160,20 @@
 
       const minusCount = minusItems.filter(item => item.status === 'Minus').length;
       const plusCount = minusItems.filter(item => item.status === 'Plus').length;
-      const grandTotal = minusItems.reduce((total, item) => total + (item.status === 'Minus' && item.harga !== '' ? item.jumlahMinus * Number(item.harga) : 0), 0);
+      
+      // LOGIKA HITUNG NETTO (PLUS DIKURANGI MINUS)
+      const grandTotal = minusItems.reduce((total, item) => {
+        if (item.harga === '') return total;
+        const subtotal = item.jumlahMinus * Number(item.harga);
+        return item.status === 'Plus' ? total + subtotal : total - subtotal;
+      }, 0);
+
       summary.textContent = minusItems.length
-        ? `${minusCount} Minus | ${plusCount} Plus | Total nilai Minus: ${moneyFormat(grandTotal)}`
+        ? `${minusCount} Minus | ${plusCount} Plus | Total Bersih: ${moneyFormat(grandTotal)}`
         : 'Tidak ada hasil Minus atau Plus pada rekap KSU.';
       container.innerHTML = tablesHtml || '<p class="text-slate-500 text-sm">Rekap KSU belum tersedia.</p>';
       const totalElement = document.getElementById('total-harga-minus-ksu');
-      if (totalElement) totalElement.textContent = `TOTAL KESELURUHAN HARGA MINUS: ${moneyFormat(grandTotal)}`;
+      if (totalElement) totalElement.textContent = `TOTAL KESELURUHAN HARGA: ${moneyFormat(grandTotal)}`;
     }
 
     function simpanKodeSparepartKSU(input) {
@@ -2201,13 +2211,17 @@
       const summary = document.getElementById('stat-barang-minus');
       if (summary) {
         const allValues = [...document.querySelectorAll('#list-barang-minus input[data-price-key]')]
-          .filter(field => field.dataset.status === 'Minus')
-          .reduce((total, field) => total + (field.value === '' ? 0 : Number(field.dataset.jumlahMinus) * Number(field.value)), 0);
+          .reduce((total, field) => {
+            if (field.value === '') return total;
+            const subtotal = Number(field.dataset.jumlahMinus) * Number(field.value);
+            return field.dataset.status === 'Plus' ? total + subtotal : total - subtotal;
+          }, 0);
+
         const minusCount = document.querySelectorAll('#list-barang-minus tr[data-status="Minus"]').length;
         const plusCount = document.querySelectorAll('#list-barang-minus tr[data-status="Plus"]').length;
-        summary.textContent = `${minusCount} Minus | ${plusCount} Plus | Total nilai Minus: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(allValues)}`;
+        summary.textContent = `${minusCount} Minus | ${plusCount} Plus | Total Bersih: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(allValues)}`;
         const totalElement = document.getElementById('total-harga-minus-ksu');
-        if (totalElement) totalElement.textContent = `TOTAL KESELURUHAN HARGA MINUS: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(allValues)}`;
+        if (totalElement) totalElement.textContent = `TOTAL KESELURUHAN HARGA: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(allValues)}`;
       }
     }
 
@@ -2412,7 +2426,7 @@
 
                 <input type="file" id="foto-gal-${u.id}" accept="image/*" class="hidden" onchange="handleFileSelect(${u.id}, false)">
                 <label for="foto-gal-${u.id}" class="inline-flex items-center gap-1 px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg cursor-pointer shadow-sm">
-                  🖼️ Pilih Galeri
+                  🖼 Pilih Galeri
                 </label>
               </div>
 
