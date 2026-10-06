@@ -1239,14 +1239,15 @@
     // --- 1b. KONFIGURASI FIREBASE ---
     // GANTI NILAI DI BAWAH DENGAN KREDENSIAL PROYEK FIREBASE ANDA
     // (Firebase Console > Project Settings > Web App > SDK setup and configuration)
-    apiKey : "AIzaSyDvrZUtgJZd7SqgYRGukTO4_yuVAYvHn28" , 
-  authDomain : "stok-opname-d1184.firebaseapp.com" , 
-  projectId : "stok-opname-d1184" , 
-  storageBucket : "stok-opname-d1184.firebasestorage.app" , 
-  messagingSenderId : "1034032570518" , 
-  ID aplikasi : "1:1034032570518:web:6e36b8a4b0b9de50f0e2b7" , 
-  ID pengukuran : "G-PVCJQRYGLW" 
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyDvrZUtgJZd7SqgYRGukTO4_yuVAYvHn28",
+      authDomain: "stok-opname-d1184.firebaseapp.com",
+      projectId: "stok-opname-d1184",
+      storageBucket: "stok-opname-d1184.firebasestorage.app",
+      messagingSenderId: "1034032570518",
+      appId: "1:1034032570518:web:6e36b8a4b0b9de50f0e2b7",
+      measurementId: "G-PVCJQRYGLW"
+    };
 
     let firebaseAktif = false;
     let dbFirestore = null;
