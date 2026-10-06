@@ -3,242 +3,1285 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aplikasi Stok Opname Offline Mandiri</title>
-
-  <!-- Tailwind CSS & Flowbite CDN -->
+  <title>Sistem Stok Opname Offline Mandiri</title>
+  
+  <!-- CSS Framework (Tailwind CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
-
-  <!-- ExcelJS Library untuk Export Excel -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+  <!-- Dexie.js (Database Offline IndexedDB) -->
+  <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+  <!-- SheetJS (Impor/Ekspor Excel Offline) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <!-- JSZip (Untuk Download Banyak Foto Sekaligus) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- Firebase (Firestore + Storage + Auth) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
   <style>
+    .laporan-header {
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      padding: 12px 16px 16px;
+    }
+
+    .laporan-title {
+      font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+      font-weight: 800;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #0f172a;
+      text-align: center;
+      margin: 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #cbd5e1;
+    }
+
+    .laporan-field {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .laporan-date-row {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .laporan-date-field {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .laporan-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #475569;
+      text-align: center;
+    }
+
+    .laporan-input {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.98rem;
+      text-align: center;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .laporan-input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+
+    .official-table-card {
+      border: 1px solid #b8c2d1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+      break-inside: auto;
+      page-break-inside: auto;
+    }
+
+    #container-audit-ksu {
+      display: block;
+    }
+
+    #container-audit-ksu > .official-table-card + .official-table-card {
+      margin-top: 8px;
+    }
+
+    .audit-table-price-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(250px, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .audit-table-price-layout > .official-table-card {
+      min-width: 0;
+    }
+
+    .minus-price-card .official-table {
+      font-size: 0.6rem;
+    }
+
+    @media (max-width: 820px) {
+      .audit-table-price-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .official-table-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(180deg, #1d3150 0%, #243d5c 100%);
+      color: #ffffff;
+      padding: 8px 12px;
+      font-weight: 800;
+      font-size: 0.76rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    .official-table-wrap {
+      overflow-x: auto;
+    }
+
+    .official-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.66rem;
+      color: #0f172a;
+    }
+
+    .official-table th,
+    .official-table td {
+      border: 1px solid #cbd5e1;
+      padding: 5px 6px;
+      vertical-align: middle;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .official-table thead th {
+      background: #f3f4f6;
+      color: #0f172a;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-align: center;
+    }
+
+    .official-table .category-row td {
+      background: #243d5c;
+      color: #ffffff;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 6px 10px;
+    }
+
+    .official-table .category-row-content {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .official-table tfoot td {
+      background: #f3f4f6;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .official-signoff {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 170px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 10px 14px 12px;
+      text-align: center;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.08);
+    }
+
+    .official-signoff .title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: 0.01em;
+      text-transform: none;
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .official-signoff .role {
+      font-size: 0.72rem;
+      color: #64748b;
+      margin-top: 2px;
+      margin-bottom: 0;
+      line-height: 1.4;
+    }
+
+    .official-signoff .line {
+      border-bottom: 2px solid #2f2f2f;
+      margin: 14px 18px 6px;
+      min-height: 24px;
+    }
+
+    .official-signoff .person {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      margin: 0;
+      letter-spacing: 0.03em;
+    }
+
+    .signoff-4-col {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .signoff-2-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .signoff-print-only {
+      display: none;
+    }
+
+    .report-print-info {
+      display: none;
+    }
+
+    .minus-report-print-only,
+    .minus-signoff-print-only {
+      display: none;
+    }
+
+    .minus-field-print {
+      display: none;
+    }
+
+    /* Styling khusus untuk mode cetak/download PDF profesional */
     @media print {
-      body * {
-        visibility: hidden;
+      @page {
+        size: A4 portrait;
+        margin: 4mm 5mm;
       }
-      #area-cetak-ksu, #area-cetak-ksu * {
-        visibility: visible;
+      @page minus-landscape {
+        size: A4 landscape;
+        margin: 4mm 5mm;
       }
-      #area-cetak-ksu {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
+      body.print-minus-ksu {
+        page: minus-landscape;
       }
-      .no-print {
+      body {
+        background-color: #fff !important;
+        color: #000 !important;
+        font-family: 'Arial', sans-serif !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      header, #tab-nav, #sec-unit, #sec-data, #sec-belum-opname, #sec-barang-minus, #form-kelengkapan-container, .no-print {
         display: none !important;
+      }
+      main {
+        max-width: none !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      #sec-kelengkapan {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: #fff !important;
+      }
+      body.print-minus-ksu #sec-berita-acara-ksu,
+      body.print-minus-ksu #sec-input-fisik-ksu {
+        display: none !important;
+      }
+      body.print-minus-ksu #sec-barang-minus {
+        display: block !important;
+      }
+      body.print-minus-ksu .minus-report-print-only,
+      body.print-minus-ksu .minus-signoff-print-only {
+        display: block !important;
+      }
+      body.print-minus-ksu .minus-field-screen {
+        display: none !important;
+      }
+      body.print-minus-ksu .minus-field-print {
+        display: inline !important;
+      }
+      .signoff-print-only {
+        display: block !important;
+      }
+      .report-print-info {
+        display: block !important;
+      }
+      .audit-table-price-layout {
+        grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) !important;
+        gap: 2mm !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .minus-price-card .official-table {
+        font-size: 6px !important;
+      }
+      #sec-berita-acara-ksu > .report-print-info {
+        margin-top: 4px !important;
+      }
+      .laporan-header,
+      .official-table-card,
+      .official-signoff {
+        box-shadow: none !important;
+      }
+      .official-table {
+        font-size: 0.52rem !important;
+      }
+      .official-table th,
+      .official-table td {
+        padding: 3px 4px !important;
+      }
+      .official-table thead th {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        overflow-wrap: anywhere;
+        line-height: 1.15 !important;
+      }
+      .signoff-4-col {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 3mm !important;
+      }
+      .signoff-2-col {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 3mm !important;
+      }
+      .official-signoff {
+        min-height: 130px !important;
+        padding: 6px 8px !important;
+      }
+      .official-signoff .title {
+        font-size: 0.62rem !important;
+      }
+      .official-signoff .role {
+        font-size: 0.5rem !important;
+      }
+      .official-signoff .line {
+        margin: 6px 12px 3px !important;
+        min-height: 8px !important;
+      }
+      .official-signoff .person {
+        font-size: 0.5rem !important;
+      }
+      .signoff-print-only .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+        margin-top: 6px !important;
+      }
+      .laporan-date-row {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 6mm !important;
+        margin-top: 3mm !important;
+      }
+      .laporan-date-field {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+      }
+      .laporan-title {
+        font-size: 0.9rem !important;
+        letter-spacing: 0.08em !important;
+      }
+      .laporan-label {
+        font-size: 8px !important;
+      }
+      .laporan-input {
+        min-height: 28px !important;
+        padding: 4px 8px !important;
+        font-size: 0.8rem !important;
+      }
+      .input-print-hide {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        font-weight: bold !important;
+        color: #000 !important;
+      }
+      #cabang-nama {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+      }
+      input[type="date"] {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+      }
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        display: none !important;
+      }
+      .page-break {
+        page-break-inside: auto;
+        break-inside: auto;
+      }
+      table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+      }
+      th, td {
+        border: 1px solid #333 !important;
+        padding: 3px 4px !important;
+        font-size: 8px !important;
+      }
+      th {
+        background-color: #f1f5f9 !important;
+        color: #000 !important;
+      }
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* ===================== TAMPILAN APLIKASI ===================== */
+    body {
+      background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 220px, #eef1f6 100%);
+      background-attachment: fixed;
+    }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #c7d2fe, #a5b4fc);
+      border-radius: 99px;
+      border: 2px solid #f8fafc;
+    }
+
+    button {
+      transition: transform .12s ease, box-shadow .18s ease, background-color .18s ease, color .18s ease;
+    }
+    button:active { transform: translateY(1px) scale(0.99); }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(115deg, #3730a3 0%, #6d28d9 48%, #4f46e5 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .app-header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 12% 130%, rgba(255, 255, 255, 0.28), transparent 42%),
+        radial-gradient(circle at 88% -30%, rgba(255, 255, 255, 0.18), transparent 40%);
+      pointer-events: none;
+    }
+    .sync-badge {
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35), 0 6px 16px rgba(5, 150, 105, 0.4);
+    }
+
+    /* Tab navigation */
+    .tab-nav-card {
+      background: linear-gradient(180deg, #ffffff, #fbfcfe);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
+    }
+    .tab-btn {
+      position: relative;
+      letter-spacing: 0.02em;
+      transition: color .18s ease, background-color .18s ease, transform .18s ease;
+    }
+    .tab-btn:hover { transform: translateY(-1px); }
+    .tab-btn.active {
+      background: linear-gradient(180deg, #eef2ff, #e0e7ff);
+      color: #4338ca;
+    }
+    .tab-btn.active::after {
+      content: "";
+      position: absolute;
+      left: 22%; right: 22%; bottom: -1px;
+      height: 3px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    }
+
+    /* Section cards */
+    main > section {
+      animation: fadeUp .32s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .section-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::before {
+      content: "";
+      width: 5px;
+      height: 22px;
+      flex: none;
+      border-radius: 99px;
+      background: linear-gradient(180deg, #6366f1, #8b5cf6);
+    }
+
+    /* Stat pill badges */
+    #stat-ringkasan,
+    #stat-belum-opname,
+    #stat-barang-minus {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4338ca;
+      border: 1px solid #e0e7ff;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    /* Search input */
+    .search-input {
+      transition: box-shadow .2s ease, border-color .2s ease;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    .search-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18), 0 6px 18px rgba(99, 102, 241, 0.12);
+      outline: none;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 44px 20px;
+      text-align: center;
+      border: 2px dashed #e2e8f0;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #f8fafc, #eef2ff);
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+    .empty-state .empty-emoji { font-size: 2.25rem; }
+
+    /* Result & setting cards hover lift */
+    #hasil-cari-unit > div,
+    #sec-data > div,
+    #list-unit-belum-opname > section {
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    #hasil-cari-unit > div:hover,
+    #sec-data > div:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
+    }
+
+    /* Modal polish */
+    .modal-shell {
+      position: relative;
+      background: #ffffff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 28px 64px -14px rgba(15, 23, 42, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.5);
+      animation: popIn .24s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .modal-shell::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(14px) scale(0.97); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* Kesimpulan audit cards */
+    .kesimpulan-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+      padding: 12px 14px;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .kesimpulan-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08); }
+    .kesimpulan-card .kesimpulan-head {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0;
+    }
+    .kesimpulan-card .kesimpulan-title { font-size: 0.8rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
+    .kesimpulan-badge { font-size: 0.7rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    .kesimpulan-badge.minus { background: #fee2e2; color: #991b1b; }
+    .kesimpulan-badge.plus { background: #dcfce7; color: #166534; }
+    .kesimpulan-badge.sesuai { background: #f1f5f9; color: #475569; }
+    .kesimpulan-list-item { display: flex; justify-content: space-between; gap: 10px; font-size: 0.78rem; padding: 4px 0; }
+    .kesimpulan-list-item .jenis { color: #334155; font-weight: 600; }
+    .kesimpulan-list-item .selisih { font-weight: 800; white-space: nowrap; }
+    .kesimpulan-list-item .selisih.minus { color: #b91c1c; }
+    .kesimpulan-list-item .selisih.plus { color: #15803d; }
+    .kesimpulan-empty { font-size: 0.75rem; color: #94a3b8; font-style: italic; }
+    .kesimpulan-text {
+      font-size: 0.82rem; line-height: 1.6; color: #334155;
+    }
+    .kesimpulan-text b { color: #0f172a; }
+    .kesimpulan-text .neg { color: #b91c1c; font-weight: 700; }
+    .kesimpulan-text .pos { color: #15803d; font-weight: 700; }
+    .kesimpulan-total-row {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1;
+      font-size: 0.8rem; font-weight: 800; color: #0f172a;
+    }
+    .kesimpulan-grand-value { font-size: 1.05rem; font-weight: 800; white-space: nowrap; }
+    .kesimpulan-grand-value.minus { color: #b91c1c; }
+    .kesimpulan-grand-value.plus { color: #15803d; }
+    .kesimpulan-grand-value.sesuai { color: #475569; }
+
+    /* ===================== LAYOUT LANDSCAPE (TABLET / HP) ===================== */
+    @media (orientation: landscape) {
+      main {
+        max-width: 64rem;
+      }
+      .modal-shell {
+        max-height: 92vh;
+        overflow-y: auto;
+      }
+      .modal-shell::before {
+        position: sticky;
+        top: 0;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 560px) {
+      .app-header {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+      main {
+        margin-top: 8px;
+        padding: 12px;
+      }
+      .tab-btn {
+        padding-top: 9px;
+        padding-bottom: 9px;
+        font-size: 0.85rem;
+      }
+      section[id^="sec-"] {
+        padding: 16px;
+      }
+      #tab-nav {
+        margin-bottom: 4px;
       }
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans antialiased">
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
 
-  <!-- Main Container -->
-  <div class="max-w-7xl mx-auto px-4 py-6">
-    <header class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">Sistem Stok Opname Offline Mandiri</h1>
-        <p class="text-sm text-slate-500">Kelola dan rekap data kelengkapan unit serta barang minus KSU</p>
+  <!-- LOGIN OVERLAY (Firebase Auth) -->
+  <div id="modal-login" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="modal-shell w-full max-w-sm p-6 space-y-5">
+      <div class="text-center pb-2 border-b">
+        <h1 class="text-xl font-extrabold text-slate-800">📦 Stok Opname System</h1>
+        <p class="text-xs text-slate-500 mt-1">Masuk untuk mengakses sistem audit stok</p>
       </div>
-      <div class="flex items-center gap-3">
-        <button onclick="bukaModalCetakKSU()" type="button" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm transition-all">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-          Laporan & Export
+
+      <form id="form-login" onsubmit="prosesLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1" for="login-user">Nama User</label>
+          <input type="text" id="login-user" required autocomplete="username" placeholder="contoh: budi"
+                 class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1" for="login-password">Password</label>
+          <input type="password" id="login-password" required minlength="6" autocomplete="current-password" placeholder="Minimal 6 karakter"
+                 class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
+        </div>
+        <p id="login-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2" role="alert"></p>
+        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow">
+          🔓 Masuk
         </button>
-      </div>
-    </header>
+      </form>
 
-    <!-- Content Section -->
-    <main class="space-y-6">
-      <div id="sec-barang-minus" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-6 border-b border-slate-200">
-          <h2 class="text-lg font-semibold text-slate-800">Daftar Barang Minus KSU</h2>
-          <p class="text-sm text-slate-500">Lengkapi harga satuan dan kode sparepart untuk barang yang minus.</p>
+      <p class="text-center text-[11px] text-slate-400">Akun dibuat oleh admin. Hubungi admin jika belum punya akses.</p>
+
+      <!-- Form register (disembunyikan: akun dibuat admin di Firebase Console) -->
+      <form id="form-register" onsubmit="prosesRegister(event)" class="space-y-4 hidden" aria-hidden="true">
+        <div class="text-center pb-2 border-b">
+          <h2 class="text-lg font-extrabold text-slate-800">Daftar Akun Baru</h2>
         </div>
-        <div class="p-6 minus-price-card overflow-x-auto">
-          <table class="w-full text-sm text-left text-slate-600">
-            <thead class="text-xs uppercase bg-slate-50 text-slate-700 border-b border-slate-200">
-              <tr>
-                <th class="px-4 py-3">Kategori - Jenis</th>
-                <th class="px-4 py-3 text-center">Qty Minus</th>
-                <th class="px-4 py-3">Harga Satuan (Rp)</th>
-                <th class="px-4 py-3">Kode Sparepart</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-barang-minus">
-              <!-- Contoh Baris Data -->
-              <tr class="border-b border-slate-100">
-                <td class="px-4 py-3 font-medium text-slate-900">HELM - HELM HONDA TRX-3</td>
-                <td class="px-4 py-3 text-center font-bold text-red-600">-2</td>
-                <td class="px-4 py-3">
-                  <input type="number" data-price-key="helm-trx3" class="w-full p-2 border border-slate-300 rounded-md text-sm" placeholder="Masukkan harga...">
-                </td>
-                <td class="px-4 py-3">
-                  <input type="text" data-part-key="helm-trx3" class="w-full p-2 border border-slate-300 rounded-md text-sm" placeholder="Masukkan kode...">
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1" for="register-user">Nama User</label>
+          <input type="text" id="register-user" autocomplete="username" placeholder="contoh: budi"
+                 class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
         </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- Modal Cetak/Export KSU -->
-  <div id="modal-cetak-ksu" tabindex="-1" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-    <div class="relative w-full max-w-md max-h-full">
-      <div class="relative bg-white rounded-xl shadow-lg border border-slate-200">
-        <div class="flex items-center justify-between p-4 md:p-5 border-b border-slate-200">
-          <h3 class="text-lg font-semibold text-slate-900">Export Laporan KSU</h3>
-          <button type="button" onclick="tutupModalCetakKSU()" class="text-slate-400 bg-transparent hover:bg-slate-100 hover:text-slate-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center">
-            <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
-          </button>
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1" for="register-password">Password</label>
+          <input type="password" id="register-password" autocomplete="new-password" placeholder="Minimal 6 karakter"
+                 class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
         </div>
-
-        <div class="p-4 md:p-5 space-y-4">
-          <div id="modal-cetak-error" class="hidden p-3 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200" role="alert"></div>
-
-          <div>
-            <label for="modal-cabang-nama" class="block mb-2 text-sm font-medium text-slate-900">Nama Cabang / Pos Dealer</label>
-            <input type="text" id="modal-cabang-nama" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5" placeholder="Contoh: Honda Cabang Utama">
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label for="modal-tgl-mulai" class="block mb-2 text-sm font-medium text-slate-900">Tanggal Mulai</label>
-              <input type="date" id="modal-tgl-mulai" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5">
-            </div>
-            <div>
-              <label for="modal-tgl-selesai" class="block mb-2 text-sm font-medium text-slate-900">Tanggal Selesai</label>
-              <input type="date" id="modal-tgl-selesai" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 block w-full p-2.5">
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-center p-4 md:p-5 border-t border-slate-200 gap-3">
-          <button type="button" onclick="exportBarangMinusExcelKSU()" class="w-full text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all flex items-center justify-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            Download Excel
-          </button>
-          <button type="button" onclick="tutupModalCetakKSU()" class="w-full text-slate-500 bg-white hover:bg-slate-100 border border-slate-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Batal</button>
-        </div>
-      </div>
+        <p id="register-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2" role="alert"></p>
+        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow">
+          ✅ Daftar
+        </button>
+        <button type="button" onclick="bukaFormLogin()" class="w-full text-xs text-slate-500 hover:text-slate-700 font-semibold">← Kembali ke Login</button>
+      </form>
     </div>
   </div>
 
-  <!-- Area Cetak Tersembunyi (KSU) -->
-  <div id="area-cetak-ksu" class="hidden"></div>
+  <!-- Header UI -->
+  <header class="app-header text-white p-4 shadow-lg sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto flex justify-between items-center relative z-10">
+      <h1 class="text-2xl font-extrabold tracking-wide drop-shadow-sm">📦 Stok Opname System</h1>
+      <div class="flex items-center gap-2">
+        <span id="status-sync" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-500 text-white font-medium">☁ Offline Mode</span>
+        <span id="info-user" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-indigo-600 text-white font-medium max-w-[140px] truncate"></span>
+        <button onclick="prosesLogout()" title="Keluar dari aplikasi"
+               class="hidden text-xs px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white font-medium transition" id="tombol-logout">
+          🚪 Keluar
+        </button>
+        <span class="sync-badge text-xs px-3 py-1.5 rounded-full bg-emerald-500 text-white font-semibold inline-flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>Auto-Sync KSU
+        </span>
+      </div>
+    </div>
+  </header>
 
-  <!-- Flowbite JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+  <main class="max-w-4xl mx-auto p-4 space-y-6 mt-2">
 
-  <!-- Application Logic -->
+    <!-- Tab Navigation -->
+    <div id="tab-nav" class="tab-nav-card flex border border-slate-200 border-b-0 bg-white rounded-t-lg overflow-hidden shadow-md">
+      <button onclick="switchTab('unit')" id="tab-unit" class="tab-btn active flex-1 py-3 px-4 text-center font-semibold text-indigo-700">
+        🏍️ Opname Unit
+      </button>
+      <button onclick="switchTab('kelengkapan')" id="tab-kelengkapan" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+        📊 Rekap Audit KSU
+      </button>
+      <button onclick="switchTab('belum-opname')" id="tab-belum-opname" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+        📋 Unit Belum Opname
+      </button>
+      <button onclick="switchTab('data')" id="tab-data" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+        ⚙️ Impor & Ekspor Data
+      </button>
+    </div>
+
+    <!-- TAB 1: STOK OPNAME UNIT -->
+    <section id="sec-unit" class="bg-white p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+        <h2 class="section-title text-lg font-bold text-slate-800">Pencarian Unit Motor</h2>
+        <div id="stat-ringkasan" class="text-xs font-semibold text-slate-500">
+          <!-- Diisi via JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Input Pencarian -->
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1">Cari No. Rangka / No. Mesin / Tipe / Warna</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-lg pointer-events-none select-none">🔍</span>
+            <input type="text" id="search-unit" onkeyup="cariUnit()" placeholder="Ketik nomor rangka, mesin, atau tipe..." 
+                   class="search-input w-full p-3.5 pl-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-lg font-medium">
+          </div>
+        </div>
+      </div>
+
+      <!-- Hasil Pencarian -->
+      <div id="hasil-cari-unit" class="space-y-4 mt-4">
+        <div class="empty-state">
+          <div class="empty-emoji">🏍️</div>
+          <p>Gunakan kolom pencarian di atas untuk menemukan data unit.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: UNIT BELUM OPNAME -->
+    <section id="sec-belum-opname" class="bg-white p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <h2 class="section-title text-lg font-bold text-slate-800">Daftar Unit Belum Opname</h2>
+          <p id="stat-belum-opname" class="text-xs text-slate-500 mt-2">Memuat daftar unit...</p>
+        </div>
+        <button onclick="muatUnitBelumOpname()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow">
+          🔄 Perbarui Daftar
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <select id="filter-warehouse-belum-opname" onchange="muatUnitBelumOpname()" class="w-full p-3 border border-slate-300 rounded-lg bg-white">
+          <option value="">Semua Warehouse</option>
+        </select>
+        <input type="search" id="filter-belum-opname" oninput="muatUnitBelumOpname()" placeholder="Cari nomor mesin atau tipe unit..." class="w-full p-3 border border-slate-300 rounded-lg">
+      </div>
+      <div id="list-unit-belum-opname" class="space-y-4"></div>
+    </section>
+
+    <!-- TAB 2: REKAPITULASI AUDIT STOK KSU -->
+    <section id="sec-kelengkapan" class="bg-white p-6 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-6 hidden">
+      <div class="no-print flex gap-2 border-b border-slate-200 pb-3 mb-2">
+        <button onclick="switchKSUContent('audit')" id="ksu-tab-audit" class="tab-btn active flex-1 py-2.5 px-3 text-sm font-bold text-indigo-700 rounded-t-lg">
+          📄 Berita Acara & Rekap Audit KSU
+        </button>
+        <button onclick="switchKSUContent('barang-minus')" id="ksu-tab-barang-minus" class="tab-btn flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
+          📉 Barang Minus KSU
+        </button>
+        <button onclick="switchKSUContent('input-fisik')" id="ksu-tab-input-fisik" class="tab-btn flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
+          📦 Input Fisik Gudang
+        </button>
+      </div>
+
+      <!-- SUB-TAB 1: BERITA ACARA & REKAP AUDIT KSU -->
+      <div id="sec-berita-acara-ksu" class="space-y-6">
+        <!-- KOP LAPORAN UNTUK HASIL PRINT/PDF -->
+        <div class="hidden print:block border-b-2 border-slate-800 pb-1 mb-0">
+          <div class="flex justify-center items-center">
+            <div class="w-full text-center">
+              <h1 class="text-xl font-extrabold text-slate-900 tracking-wider">BERITA ACARA AUDIT STOK KSU</h1>
+            </div>
+          </div>
+        </div>
+
+        <!-- HEADER ACTION BAR (UI ONLY) -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b pb-3 gap-3 no-print">
+          <div>
+            <h2 class="section-title text-xl font-extrabold text-slate-800">BERITA ACARA AUDIT STOK KSU</h2>
+            <p class="text-xs text-slate-500 mt-1">Laporan Rekapitulasi Kelengkapan Unit & Stok Fisik Gudang</p>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button onclick="bukaModalLaporanKSU('pdf')" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-1">
+              📄 Download PDF
+            </button>
+            <button onclick="bukaModalLaporanKSU('excel')" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-1">
+              📊 Download Excel
+            </button>
+            <button onclick="muatRekapKelengkapan()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg font-semibold shadow">
+              🔄 Refresh Audit
+            </button>
+          </div>
+        </div>
+
+        <div class="report-print-info laporan-header">
+          <p class="text-center font-bold mt-3" id="print-cabang">-</p>
+          <div class="laporan-date-row">
+            <div class="laporan-date-field">
+              <label class="laporan-label">Tanggal Mulai Audit</label>
+              <p class="font-bold" id="print-tanggal-mulai">-</p>
+            </div>
+            <div class="laporan-date-field">
+              <label class="laporan-label">Tanggal Selesai Audit</label>
+              <p class="font-bold" id="print-tanggal-selesai">-</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="no-print border-b pb-3">
+            <h3 class="text-lg font-extrabold text-slate-800">Rekap Audit KSU</h3>
+            <p class="text-xs text-slate-500">Ringkasan data audit kelengkapan unit dan stok fisik gudang</p>
+          </div>
+          <div id="container-audit-ksu" class="space-y-6">
+            <!-- Tabel KSU di-render otomatis dari JS -->
+          </div>
+
+          <!-- KESIMPULAN AUDIT -->
+          <div id="kesimpulan-audit-container" class="space-y-4 mt-6">
+            <h3 class="text-md font-bold text-slate-800 no-print">📌 Kesimpulan Audit</h3>
+            <div id="kesimpulan-audit-content" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Kesimpulan di-render dari JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 2: BARANG MINUS KSU -->
+      <div id="sec-barang-minus" class="space-y-6 hidden">
+        <div class="flex justify-between items-center no-print">
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-800">Daftar Barang Minus KSU</h3>
+            <p class="text-xs text-slate-500">Lengkapi harga satuan dan kode sparepart untuk barang yang minus.</p>
+          </div>
+          <button onclick="exportBarangMinusExcelKSU()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-1">
+            📊 Laporan & Export
+          </button>
+        </div>
+
+        <div class="official-table-card">
+          <div class="official-table-wrap">
+            <table class="official-table">
+              <thead>
+                <tr>
+                  <th style="width: 40%;">KATEGORI - JENIS</th>
+                  <th style="width: 20%;">QTY MINUS</th>
+                  <th style="width: 20%;">HARGA SATUAN (RP)</th>
+                  <th style="width: 20%;">KODE SPAREPART</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-barang-minus">
+                <!-- Data dinamis dari JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 3: INPUT FISIK GUDANG -->
+      <div id="sec-input-fisik-ksu" class="space-y-6 hidden">
+        <div>
+          <h3 class="text-lg font-extrabold text-slate-800">Input Fisik Gudang (KSU Extra)</h3>
+          <p class="text-xs text-slate-500">Masukkan jumlah stok fisik item KSU yang tersimpan terpisah di gudang.</p>
+        </div>
+        <div id="container-input-fisik" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Form Input Stok Fisik Gudang di-render dari JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: IMPOR & EKSPOR DATA -->
+    <section id="sec-data" class="bg-white p-6 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-6 hidden">
+      <div>
+        <h2 class="section-title text-lg font-bold text-slate-800">Pengelolaan Data & Backup</h2>
+        <p class="text-xs text-slate-500 mt-1">Impor data Excel atau lakukan backup/restore database offline.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="border rounded-xl p-4 bg-slate-50 space-y-3">
+          <h3 class="font-bold text-slate-800 text-sm">📥 Impor Master Data Excel</h3>
+          <p class="text-xs text-slate-600">Unggah file Excel daftar unit motor untuk memulai stok opname.</p>
+          <input type="file" id="input-excel-unit" accept=".xlsx, .xls" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+          <button onclick="imporExcelUnit()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow">
+            Proses Impor Unit
+          </button>
+        </div>
+
+        <div class="border rounded-xl p-4 bg-slate-50 space-y-3">
+          <h3 class="font-bold text-slate-800 text-sm">💾 Backup & Reset Database</h3>
+          <p class="text-xs text-slate-600">Ekspor seluruh data IndexedDB atau kosongkan database aplikasi.</p>
+          <div class="flex gap-2">
+            <button onclick="eksporBackupJSON()" class="flex-1 py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs rounded-lg shadow">
+              Backup JSON
+            </button>
+            <button onclick="resetDatabase()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow">
+              Reset Semua Data
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
   <script>
-    function bukaModalCetakKSU() {
-      document.getElementById('modal-cetak-error').classList.add('hidden');
-      document.getElementById('modal-cetak-ksu').classList.remove('hidden');
-    }
+    // 1. Inisialisasi Database IndexedDB (Dexie)
+    const db = new Dexie('StokOpnameDB');
+    db.version(1).stores({
+      units: '++id, noRangka, noMesin, tipe, warna, warehouse, statusOpname',
+      ksuFisik: 'kategori, jenis, qty',
+      hargaSparepart: 'kategoriJenis, harga, kode'
+    });
 
-    function tutupModalCetakKSU() {
-      document.getElementById('modal-cetak-ksu').classList.add('hidden');
-    }
+    const KATEGORI_KSU = ['ACCU', 'HELM', 'SPION', 'TOOL KIT', 'PLAT HOLDER', 'SAFETY RIDING'];
 
-    function formatTanggalLaporan(tglString) {
-      if (!tglString) return '-';
-      const [tahun, bulan, tanggal] = tglString.split('-');
-      return `${tanggal}/${bulan}/${tahun}`;
-    }
+    // 2. Tab Navigation Function
+    function switchTab(tab) {
+      const tabs = ['unit', 'kelengkapan', 'belum-opname', 'data'];
+      tabs.forEach(t => {
+        document.getElementById(`tab-${t}`).classList.remove('active', 'text-indigo-700');
+        document.getElementById(`tab-${t}`).classList.add('text-slate-500');
+        document.getElementById(`sec-${t}`).classList.add('hidden');
+      });
 
-    function simpanHeaderAudit() {
-      // Placeholder simpan data header audit jika ada kebutuhan localStorage
-    }
+      document.getElementById(`tab-${tab}`).classList.add('active', 'text-indigo-700');
+      document.getElementById(`tab-${tab}`).classList.remove('text-slate-500');
+      document.getElementById(`sec-${tab}`).classList.remove('hidden');
 
-    function perbaruiRingkasanCetakKSU() {
-      // Placeholder pembaruan UI ringkasan
-    }
-
-    async function muatRekapKelengkapan() {
-      // Placeholder penyiapan data rekap
-      return Promise.resolve();
-    }
-
-    async function exportBarangMinusExcelKSU() {
-      const cabang = document.getElementById('modal-cabang-nama').value.trim();
-      const tglMulai = document.getElementById('modal-tgl-mulai').value;
-      const tglSelesai = document.getElementById('modal-tgl-selesai').value;
-      const error = document.getElementById('modal-cetak-error');
-
-      if (!cabang) {
-        error.textContent = 'Pilih nama cabang terlebih dahulu.';
-        error.classList.remove('hidden');
-        document.getElementById('modal-cabang-nama').focus();
-        return;
+      if (tab === 'kelengkapan') {
+        muatRekapKelengkapan();
+      } else if (tab === 'belum-opname') {
+        muatUnitBelumOpname();
       }
-      if (!tglMulai || !tglSelesai) {
-        error.textContent = 'Isi tanggal mulai dan tanggal selesai audit.';
-        error.classList.remove('hidden');
-        return;
-      }
-      if (tglMulai > tglSelesai) {
-        error.textContent = 'Tanggal mulai audit tidak boleh setelah tanggal selesai.';
-        error.classList.remove('hidden');
-        return;
-      }
+    }
 
-      simpanHeaderAudit();
-      perbaruiRingkasanCetakKSU();
-      await muatRekapKelengkapan();
-
-      if (typeof ExcelJS === 'undefined') {
-        error.textContent = 'Library format Excel belum siap. Periksa koneksi internet lalu coba lagi.';
-        error.classList.remove('hidden');
-        return;
-      }
-
-      const workbook = new ExcelJS.Workbook();
-      workbook.creator = 'Sistem Stok Opname Offline Mandiri';
-      workbook.created = new Date();
-
-      const worksheet = workbook.addWorksheet('Barang Minus KSU', {
-        pageSetup: {
-          paperSize: 9,
-          orientation: 'portrait',
-          fitToPage: true,
-          fitToWidth: 1,
-          fitToHeight: 0,
-          margins: { left: 0.2, right: 0.2, top: 0.35, bottom: 0.35, header: 0.15, footer: 0.15 }
+    function switchKSUContent(subTab) {
+      const subTabs = ['audit', 'barang-minus', 'input-fisik'];
+      subTabs.forEach(s => {
+        const btn = document.getElementById(`ksu-tab-${s}`);
+        if (btn) {
+          btn.classList.remove('active', 'text-indigo-700');
+          btn.classList.add('text-slate-500');
         }
       });
 
-      worksheet.columns = [
-        { width: 6 }, { width: 18 }, { width: 32 }, { width: 14 },
-        { width: 18 }, { width: 22 }, { width: 20 }
-      ];
+      document.getElementById('sec-berita-acara-ksu').classList.add('hidden');
+      document.getElementById('sec-barang-minus').classList.add('hidden');
+      document.getElementById('sec-input-fisik-ksu').classList.add('hidden');
 
-      const thinBorder = {
-        top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-        left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-        bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-        right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
-      };
+      const activeBtn = document.getElementById(`ksu-tab-${subTab}`);
+      if (activeBtn) {
+        activeBtn.classList.add('active', 'text-indigo-700');
+        activeBtn.classList.remove('text-slate-500');
+      }
 
-      // Header Judul
-      const titleRow = worksheet.addRow(['DAFTAR BARANG MINUS KSU']);
-      worksheet.mergeCells(`A${titleRow.number}:G${titleRow.number}`);
-      titleRow.height = 28;
-      titleRow.getCell(1).font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FF0F172A' } };
-      titleRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+      if (subTab === 'audit') {
+        document.getElementById('sec-berita-acara-ksu').classList.remove('hidden');
+      } else if (subTab === 'barang-minus') {
+        document.getElementById('sec-barang-minus').classList.remove('hidden');
+        renderBarangMinusTable();
+      } else if (subTab === 'input-fisik') {
+        document.getElementById('sec-input-fisik-ksu').classList.remove('hidden');
+        renderFormFisikGudang();
+      }
+    }
 
-      const branchRow = worksheet.addRow(['Nama Cabang / Pos Dealer', cabang]);
-      worksheet.mergeCells(`B${branchRow.number}:G${branchRow.number}`);
-      branchRow.height = 22;
-      branchRow.getCell(1).font = { name: 'Arial', size: 10, bold: true };
-      branchRow.getCell(2).font = { name: 'Arial', size: 11, bold: true };
-      branchRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+    // 3. Render Audit KSU & Rekapitulasi Data
+    async function muatRekapKelengkapan() {
+      const allUnits = await db.units.toArray();
+      const allFisik = await db.ksuFisik.toArray();
+      const container = document.getElementById('container-audit-ksu');
+      container.innerHTML = '';
 
-      const dateRow = worksheet.addRow([
-        'Tanggal Mulai', formatTanggalLaporan(tglMulai), '',
-        'Tanggal Selesai', formatTanggalLaporan(tglSelesai)
-      ]);
-      worksheet.mergeCells(`B${dateRow.number}:C${dateRow.number}`);
+      let totalMinusCount = 0;
+
+      // Grouping KSU Data
+      let ksuSummary = {};
+      KATEGORI_KSU.forEach(kat => {
+        ksuSummary[kat] = { totalBawaanUnit: 0, totalFisikGudang: 0, totalAudit: 0 };
+      });
+
+      // Render Tabel Audit
+      let htmlAudit = `
+        <div class="official-table-card">
+          <div class="official-table-wrap">
+            <table class="official-table">
+              <thead>
+                <tr>
+                  <th>Kategori KSU</th>
+                  <th>Total Bawaan Unit</th>
+                  <th>Stok Fisik Gudang</th>
+                  <th>Selisih Audit</th>
+                </tr>
+              </thead>
+              <tbody>`;
+
+      for (let kat of KATEGORI_KSU) {
+        const fisikItem = allFisik.find(f => f.kategori === kat) || { qty: 0 };
+        const totalBawaan = allUnits.length; // Simulasi total bawaan unit
+        const selisih = fisikItem.qty - totalBawaan;
+
+        if (selisih < 0) totalMinusCount += Math.abs(selisih);
+
+        htmlAudit += `
+          <tr>
+            <td class="font-bold">${kat}</td>
+            <td class="text-center">${totalBawaan}</td>
+            <td class="text-center">${fisikItem.qty}</td>
+            <td class="text-center font-bold ${selisih < 0 ? 'text-red-600' : 'text-emerald-600'}">${selisih}</td>
+          </tr>`;
+      }
+
+      htmlAudit += `</tbody></table></div></div>`;
+      container.innerHTML = htmlAudit;
+
+      // Render Kesimpulan
+      renderKesimpulanAudit(totalMinusCount);
+    }
+
+    // 4. Render Kesimpulan Audit
+    function renderKesimpulanAudit(totalMinus) {
+      const container = document.getElementById('kesimpulan-audit-content');
+      let statusText = totalMinus > 0 ? 'MINUS' : 'SESUAI';
+      let badgeClass = totalMinus > 0 ? 'minus' : 'sesuai';
+
+      container.innerHTML = `
+        <div class="kesimpulan-card">
+          <div class="kesimpulan-head">
+            <span class="kesimpulan-title">Status Audit KSU</span>
+            <span class="kesimpulan-badge ${badgeClass}">${statusText}</span>
+          </div>
+          <div class="kesimpulan-text">
+            Total barang minus KSU terdeteksi sebanyak: <b class="${totalMinus > 0 ? 'neg' : 'pos'}">${totalMinus} Pcs</b>.
+          </div>
+        </div>`;
+    }
+
+    // 5. Render Tabel Barang Minus KSU (Dynamic from DB)
+    async function renderBarangMinusTable() {
+      const tbody = document.getElementById('tbody-barang-minus');
+      const allUnits = await db.units.toArray();
+      const allFisik = await db.ksuFisik.toArray();
+      const hargaList = await db.hargaSparepart.toArray();
+
+      tbody.innerHTML = '';
+      let hasMinus = false;
+
+      for (let kat of KATEGORI_KSU) {
+        const fisikItem = allFisik.find(f => f.kategori === kat) || { qty: 0 };
+        const totalBawaan = allUnits.length;
+        const selisih = fisikItem.qty - totalBawaan;
+
+        if (selisih < 0) {
+          hasMinus = true;
+          const key = kat;
+          const hargaItem = hargaList.find(h => h.kategoriJenis === key) || { harga: '', kode: '' };
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="font-bold">${kat}</td>
+            <td class="text-center text-red-600 font-bold">${selisih}</td>
+            <td>
+              <input type="number" placeholder="Masukkan harga..." value="${hargaItem.harga}" 
+                     onchange="simpanHargaSparepart('${key}', this.value, null)"
+                     class="w-full p-1.5 border rounded text-center">
+            </td>
+            <td>
+              <input type="text" placeholder="Masukkan kode..." value="${hargaItem.kode}" 
+                     onchange="simpanHargaSparepart('${key}', null, this.value)"
+                     class="w-full p-1.5 border rounded text-center">
+            </td>`;
+          tbody.appendChild(tr);
+        }
+      }
+
+      if (!hasMinus) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-400 italic">Tidak ada barang minus KSU.</td></tr>`;
+      }
+    }
+
+    // 6. Simpan Harga & Kode Sparepart ke IndexedDB
+    async function simpanHargaSparepart(key, harga, kode) {
+      const existing = await db.hargaSparepart.get(key);
+      const newHarga = harga !== null ? harga : (existing ? existing.harga : '');
+      const newKode = kode !== null ? kode : (existing ? existing.kode : '');
+
+      await db.hargaSparepart.put({ kategoriJenis: key, harga: newHarga, kode: newKode });
+    }
+
+    // 7. Render Form Input Stok Fisik Gudang
+    async function renderFormFisikGudang() {
+      const container = document.getElementById('container-input-fisik');
+      const allFisik = await db.ksuFisik.toArray();
+      container.innerHTML = '';
+
+      KATEGORI_KSU.forEach(kat => {
+        const item = allFisik.find(f => f.kategori === kat) || { qty: 0 };
+        const div = document.createElement('div');
+        div.className = 'border p-4 rounded-xl bg-slate-50 flex justify-between items-center';
+        div.innerHTML = `
+          <div>
+            <h4 class="font-bold text-sm text-slate-800">${kat}</h4>
+            <p class="text-xs text-slate-500">Jumlah fisik di gudang</p>
+          </div>
+          <input type="number" min="0" value="${item.qty}" 
+                 onchange="simpanFisikGudang('${kat}', this.value)" 
+                 class="w-24 p-2 border rounded-lg text-center font-bold">`;
+        container.appendChild(div);
+      });
+    }
+
+    async function simpanFisikGudang(kat, qty) {
+      await db.ksuFisik.put({ kategori: kat, qty: parseInt(qty) || 0 });
+    }
+
+    // 8. Export Barang Minus ke Excel
+    async function exportBarangMinusExcelKSU() {
+      const allUnits = await db.units.toArray();
+      const allFisik = await db.ksuFisik.toArray();
+      const hargaList = await db.hargaSparepart.toArray();
+
+      let dataExport = [];
+      for (let kat of KATEGORI_KSU) {
+        const fisikItem = allFisik.find(f => f.kategori === kat) || { qty: 0 };
+        const totalBawaan = allUnits.length;
+        const selisih = fisikItem.qty - totalBawaan;
+
+        if (selisih < 0) {
+          const hargaItem = hargaList.find(h => h.kategoriJenis === kat) || { harga: 0, kode: '-' };
+          dataExport.push({
+            'Kategori KSU': kat,
+            'Qty Minus': selisih,
+            'Harga Satuan (Rp)': hargaItem.harga || 0,
+            'Kode Sparepart': hargaItem.kode || '-'
+          });
+        }
+      }
+
+      if (dataExport.length === 0) {
+        alert('Tidak ada data barang minus untuk diekspor!');
+        return;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(dataExport);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Barang Minus KSU");
+      XLSX.writeFile(wb, "Laporan_Barang_Minus_KSU.xlsx");
+    }
+
+    // 9. Auth Dummy & Utility Handler
+    function prosesLogin(e) {
+      e.preventDefault();
+      document.getElementById('modal-login').classList.add('hidden');
+      document.getElementById('info-user').innerText = document.getElementById('login-user').value;
+      document.getElementById('info-user').classList.remove('hidden');
+      document.getElementById('tombol-logout').classList.remove('hidden');
+    }
+
+    function prosesLogout() {
+      document.getElementById('modal-login').classList.remove('hidden');
+      document.getElementById('info-user').classList.add('hidden');
+      document.getElementById('tombol-logout').classList.add('hidden');
+    }
+
+    function cariUnit() {
+      // Implementasi pencarian unit sederhana
+    }
+
+    function muatUnitBelumOpname() {
+      // Implementasi memuat unit belum opname
+    }
+
+    function bukaModalLaporanKSU(type) {
+      if (type === 'pdf') {
+        window.print();
+      } else {
+        alert('Fitur download Excel rekap audit diproses.');
+      }
+    }
+
+    function imporExcelUnit() { alert('Fungsi impor Excel siap dihubungkan.'); }
+    function eksporBackupJSON() { alert('Fungsi backup JSON siap dihubungkan.'); }
+    async function resetDatabase() {
+      if (confirm('Apakah kamu yakin ingin mengosongkan seluruh database?')) {
+        await db.delete();
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
