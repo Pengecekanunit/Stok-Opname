@@ -14,11 +14,6 @@
   <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
   <!-- JSZip (Untuk Download Banyak Foto Sekaligus) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <!-- Firebase (Firestore + Storage + Auth) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
   <style>
     .laporan-header {
@@ -534,6 +529,47 @@
       to { opacity: 1; transform: none; }
     }
 
+/* Kesimpulan audit cards */
+    .kesimpulan-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+      padding: 12px 14px;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .kesimpulan-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08); }
+    .kesimpulan-card .kesimpulan-head {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0;
+    }
+    .kesimpulan-card .kesimpulan-title { font-size: 0.8rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
+    .kesimpulan-badge { font-size: 0.7rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    .kesimpulan-badge.minus { background: #fee2e2; color: #991b1b; }
+    .kesimpulan-badge.plus { background: #dcfce7; color: #166534; }
+    .kesimpulan-badge.sesuai { background: #f1f5f9; color: #475569; }
+    .kesimpulan-list-item { display: flex; justify-content: space-between; gap: 10px; font-size: 0.78rem; padding: 4px 0; }
+    .kesimpulan-list-item .jenis { color: #334155; font-weight: 600; }
+    .kesimpulan-list-item .selisih { font-weight: 800; white-space: nowrap; }
+    .kesimpulan-list-item .selisih.minus { color: #b91c1c; }
+    .kesimpulan-list-item .selisih.plus { color: #15803d; }
+    .kesimpulan-empty { font-size: 0.75rem; color: #94a3b8; font-style: italic; }
+    .kesimpulan-text {
+      font-size: 0.82rem; line-height: 1.6; color: #334155;
+    }
+    .kesimpulan-text b { color: #0f172a; }
+    .kesimpulan-text .neg { color: #b91c1c; font-weight: 700; }
+    .kesimpulan-text .pos { color: #15803d; font-weight: 700; }
+    .kesimpulan-total-row {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1;
+      font-size: 0.8rem; font-weight: 800; color: #0f172a;
+    }
+    .kesimpulan-grand-value { font-size: 1.05rem; font-weight: 800; white-space: nowrap; }
+    .kesimpulan-grand-value.minus { color: #b91c1c; }
+    .kesimpulan-grand-value.plus { color: #15803d; }
+    .kesimpulan-grand-value.sesuai { color: #475569; }
+
     .section-title {
       display: inline-flex;
       align-items: center;
@@ -624,47 +660,6 @@
       to { opacity: 1; transform: none; }
     }
 
-    /* Kesimpulan audit cards */
-    .kesimpulan-card {
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      background: #ffffff;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
-      padding: 12px 14px;
-      transition: transform .18s ease, box-shadow .18s ease;
-    }
-    .kesimpulan-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08); }
-    .kesimpulan-card .kesimpulan-head {
-      display: flex; justify-content: space-between; align-items: center; gap: 8px;
-      padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0;
-    }
-    .kesimpulan-card .kesimpulan-title { font-size: 0.8rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
-    .kesimpulan-badge { font-size: 0.7rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
-    .kesimpulan-badge.minus { background: #fee2e2; color: #991b1b; }
-    .kesimpulan-badge.plus { background: #dcfce7; color: #166534; }
-    .kesimpulan-badge.sesuai { background: #f1f5f9; color: #475569; }
-    .kesimpulan-list-item { display: flex; justify-content: space-between; gap: 10px; font-size: 0.78rem; padding: 4px 0; }
-    .kesimpulan-list-item .jenis { color: #334155; font-weight: 600; }
-    .kesimpulan-list-item .selisih { font-weight: 800; white-space: nowrap; }
-    .kesimpulan-list-item .selisih.minus { color: #b91c1c; }
-    .kesimpulan-list-item .selisih.plus { color: #15803d; }
-    .kesimpulan-empty { font-size: 0.75rem; color: #94a3b8; font-style: italic; }
-    .kesimpulan-text {
-      font-size: 0.82rem; line-height: 1.6; color: #334155;
-    }
-    .kesimpulan-text b { color: #0f172a; }
-    .kesimpulan-text .neg { color: #b91c1c; font-weight: 700; }
-    .kesimpulan-text .pos { color: #15803d; font-weight: 700; }
-    .kesimpulan-total-row {
-      display: flex; justify-content: space-between; align-items: center; gap: 10px;
-      margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1;
-      font-size: 0.8rem; font-weight: 800; color: #0f172a;
-    }
-    .kesimpulan-grand-value { font-size: 1.05rem; font-weight: 800; white-space: nowrap; }
-    .kesimpulan-grand-value.minus { color: #b91c1c; }
-    .kesimpulan-grand-value.plus { color: #15803d; }
-    .kesimpulan-grand-value.sesuai { color: #475569; }
-
     /* ===================== LAYOUT LANDSCAPE (TABLET / HP) ===================== */
     @media (orientation: landscape) {
       main {
@@ -705,76 +700,13 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
 
-  <!-- LOGIN OVERLAY (Firebase Auth) -->
-  <div id="modal-login" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="modal-shell w-full max-w-sm p-6 space-y-5">
-      <div class="text-center pb-2 border-b">
-        <h1 class="text-xl font-extrabold text-slate-800">📦 Stok Opname System</h1>
-        <p class="text-xs text-slate-500 mt-1">Masuk untuk mengakses sistem audit stok</p>
-      </div>
-
-      <form id="form-login" onsubmit="prosesLogin(event)" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-slate-600 mb-1" for="login-user">Nama User</label>
-          <input type="text" id="login-user" required autocomplete="username" placeholder="contoh: budi"
-                 class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-600 mb-1" for="login-password">Password</label>
-          <input type="password" id="login-password" required minlength="6" autocomplete="current-password" placeholder="Minimal 6 karakter"
-                 class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
-        </div>
-        <p id="login-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2" role="alert"></p>
-        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow">
-          🔓 Masuk
-        </button>
-      </form>
-
-      <p class="text-center text-[11px] text-slate-400">Akun dibuat oleh admin. Hubungi admin jika belum punya akses.</p>
-
-      <!-- Form register (disembunyikan: akun dibuat admin di Firebase Console) -->
-      <form id="form-register" onsubmit="prosesRegister(event)" class="space-y-4 hidden" aria-hidden="true">
-        <div class="text-center pb-2 border-b">
-          <h2 class="text-lg font-extrabold text-slate-800">Daftar Akun Baru</h2>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-600 mb-1" for="register-user">Nama User</label>
-          <input type="text" id="register-user" autocomplete="username" placeholder="contoh: budi"
-                 class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-600 mb-1" for="register-password">Password</label>
-          <input type="password" id="register-password" autocomplete="new-password" placeholder="Minimal 6 karakter"
-                 class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
-        </div>
-        <p id="register-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2" role="alert"></p>
-        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow">
-          ✅ Daftar
-        </button>
-        <button type="button" onclick="bukaFormLogin()" class="w-full text-xs text-slate-500 hover:text-slate-700 font-semibold">← Kembali ke Login</button>
-      </form>
-    </div>
-  </div>
-
   <!-- Header UI -->
   <header class="app-header text-white p-4 shadow-lg sticky top-0 z-40">
     <div class="max-w-4xl mx-auto flex justify-between items-center relative z-10">
       <h1 class="text-2xl font-extrabold tracking-wide drop-shadow-sm">📦 Stok Opname System</h1>
-      <div class="flex items-center gap-2">
-        <span id="status-sync" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-500 text-white font-medium">☁ Offline Mode</span>
-        <button onclick="paksaSinkronisasiDuaArah()" title="Sinkronisasi manual dua arah (pull & push)"
-               class="text-xs px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white font-medium transition hidden" id="tombol-sync-manual">
-          🔄 Sync
-        </button>
-        <span id="info-user" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-indigo-600 text-white font-medium max-w-[140px] truncate"></span>
-        <button onclick="prosesLogout()" title="Keluar dari aplikasi"
-               class="hidden text-xs px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white font-medium transition" id="tombol-logout">
-          🚪 Keluar
-        </button>
-        <span class="sync-badge text-xs px-3 py-1.5 rounded-full bg-emerald-500 text-white font-semibold inline-flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>Auto-Sync KSU
-        </span>
-      </div>
+      <span class="sync-badge text-xs px-3 py-1.5 rounded-full bg-emerald-500 text-white font-semibold inline-flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>Auto-Sync KSU
+      </span>
     </div>
   </header>
 
@@ -912,7 +844,7 @@
             <!-- Tabel ACCU, HELM, SPION, TOOL KIT, PLAT HOLDER, SAFETY RIDING di-render otomatis -->
           </div>
 
-          <!-- KESIMPULAN AUDIT (hanya tampil di layar, tidak ikut cetak) -->
+<!-- KESIMPULAN AUDIT (hanya tampil di layar, tidak ikut cetak) -->
           <div id="kesimpulan-audit-ksu" class="no-print space-y-4">
             <div class="border-b pb-2">
               <h3 class="section-title text-lg font-extrabold text-slate-800">Kesimpulan Audit</h3>
@@ -1058,15 +990,15 @@
             </div>
           </div>
         </div>
-        <div class="no-print flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="no-print flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div>
             <h2 class="section-title text-lg font-bold text-slate-800">Daftar Barang Minus KSU</h2>
             <p id="stat-barang-minus" class="text-xs text-slate-500 mt-2">Memuat daftar barang minus...</p>
           </div>
-          <div class="flex flex-nowrap gap-2">
-            <button onclick="bukaModalLaporanKSU('minus-pdf')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow whitespace-nowrap">📄 Download PDF</button>
-            <button onclick="bukaModalLaporanKSU('minus-excel')" class="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg shadow whitespace-nowrap">📊 Download Excel</button>
-            <button onclick="muatRekapKelengkapan()" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow whitespace-nowrap">🔄 Perbarui Daftar</button>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="bukaModalLaporanKSU('minus-pdf')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow">📄 Download PDF</button>
+            <button onclick="bukaModalLaporanKSU('minus-excel')" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg shadow">📊 Download Excel</button>
+            <button onclick="muatRekapKelengkapan()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow">🔄 Perbarui Daftar</button>
           </div>
         </div>
         <div id="list-barang-minus" class="overflow-x-auto"></div>
@@ -1240,362 +1172,8 @@
     let currentAddress = "";
     let aksiLaporanKSU = 'pdf';
 
-    // --- 1b. KONFIGURASI FIREBASE ---
-    // GANTI NILAI DI BAWAH DENGAN KREDENSIAL PROYEK FIREBASE ANDA
-    // (Firebase Console > Project Settings > Web App > SDK setup and configuration)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDvrZUtgJZd7SqgYRGukTO4_yuVAYvHn28",
-      authDomain: "stok-opname-d1184.firebaseapp.com",
-      projectId: "stok-opname-d1184",
-      storageBucket: "stok-opname-d1184.firebasestorage.app",
-      messagingSenderId: "1034032570518",
-      appId: "1:1034032570518:web:6e36b8a4b0b9de50f0e2b7",
-      measurementId: "G-PVCJQRYGLW"
-    };
-
-    let firebaseAktif = false;
-    let dbFirestore = null;
-    let storageRef = null;
-    let antrianSync = [];
-    let sedangSync = false;
-
-    function inisialisasiFirebase() {
-      if (typeof firebase === 'undefined') {
-        console.warn('Library Firebase belum termuat. Sinkronisasi cloud dinonaktifkan.');
-        return;
-      }
-      if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'MASUKKAN_API_KEY') {
-        console.info('Firebase belum dikonfigurasi. Isi firebaseConfig untuk mengaktifkan sync cloud.');
-        return;
-      }
-      try {
-        firebase.initializeApp(firebaseConfig);
-        dbFirestore = firebase.firestore();
-        storageRef = firebase.storage().ref();
-        firebaseAktif = true;
-        terakhirPullSync = parseInt(localStorage.getItem('ksu_terakhir_pull_sync') || '0', 10);
-        muatAntrianSyncTertunda();
-        console.info('Firebase Firestore aktif. Sinkronisasi dua arah diaktifkan.');
-      } catch (error) {
-        console.error('Gagal menginisialisasi Firebase:', error);
-      }
-    }
-
-    function infoSinkronisasi() {
-      const el = document.getElementById('status-sync');
-      if (!el) return;
-      if (!firebaseAktif) {
-        el.textContent = '☁ Offline Mode';
-        el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-slate-500 text-white font-medium';
-        return;
-      }
-      if (sedangPullSync) {
-        el.textContent = '⬇ Pull data...';
-        el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-sky-500 text-white font-medium animate-pulse';
-        return;
-      }
-      if (sedangSync) {
-        el.textContent = '⏳ Sinkronisasi...';
-        el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-amber-500 text-white font-medium animate-pulse';
-        return;
-      }
-      if (antrianSync.length > 0) {
-        el.textContent = `⏳ ${antrianSync.length} menunggu sync`;
-        el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-amber-600 text-white font-medium';
-        return;
-      }
-      el.textContent = '✓ Tersinkron';
-      el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-medium';
-    }
-
-    function muatAntrianSyncTertunda() {
-      try {
-        antrianSync = JSON.parse(localStorage.getItem('ksu_antrian_sync') || '[]');
-      } catch (error) {
-        antrianSync = [];
-      }
-      infoSinkronisasi();
-      if (antrianSync.length > 0) jalankanSinkronisasi();
-    }
-
-    function tambahKeAntrianSync(tugas) {
-      // Hindari duplikat: jika tugas sejenis untuk id sama belum diproses, timpa
-      const indexSama = antrianSync.findIndex(t => t.tabel === tugas.tabel && t.id === tugas.id);
-      if (indexSama >= 0) antrianSync[indexSama] = tugas;
-      else antrianSync.push(tugas);
-      try {
-        localStorage.setItem('ksu_antrian_sync', JSON.stringify(antrianSync));
-      } catch (error) {
-        console.warn('Antrian sync tidak tersimpan permanen:', error);
-      }
-      infoSinkronisasi();
-      jalankanSinkronisasi();
-    }
-
-    async function jalankanSinkronisasi() {
-      if (!firebaseAktif || sedangSync || antrianSync.length === 0) return;
-      if (!firebase.auth().currentUser) return; // butuh login untuk sync
-      sedangSync = true;
-      infoSinkronisasi();
-      while (antrianSync.length > 0) {
-        const tugas = antrianSync[0];
-        try {
-          if (tugas.tabel === 'unit') {
-            const data = await db.unit.get(tugas.id);
-            if (data) {
-              const { id, foto, ...payload } = data;
-              // Upload foto ke Storage, simpan URL-nya di Firestore
-              if (foto) {
-                try {
-                  const refFoto = storageRef.child(`foto_unit/${tugas.id}.jpg`);
-                  await refFoto.putString(foto, 'data_url');
-                  payload.fotoUrl = await refFoto.getDownloadURL();
-                } catch (errorFoto) {
-                  console.warn('Gagal upload foto, data tetap disinkronkan:', errorFoto);
-                }
-              }
-              payload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-              await dbFirestore.collection('unit').doc(String(tugas.id)).set(payload, { merge: true });
-            }
-          } else if (tugas.tabel === 'kelengkapan') {
-            const data = await db.kelengkapan.get(tugas.id);
-            if (data) {
-              const { id, ...payload } = data;
-              payload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-              await dbFirestore.collection('kelengkapan').doc(String(tugas.id)).set(payload, { merge: true });
-            }
-          }
-          antrianSync.shift();
-        } catch (error) {
-          console.error('Gagal sinkron tugas, akan dicoba lagi nanti:', error);
-          break; // hentikan, coba lagi saat ada perubahan berikutnya / online kembali
-        }
-      }
-      try {
-        localStorage.setItem('ksu_antrian_sync', JSON.stringify(antrianSync));
-      } catch (error) {
-        console.warn('Gagal menyimpan status antrian sync:', error);
-      }
-      sedangSync = false;
-      infoSinkronisasi();
-    }
-
-    window.addEventListener('online', () => {
-      if (firebaseAktif && firebase.auth().currentUser) {
-        if (antrianSync.length > 0) jalankanSinkronisasi();
-        cekDanJalankanPullSync(); // pull data terbaru saat online kembali
-      }
-    });
-
-    // --- 1d. SINKRONISASI BERDASAR ARDUA (PULL DARI FIRESTORE KE DEXIE) ---
-    let sedangPullSync = false;
-    let terakhirPullSync = 0; // timestamp terakhir pull berhasil
-
-    async function pullSinkronisasiDariCloud() {
-      if (!firebaseAktif || sedangPullSync || !firebase.auth().currentUser) return;
-      sedangPullSync = true;
-      infoSinkronisasi();
-      try {
-        const collections = ['unit', 'kelengkapan'];
-        for (const collName of collections) {
-          const snapshot = await dbFirestore.collection(collName).get();
-          const batchOps = [];
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            data.id = parseInt(doc.id) || doc.id; // pastikan id numerik untuk Dexie
-            batchOps.push(data);
-          });
-          if (batchOps.length > 0) {
-            await db[collName].bulkPut(batchOps);
-            console.info(`Pull sync ${collName}: ${batchOps.length} dokumen diunduh`);
-          }
-        }
-        terakhirPullSync = Date.now();
-        localStorage.setItem('ksu_terakhir_pull_sync', String(terakhirPullSync));
-      } catch (error) {
-        console.error('Gagal pull sinkronisasi dari cloud:', error);
-      } finally {
-        sedangPullSync = false;
-        infoSinkronisasi();
-      }
-    }
-
-    function cekDanJalankanPullSync() {
-      // Jalankan pull jika: belum pernah, atau > 30 menit lalu, atau paksa
-      const now = Date.now();
-      if (terakhirPullSync === 0 || (now - terakhirPullSync) > 30 * 60 * 1000) {
-        pullSinkronisasiDariCloud();
-      }
-    }
-
-    async function paksaSinkronisasiDuaArah() {
-      if (!firebaseAktif || !firebase.auth().currentUser) return;
-      const btn = document.getElementById('tombol-sync-manual');
-      if (btn) { btn.disabled = true; btn.textContent = '⏳ Sync...'; }
-      try {
-        await pullSinkronisasiDariCloud();
-        if (antrianSync.length > 0) await jalankanSinkronisasi();
-        alert('✅ Sinkronisasi dua arah selesai!');
-      } catch (error) {
-        console.error('Gagal sinkronisasi manual:', error);
-        alert('❌ Gagal sinkronisasi: ' + error.message);
-      } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '🔄 Sync'; }
-      }
-    }
-
-    // --- 1c. FIREBASE AUTH (LOGIN / REGISTER) ---
-    let userSekarang = null;
-
-    function tampilkanLoadingLogin(hidup) {
-      const tombol = document.querySelector('#form-login button[type="submit"]');
-      if (tombol) {
-        tombol.disabled = hidup;
-        tombol.textContent = hidup ? '⏳ Memproses...' : '🔓 Masuk';
-      }
-    }
-
-    function tampilkanError(elementId, pesan) {
-      const el = document.getElementById(elementId);
-      if (!el) return;
-      el.textContent = pesan;
-      el.classList.remove('hidden');
-    }
-
-    function sembunyikanError(elementId) {
-      const el = document.getElementById(elementId);
-      if (el) el.classList.add('hidden');
-    }
-
-    // Suffix domain otomatis: user cukup masukkan nama (mis. "budi")
-    // menjadi "budi@stok-opname.app" di backend Firebase
-    const SUFFIX_DOMAIN_LOGIN = '@stok-opname.app';
-
-    function buatEmailDariUser(namaUser) {
-      const nama = String(namaUser || '').trim().toLowerCase().replace(/\s+/g, '');
-      return `${nama}${SUFFIX_DOMAIN_LOGIN}`;
-    }
-
-    async function prosesLogin(event) {
-      event.preventDefault();
-      sembunyikanError('login-error');
-      const namaUser = document.getElementById('login-user').value.trim();
-      const password = document.getElementById('login-password').value;
-      if (!namaUser) return tampilkanError('login-error', 'Isi nama user terlebih dahulu.');
-      if (!firebaseAktif) return tampilkanError('login-error', 'Firebase belum dikonfigurasi. Hubungi admin.');
-      const email = buatEmailDariUser(namaUser);
-      tampilkanLoadingLogin(true);
-      try {
-        await firebase.auth().signInWithEmailAndPassword(email, password);
-      } catch (error) {
-        const pesan = {
-          'auth/invalid-email': 'Format nama user tidak valid.',
-          'auth/user-disabled': 'Akun ini dinonaktifkan.',
-          'auth/user-not-found': 'Nama user tidak terdaftar.',
-          'auth/wrong-password': 'Password salah.',
-          'auth/invalid-login-credentials': 'Nama user atau password salah.',
-          'auth/too-many-requests': 'Terlalu banyak percobaan. Coba lagi nanti.',
-          'auth/network-request-failed': 'Gangguan jaringan. Periksa koneksi internet.'
-        }[error.code] || 'Gagal masuk. Periksa nama user & password Anda.';
-        console.warn('Email dikirim ke Firebase:', email);
-        tampilkanError('login-error', pesan);
-      } finally {
-        tampilkanLoadingLogin(false);
-      }
-    }
-
-    async function prosesRegister(event) {
-      event.preventDefault();
-      sembunyikanError('register-error');
-      const namaUser = document.getElementById('register-user').value.trim();
-      const password = document.getElementById('register-password').value;
-      if (!namaUser) return tampilkanError('register-error', 'Isi nama user terlebih dahulu.');
-      if (!firebaseAktif) return tampilkanError('register-error', 'Firebase belum dikonfigurasi. Hubungi admin.');
-      const email = buatEmailDariUser(namaUser);
-      try {
-        await firebase.auth().createUserWithEmailAndPassword(email, password);
-      } catch (error) {
-        const pesan = {
-          'auth/email-already-in-use': 'Nama user sudah terdaftar. Silakan masuk.',
-          'auth/invalid-email': 'Format nama user tidak valid.',
-          'auth/weak-password': 'Password terlalu lemah (minimal 6 karakter).',
-          'auth/network-request-failed': 'Gangguan jaringan. Periksa koneksi internet.'
-        }[error.code] || 'Gagal mendaftar. Coba lagi.';
-        tampilkanError('register-error', pesan);
-      }
-    }
-
-    // Form register disembunyikan: akun hanya dibuat admin via Firebase Console.
-    // Fungsi ini tetap ada untuk berjaga-jaga jika nanti ingin diaktifkan kembali.
-    function bukaFormRegister() {
-      tampilkanError('login-error', 'Pendaftaran ditutup. Admin membuatkan akun lewat Firebase Console.');
-    }
-
-    function bukaFormLogin() {
-      document.getElementById('form-register').classList.add('hidden');
-      document.getElementById('form-login').classList.remove('hidden');
-      sembunyikanError('register-error');
-    }
-
-    function tampilkanInfoUser(user) {
-      const el = document.getElementById('info-user');
-      if (!el) return;
-      // Tampilkan nama user saja (tanpa suffix domain)
-      const namaTampil = user.email ? user.email.replace(SUFFIX_DOMAIN_LOGIN, '') : 'User';
-      el.textContent = `👤 ${namaTampil}`;
-      el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-indigo-600 text-white font-medium max-w-[140px] truncate';
-      el.title = user.email;
-      const tombol = document.getElementById('tombol-logout');
-      if (tombol) tombol.classList.remove('hidden');
-      const tombolSync = document.getElementById('tombol-sync-manual');
-      if (tombolSync) tombolSync.classList.remove('hidden');
-    }
-
-    function sembunyikanInfoUser() {
-      const el = document.getElementById('info-user');
-      if (!el) return;
-      el.textContent = '';
-      el.className = 'hidden';
-      const tombol = document.getElementById('tombol-logout');
-      if (tombol) tombol.classList.add('hidden');
-      const tombolSync = document.getElementById('tombol-sync-manual');
-      if (tombolSync) tombolSync.classList.add('hidden');
-    }
-
-    function prosesLogout() {
-      if (confirm('Yakin keluar dari aplikasi? Data lokal tetap tersimpan di perangkat ini.')) {
-        firebase.auth().signOut();
-      }
-    }
-
-    // Listener status auth global
-    function pantauAuth() {
-      if (!firebaseAktif) {
-        // Firebase tidak aktif → aplikasi offline murni, tidak perlu login
-        document.getElementById('modal-login').classList.add('hidden');
-        return;
-      }
-      firebase.auth().onAuthStateChanged(user => {
-        const modal = document.getElementById('modal-login');
-        if (user) {
-          userSekarang = user;
-          modal.classList.add('hidden');
-          tampilkanInfoUser(user);
-          muatAntrianSyncTertunda(); // sync antrian setelah login (push)
-          pullSinkronisasiDariCloud(); // pull data terbaru dari cloud (dua arah)
-        } else {
-          userSekarang = null;
-          modal.classList.remove('hidden');
-          sembunyikanInfoUser();
-          document.getElementById('login-password').value = '';
-        }
-      });
-    }
-
     // Set Default Tanggal Hari Ini & Load LocalStorage
     document.addEventListener("DOMContentLoaded", () => {
-      inisialisasiFirebase();
-      pantauAuth();
       const today = new Date().toISOString().split('T')[0];
       const savedBranch = localStorage.getItem('ksu_cabang');
       const branchSelect = document.getElementById('modal-cabang-nama');
@@ -2751,6 +2329,7 @@
       muatKesimpulanAuditKSU();
     }
 
+
     function muatKesimpulanAuditKSU() {
       const listContainer = document.getElementById('kesimpulan-list');
       const totalContainer = document.getElementById('kesimpulan-total');
@@ -3108,11 +2687,10 @@
           });
 
           await db.unit.clear();
-          const idBaru = await db.unit.bulkAdd(mappedData, { allKeys: true });
+          await db.unit.bulkAdd(mappedData);
 
           alert(`✅ Berhasil mengimpor ${mappedData.length} data unit ke database lokal!`);
           updateRingkasanUnit();
-          bersihkanDanSinkronkanUnit(idBaru);
           switchTab('unit');
         } catch (err) {
           alert('Gagal membaca file Excel.');
@@ -3133,7 +2711,7 @@
         return;
       }
 
-      const matched = await db.unit
+      const results = await db.unit
         .filter(u => 
           (u.no_rangka && u.no_rangka.toLowerCase().includes(keyword)) ||
           (u.no_mesin && u.no_mesin.toLowerCase().includes(keyword)) ||
@@ -3141,19 +2719,8 @@
           (u.warna && u.warna.toLowerCase().includes(keyword)) ||
           (u.warehouse && u.warehouse.toLowerCase().includes(keyword))
         )
-        .limit(50)
+        .limit(20)
         .toArray();
-
-      const results = matched
-        .sort((a, b) => {
-          const aBelum = !a.status ? 0 : 1;
-          const bBelum = !b.status ? 0 : 1;
-          if (aBelum !== bBelum) return aBelum - bBelum;
-          if (a.no_mesin && a.no_mesin.toLowerCase().startsWith(keyword) && !(b.no_mesin && b.no_mesin.toLowerCase().startsWith(keyword))) return -1;
-          if (b.no_mesin && b.no_mesin.toLowerCase().startsWith(keyword) && !(a.no_mesin && a.no_mesin.toLowerCase().startsWith(keyword))) return 1;
-          return 0;
-        })
-        .slice(0, 20);
 
       if (results.length === 0) {
         container.innerHTML = `<div class="empty-state"><div class="empty-emoji">🔍</div><p>Unit dengan kata kunci "${escapeHTML(keyword)}" tidak ditemukan.</p></div>`;
@@ -3251,7 +2818,6 @@
         updateRingkasanUnit();
         cariUnit();
         muatRekapKelengkapan();
-        tambahKeAntrianSync({ tabel: 'unit', id });
         return;
       }
 
@@ -3322,7 +2888,6 @@
       updateRingkasanUnit();
       cariUnit();
       muatRekapKelengkapan();
-      tambahKeAntrianSync({ tabel: 'unit', id });
     }
 
     // --- 6. MODUL OPNAME KELENGKAPAN LOOSE GUDANG ---
@@ -3335,7 +2900,7 @@
 
     async function simpanKelengkapan(e) {
       e.preventDefault();
-      const idBaru = await db.kelengkapan.add({
+      await db.kelengkapan.add({
         kategori: document.getElementById('kel-kategori').value,
         jenis: document.getElementById('kel-jenis').value,
         qty: parseInt(document.getElementById('kel-qty').value),
@@ -3348,19 +2913,11 @@
       alert('Data fisik gudang berhasil disimpan!');
       loadListKelengkapan();
       muatRekapKelengkapan();
-      tambahKeAntrianSync({ tabel: 'kelengkapan', id: idBaru });
     }
 
     async function hapusKelengkapanItem(id) {
       if (confirm('Hapus item kelengkapan ini?')) {
         await db.kelengkapan.delete(id);
-        if (firebaseAktif) {
-          try {
-            await dbFirestore.collection('kelengkapan').doc(String(id)).delete();
-          } catch (error) {
-            console.error('Gagal menghapus data di cloud:', error);
-          }
-        }
         loadListKelengkapan();
         muatRekapKelengkapan();
       }
@@ -3480,68 +3037,9 @@
       if (confirm('Yakin ingin menghapus SELURUH data lokal di perangkat ini? Data tidak bisa dikembalikan.')) {
         await db.unit.clear();
         await db.kelengkapan.clear();
-        if (firebaseAktif) {
-          try {
-            const batchUnit = dbFirestore.collection('unit');
-            const batchKel = dbFirestore.collection('kelengkapan');
-            const [snapUnit, snapKel] = await Promise.all([batchUnit.get(), batchKel.get()]);
-            const hapus = firebase.firestore().batch();
-            snapUnit.docs.forEach(d => hapus.delete(d.ref));
-            snapKel.docs.forEach(d => hapus.delete(d.ref));
-            await hapus.commit();
-            console.info('Data cloud Firestore telah dibersihkan.');
-          } catch (error) {
-            console.error('Gagal membersihkan data cloud:', error);
-          }
-        }
         alert('Database telah dibersihkan!');
         location.reload();
       }
-    }
-
-    // Sinkronisasi massal (impor Excel) - upload batch ke Firestore
-    async function bersihkanDanSinkronkanUnit(daftarId) {
-      if (!firebaseAktif || !Array.isArray(daftarId) || daftarId.length === 0) return;
-      if (!firebase.auth().currentUser) return;
-      infoSinkronisasi();
-      try {
-        // Hapus dokumen unit lama di cloud karena master lokal diganti total
-        const snapUnit = await dbFirestore.collection('unit').get();
-        const batchHapus = dbFirestore.batch();
-        snapUnit.docs.forEach(d => batchHapus.delete(d.ref));
-        await batchHapus.commit();
-        console.info('Master unit lama di cloud telah dibersihkan.');
-      } catch (error) {
-        console.error('Gagal membersihkan master unit di cloud:', error);
-      }
-      await sinkronisasiMassal('unit', daftarId);
-    }
-
-    async function sinkronisasiMassal(tabel, daftarId) {
-      if (!firebaseAktif || !Array.isArray(daftarId) || daftarId.length === 0) return;
-      if (!firebase.auth().currentUser) return;
-      infoSinkronisasi();
-      try {
-        // Firestore batch maksimum 500 operasi per commit
-        for (let i = 0; i < daftarId.length; i += 450) {
-          const potongan = daftarId.slice(i, i + 450);
-          const batch = dbFirestore.batch();
-          for (const id of potongan) {
-            const data = await db[tabel].get(id);
-            if (!data) continue;
-            const { id: idData, foto, ...payload } = data;
-            payload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-            batch.set(dbFirestore.collection(tabel).doc(String(id)), payload, { merge: true });
-          }
-          await batch.commit();
-        }
-        console.info(`Sinkronisasi massal ${tabel}: ${daftarId.length} data terkirim.`);
-      } catch (error) {
-        console.error('Sinkronisasi massal gagal:', error);
-        // Masukkan sisa ke antrian agar dicoba ulang
-        daftarId.forEach(id => tambahKeAntrianSync({ tabel, id }));
-      }
-      infoSinkronisasi();
     }
 
     // Inisialisasi awal
