@@ -1423,9 +1423,11 @@
           'auth/user-disabled': 'Akun ini dinonaktifkan.',
           'auth/user-not-found': 'Nama user tidak terdaftar.',
           'auth/wrong-password': 'Password salah.',
+          'auth/invalid-login-credentials': 'Nama user atau password salah.',
           'auth/too-many-requests': 'Terlalu banyak percobaan. Coba lagi nanti.',
           'auth/network-request-failed': 'Gangguan jaringan. Periksa koneksi internet.'
         }[error.code] || 'Gagal masuk. Periksa nama user & password Anda.';
+        console.warn('Email dikirim ke Firebase:', email);
         tampilkanError('login-error', pesan);
       } finally {
         tampilkanLoadingLogin(false);
