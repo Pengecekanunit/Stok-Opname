@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Stok Opname</title>
+  <title>Sistem Stok Opname Offline Mandiri</title>
   
   <!-- CSS Framework (Tailwind CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -762,6 +762,10 @@
       <h1 class="text-2xl font-extrabold tracking-wide drop-shadow-sm">📦 Stok Opname System</h1>
       <div class="flex items-center gap-2">
         <span id="status-sync" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-500 text-white font-medium">☁ Offline Mode</span>
+        <button onclick="paksaSinkronisasiDuaArah()" title="Sinkronisasi manual dua arah (pull & push)"
+               class="text-xs px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white font-medium transition hidden" id="tombol-sync-manual">
+          🔄 Sync
+        </button>
         <span id="info-user" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-indigo-600 text-white font-medium max-w-[140px] truncate"></span>
         <button onclick="prosesLogout()" title="Keluar dari aplikasi"
                class="hidden text-xs px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white font-medium transition" id="tombol-logout">
@@ -1269,8 +1273,9 @@
         dbFirestore = firebase.firestore();
         storageRef = firebase.storage().ref();
         firebaseAktif = true;
+        terakhirPullSync = parseInt(localStorage.getItem('ksu_terakhir_pull_sync') || '0', 10);
         muatAntrianSyncTertunda();
-        console.info('Firebase Firestore aktif. Sinkronisasi otomatis diaktifkan.');
+        console.info('Firebase Firestore aktif. Sinkronisasi dua arah diaktifkan.');
       } catch (error) {
         console.error('Gagal menginisialisasi Firebase:', error);
       }
@@ -1282,6 +1287,11 @@
       if (!firebaseAktif) {
         el.textContent = '☁ Offline Mode';
         el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-slate-500 text-white font-medium';
+        return;
+      }
+      if (sedangPullSync) {
+        el.textContent = '⬇ Pull data...';
+        el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-sky-500 text-white font-medium animate-pulse';
         return;
       }
       if (sedangSync) {
@@ -1371,8 +1381,68 @@
     }
 
     window.addEventListener('online', () => {
-      if (firebaseAktif && firebase.auth().currentUser && antrianSync.length > 0) jalankanSinkronisasi();
+      if (firebaseAktif && firebase.auth().currentUser) {
+        if (antrianSync.length > 0) jalankanSinkronisasi();
+        cekDanJalankanPullSync(); // pull data terbaru saat online kembali
+      }
     });
+
+    // --- 1d. SINKRONISASI BERDASAR ARDUA (PULL DARI FIRESTORE KE DEXIE) ---
+    let sedangPullSync = false;
+    let terakhirPullSync = 0; // timestamp terakhir pull berhasil
+
+    async function pullSinkronisasiDariCloud() {
+      if (!firebaseAktif || sedangPullSync || !firebase.auth().currentUser) return;
+      sedangPullSync = true;
+      infoSinkronisasi();
+      try {
+        const collections = ['unit', 'kelengkapan'];
+        for (const collName of collections) {
+          const snapshot = await dbFirestore.collection(collName).get();
+          const batchOps = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            data.id = parseInt(doc.id) || doc.id; // pastikan id numerik untuk Dexie
+            batchOps.push(data);
+          });
+          if (batchOps.length > 0) {
+            await db[collName].bulkPut(batchOps);
+            console.info(`Pull sync ${collName}: ${batchOps.length} dokumen diunduh`);
+          }
+        }
+        terakhirPullSync = Date.now();
+        localStorage.setItem('ksu_terakhir_pull_sync', String(terakhirPullSync));
+      } catch (error) {
+        console.error('Gagal pull sinkronisasi dari cloud:', error);
+      } finally {
+        sedangPullSync = false;
+        infoSinkronisasi();
+      }
+    }
+
+    function cekDanJalankanPullSync() {
+      // Jalankan pull jika: belum pernah, atau > 30 menit lalu, atau paksa
+      const now = Date.now();
+      if (terakhirPullSync === 0 || (now - terakhirPullSync) > 30 * 60 * 1000) {
+        pullSinkronisasiDariCloud();
+      }
+    }
+
+    async function paksaSinkronisasiDuaArah() {
+      if (!firebaseAktif || !firebase.auth().currentUser) return;
+      const btn = document.getElementById('tombol-sync-manual');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Sync...'; }
+      try {
+        await pullSinkronisasiDariCloud();
+        if (antrianSync.length > 0) await jalankanSinkronisasi();
+        alert('✅ Sinkronisasi dua arah selesai!');
+      } catch (error) {
+        console.error('Gagal sinkronisasi manual:', error);
+        alert('❌ Gagal sinkronisasi: ' + error.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 Sync'; }
+      }
+    }
 
     // --- 1c. FIREBASE AUTH (LOGIN / REGISTER) ---
     let userSekarang = null;
@@ -1477,6 +1547,8 @@
       el.title = user.email;
       const tombol = document.getElementById('tombol-logout');
       if (tombol) tombol.classList.remove('hidden');
+      const tombolSync = document.getElementById('tombol-sync-manual');
+      if (tombolSync) tombolSync.classList.remove('hidden');
     }
 
     function sembunyikanInfoUser() {
@@ -1486,6 +1558,8 @@
       el.className = 'hidden';
       const tombol = document.getElementById('tombol-logout');
       if (tombol) tombol.classList.add('hidden');
+      const tombolSync = document.getElementById('tombol-sync-manual');
+      if (tombolSync) tombolSync.classList.add('hidden');
     }
 
     function prosesLogout() {
@@ -1507,7 +1581,8 @@
           userSekarang = user;
           modal.classList.add('hidden');
           tampilkanInfoUser(user);
-          muatAntrianSyncTertunda(); // sync antrian setelah login
+          muatAntrianSyncTertunda(); // sync antrian setelah login (push)
+          pullSinkronisasiDariCloud(); // pull data terbaru dari cloud (dua arah)
         } else {
           userSekarang = null;
           modal.classList.remove('hidden');
