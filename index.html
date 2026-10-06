@@ -715,8 +715,8 @@
 
       <form id="form-login" onsubmit="prosesLogin(event)" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-slate-600 mb-1" for="login-email">Email</label>
-          <input type="email" id="login-email" required autocomplete="email" placeholder="nama@perusahaan.com"
+          <label class="block text-sm font-medium text-slate-600 mb-1" for="login-user">Nama User</label>
+          <input type="text" id="login-user" required autocomplete="username" placeholder="contoh: budi"
                  class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
         </div>
         <div>
@@ -730,24 +730,21 @@
         </button>
       </form>
 
-      <div class="text-center text-xs text-slate-500 space-y-1">
-        <p>Belum punya akun?</p>
-        <button onclick="bukaFormRegister()" class="text-indigo-600 hover:text-indigo-800 font-semibold">Daftar akun baru</button>
-      </div>
+      <p class="text-center text-[11px] text-slate-400">Akun dibuat oleh admin. Hubungi admin jika belum punya akses.</p>
 
-      <!-- Form register (tersembunyi) -->
-      <form id="form-register" onsubmit="prosesRegister(event)" class="space-y-4 hidden">
+      <!-- Form register (disembunyikan: akun dibuat admin di Firebase Console) -->
+      <form id="form-register" onsubmit="prosesRegister(event)" class="space-y-4 hidden" aria-hidden="true">
         <div class="text-center pb-2 border-b">
           <h2 class="text-lg font-extrabold text-slate-800">Daftar Akun Baru</h2>
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-600 mb-1" for="register-email">Email</label>
-          <input type="email" id="register-email" required autocomplete="email" placeholder="nama@perusahaan.com"
+          <label class="block text-sm font-medium text-slate-600 mb-1" for="register-user">Nama User</label>
+          <input type="text" id="register-user" autocomplete="username" placeholder="contoh: budi"
                  class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-600 mb-1" for="register-password">Password</label>
-          <input type="password" id="register-password" required minlength="6" autocomplete="new-password" placeholder="Minimal 6 karakter"
+          <input type="password" id="register-password" autocomplete="new-password" placeholder="Minimal 6 karakter"
                  class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-sm">
         </div>
         <p id="register-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-2" role="alert"></p>
@@ -1399,24 +1396,35 @@
       if (el) el.classList.add('hidden');
     }
 
+    // Suffix domain otomatis: user cukup masukkan nama (mis. "budi")
+    // menjadi "budi@stok-opname.app" di backend Firebase
+    const SUFFIX_DOMAIN_LOGIN = '@stok-opname.app';
+
+    function buatEmailDariUser(namaUser) {
+      const nama = String(namaUser || '').trim().toLowerCase().replace(/\s+/g, '');
+      return `${nama}${SUFFIX_DOMAIN_LOGIN}`;
+    }
+
     async function prosesLogin(event) {
       event.preventDefault();
       sembunyikanError('login-error');
-      const email = document.getElementById('login-email').value.trim();
+      const namaUser = document.getElementById('login-user').value.trim();
       const password = document.getElementById('login-password').value;
+      if (!namaUser) return tampilkanError('login-error', 'Isi nama user terlebih dahulu.');
       if (!firebaseAktif) return tampilkanError('login-error', 'Firebase belum dikonfigurasi. Hubungi admin.');
+      const email = buatEmailDariUser(namaUser);
       tampilkanLoadingLogin(true);
       try {
         await firebase.auth().signInWithEmailAndPassword(email, password);
       } catch (error) {
         const pesan = {
-          'auth/invalid-email': 'Format email tidak valid.',
+          'auth/invalid-email': 'Format nama user tidak valid.',
           'auth/user-disabled': 'Akun ini dinonaktifkan.',
-          'auth/user-not-found': 'Email tidak terdaftar.',
+          'auth/user-not-found': 'Nama user tidak terdaftar.',
           'auth/wrong-password': 'Password salah.',
           'auth/too-many-requests': 'Terlalu banyak percobaan. Coba lagi nanti.',
           'auth/network-request-failed': 'Gangguan jaringan. Periksa koneksi internet.'
-        }[error.code] || 'Gagal masuk. Periksa email & password Anda.';
+        }[error.code] || 'Gagal masuk. Periksa nama user & password Anda.';
         tampilkanError('login-error', pesan);
       } finally {
         tampilkanLoadingLogin(false);
@@ -1426,15 +1434,17 @@
     async function prosesRegister(event) {
       event.preventDefault();
       sembunyikanError('register-error');
-      const email = document.getElementById('register-email').value.trim();
+      const namaUser = document.getElementById('register-user').value.trim();
       const password = document.getElementById('register-password').value;
+      if (!namaUser) return tampilkanError('register-error', 'Isi nama user terlebih dahulu.');
       if (!firebaseAktif) return tampilkanError('register-error', 'Firebase belum dikonfigurasi. Hubungi admin.');
+      const email = buatEmailDariUser(namaUser);
       try {
         await firebase.auth().createUserWithEmailAndPassword(email, password);
       } catch (error) {
         const pesan = {
-          'auth/email-already-in-use': 'Email sudah terdaftar. Silakan masuk.',
-          'auth/invalid-email': 'Format email tidak valid.',
+          'auth/email-already-in-use': 'Nama user sudah terdaftar. Silakan masuk.',
+          'auth/invalid-email': 'Format nama user tidak valid.',
           'auth/weak-password': 'Password terlalu lemah (minimal 6 karakter).',
           'auth/network-request-failed': 'Gangguan jaringan. Periksa koneksi internet.'
         }[error.code] || 'Gagal mendaftar. Coba lagi.';
@@ -1442,10 +1452,10 @@
       }
     }
 
+    // Form register disembunyikan: akun hanya dibuat admin via Firebase Console.
+    // Fungsi ini tetap ada untuk berjaga-jaga jika nanti ingin diaktifkan kembali.
     function bukaFormRegister() {
-      document.getElementById('form-login').classList.add('hidden');
-      document.getElementById('form-register').classList.remove('hidden');
-      sembunyikanError('login-error');
+      tampilkanError('login-error', 'Pendaftaran ditutup. Admin membuatkan akun lewat Firebase Console.');
     }
 
     function bukaFormLogin() {
@@ -1457,7 +1467,9 @@
     function tampilkanInfoUser(user) {
       const el = document.getElementById('info-user');
       if (!el) return;
-      el.textContent = `👤 ${user.email}`;
+      // Tampilkan nama user saja (tanpa suffix domain)
+      const namaTampil = user.email ? user.email.replace(SUFFIX_DOMAIN_LOGIN, '') : 'User';
+      el.textContent = `👤 ${namaTampil}`;
       el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-indigo-600 text-white font-medium max-w-[140px] truncate';
       el.title = user.email;
       const tombol = document.getElementById('tombol-logout');
