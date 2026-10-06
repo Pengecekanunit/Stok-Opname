@@ -451,41 +451,246 @@
         background-color: #f1f5f9 !important;
         color: #000 !important;
       }
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* ===================== TAMPILAN APLIKASI ===================== */
+    body {
+      background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 220px, #eef1f6 100%);
+      background-attachment: fixed;
+    }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #c7d2fe, #a5b4fc);
+      border-radius: 99px;
+      border: 2px solid #f8fafc;
+    }
+
+    button {
+      transition: transform .12s ease, box-shadow .18s ease, background-color .18s ease, color .18s ease;
+    }
+    button:active { transform: translateY(1px) scale(0.99); }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(115deg, #3730a3 0%, #6d28d9 48%, #4f46e5 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .app-header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 12% 130%, rgba(255, 255, 255, 0.28), transparent 42%),
+        radial-gradient(circle at 88% -30%, rgba(255, 255, 255, 0.18), transparent 40%);
+      pointer-events: none;
+    }
+    .sync-badge {
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35), 0 6px 16px rgba(5, 150, 105, 0.4);
+    }
+
+    /* Tab navigation */
+    .tab-nav-card {
+      background: linear-gradient(180deg, #ffffff, #fbfcfe);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
+    }
+    .tab-btn {
+      position: relative;
+      letter-spacing: 0.02em;
+      transition: color .18s ease, background-color .18s ease, transform .18s ease;
+    }
+    .tab-btn:hover { transform: translateY(-1px); }
+    .tab-btn.active {
+      background: linear-gradient(180deg, #eef2ff, #e0e7ff);
+      color: #4338ca;
+    }
+    .tab-btn.active::after {
+      content: "";
+      position: absolute;
+      left: 22%; right: 22%; bottom: -1px;
+      height: 3px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    }
+
+    /* Section cards */
+    main > section {
+      animation: fadeUp .32s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .section-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::before {
+      content: "";
+      width: 5px;
+      height: 22px;
+      flex: none;
+      border-radius: 99px;
+      background: linear-gradient(180deg, #6366f1, #8b5cf6);
+    }
+
+    /* Stat pill badges */
+    #stat-ringkasan,
+    #stat-belum-opname,
+    #stat-barang-minus {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4338ca;
+      border: 1px solid #e0e7ff;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    /* Search input */
+    .search-input {
+      transition: box-shadow .2s ease, border-color .2s ease;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    .search-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18), 0 6px 18px rgba(99, 102, 241, 0.12);
+      outline: none;
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 44px 20px;
+      text-align: center;
+      border: 2px dashed #e2e8f0;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #f8fafc, #eef2ff);
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+    .empty-state .empty-emoji { font-size: 2.25rem; }
+
+    /* Result & setting cards hover lift */
+    #hasil-cari-unit > div,
+    #sec-data > div,
+    #list-unit-belum-opname > section {
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    #hasil-cari-unit > div:hover,
+    #sec-data > div:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
+    }
+
+    /* Modal polish */
+    .modal-shell {
+      position: relative;
+      background: #ffffff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 28px 64px -14px rgba(15, 23, 42, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.5);
+      animation: popIn .24s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .modal-shell::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(14px) scale(0.97); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* ===================== LAYOUT LANDSCAPE (TABLET / HP) ===================== */
+    @media (orientation: landscape) {
+      main {
+        max-width: 64rem;
+      }
+      .modal-shell {
+        max-height: 92vh;
+        overflow-y: auto;
+      }
+      .modal-shell::before {
+        position: sticky;
+        top: 0;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 560px) {
+      .app-header {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+      main {
+        margin-top: 8px;
+        padding: 12px;
+      }
+      .tab-btn {
+        padding-top: 9px;
+        padding-bottom: 9px;
+        font-size: 0.85rem;
+      }
+      section[id^="sec-"] {
+        padding: 16px;
+      }
+      #tab-nav {
+        margin-bottom: 4px;
+      }
     }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
 
   <!-- Header UI -->
-  <header class="bg-indigo-700 text-white p-4 shadow-md sticky top-0 z-40">
-    <div class="max-w-4xl mx-auto flex justify-between items-center">
-      <h1 class="text-xl font-bold tracking-wide">📦 Stok Opname System</h1>
-      <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500 text-white font-medium">Auto-Sync KSU</span>
+  <header class="app-header text-white p-4 shadow-lg sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto flex justify-between items-center relative z-10">
+      <h1 class="text-2xl font-extrabold tracking-wide drop-shadow-sm">📦 Stok Opname System</h1>
+      <span class="sync-badge text-xs px-3 py-1.5 rounded-full bg-emerald-500 text-white font-semibold inline-flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>Auto-Sync KSU
+      </span>
     </div>
   </header>
 
   <main class="max-w-4xl mx-auto p-4 space-y-6 mt-2">
 
     <!-- Tab Navigation -->
-    <div id="tab-nav" class="flex border-b border-slate-300 bg-white rounded-t-lg overflow-hidden shadow-sm">
-      <button onclick="switchTab('unit')" id="tab-unit" class="flex-1 py-3 px-4 text-center font-semibold text-indigo-700 border-b-2 border-indigo-700 bg-indigo-50">
+    <div id="tab-nav" class="tab-nav-card flex border border-slate-200 border-b-0 bg-white rounded-t-lg overflow-hidden shadow-md">
+      <button onclick="switchTab('unit')" id="tab-unit" class="tab-btn active flex-1 py-3 px-4 text-center font-semibold text-indigo-700">
         🏍️ Opname Unit
       </button>
-      <button onclick="switchTab('kelengkapan')" id="tab-kelengkapan" class="flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+      <button onclick="switchTab('kelengkapan')" id="tab-kelengkapan" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
         📊 Rekap Audit KSU
       </button>
-      <button onclick="switchTab('belum-opname')" id="tab-belum-opname" class="flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+      <button onclick="switchTab('belum-opname')" id="tab-belum-opname" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
         📋 Unit Belum Opname
       </button>
-      <button onclick="switchTab('data')" id="tab-data" class="flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+      <button onclick="switchTab('data')" id="tab-data" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
         ⚙️ Impor & Ekspor Data
       </button>
     </div>
 
     <!-- TAB 1: STOK OPNAME UNIT -->
-    <section id="sec-unit" class="bg-white p-5 rounded-b-lg shadow-sm space-y-4">
+    <section id="sec-unit" class="bg-white p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4">
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-        <h2 class="text-lg font-bold text-slate-700">Pencarian Unit Motor</h2>
+        <h2 class="section-title text-lg font-bold text-slate-800">Pencarian Unit Motor</h2>
         <div id="stat-ringkasan" class="text-xs font-semibold text-slate-500">
           <!-- Diisi via JavaScript -->
         </div>
@@ -495,24 +700,30 @@
       <div class="space-y-3">
         <div>
           <label class="block text-sm font-medium text-slate-600 mb-1">Cari No. Rangka / No. Mesin / Tipe / Warna</label>
-          <input type="text" id="search-unit" onkeyup="cariUnit()" placeholder="Ketik nomor rangka, mesin, atau tipe..." 
-                 class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-lg">
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-lg pointer-events-none select-none">🔍</span>
+            <input type="text" id="search-unit" onkeyup="cariUnit()" placeholder="Ketik nomor rangka, mesin, atau tipe..." 
+                   class="search-input w-full p-3.5 pl-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-lg font-medium">
+          </div>
         </div>
       </div>
 
       <!-- Hasil Pencarian -->
       <div id="hasil-cari-unit" class="space-y-4 mt-4">
-        <p class="text-slate-400 text-sm italic">Gunakan kolom pencarian di atas untuk menemukan data unit.</p>
+        <div class="empty-state">
+          <div class="empty-emoji">🏍️</div>
+          <p>Gunakan kolom pencarian di atas untuk menemukan data unit.</p>
+        </div>
       </div>
     </section>
 
-    <section id="sec-belum-opname" class="bg-white p-5 rounded-b-lg shadow-sm space-y-4 hidden">
+    <section id="sec-belum-opname" class="bg-white p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4 hidden">
       <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
-          <h2 class="text-lg font-bold text-slate-700">Daftar Unit Belum Opname</h2>
-          <p id="stat-belum-opname" class="text-xs text-slate-500 mt-1">Memuat daftar unit...</p>
+          <h2 class="section-title text-lg font-bold text-slate-800">Daftar Unit Belum Opname</h2>
+          <p id="stat-belum-opname" class="text-xs text-slate-500 mt-2">Memuat daftar unit...</p>
         </div>
-        <button onclick="muatUnitBelumOpname()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg">
+        <button onclick="muatUnitBelumOpname()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow">
           🔄 Perbarui Daftar
         </button>
       </div>
@@ -526,15 +737,15 @@
     </section>
 
     <!-- TAB 2: REKAPITULASI AUDIT STOK KSU -->
-    <section id="sec-kelengkapan" class="bg-white p-6 rounded-b-lg shadow-sm space-y-6 hidden">
+    <section id="sec-kelengkapan" class="bg-white p-6 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-6 hidden">
       <div class="no-print flex gap-2 border-b border-slate-200 pb-3 mb-2">
-        <button onclick="switchKSUContent('audit')" id="ksu-tab-audit" class="flex-1 py-2.5 px-3 text-sm font-bold text-indigo-700 border-b-2 border-indigo-700 bg-indigo-50 rounded-t-lg">
+        <button onclick="switchKSUContent('audit')" id="ksu-tab-audit" class="tab-btn active flex-1 py-2.5 px-3 text-sm font-bold text-indigo-700 rounded-t-lg">
           📄 Berita Acara & Rekap Audit KSU
         </button>
-        <button onclick="switchKSUContent('barang-minus')" id="ksu-tab-barang-minus" class="flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
+        <button onclick="switchKSUContent('barang-minus')" id="ksu-tab-barang-minus" class="tab-btn flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
           📉 Barang Minus KSU
         </button>
-        <button onclick="switchKSUContent('input-fisik')" id="ksu-tab-input-fisik" class="flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
+        <button onclick="switchKSUContent('input-fisik')" id="ksu-tab-input-fisik" class="tab-btn flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
           📦 Input Fisik Gudang
         </button>
       </div>
@@ -552,8 +763,8 @@
         <!-- HEADER ACTION BAR (UI ONLY) -->
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b pb-3 gap-3 no-print">
           <div>
-            <h2 class="text-xl font-extrabold text-slate-800">BERITA ACARA AUDIT STOK KSU</h2>
-            <p class="text-xs text-slate-500">Laporan Rekapitulasi Kelengkapan Unit & Stok Fisik Gudang</p>
+            <h2 class="section-title text-xl font-extrabold text-slate-800">BERITA ACARA AUDIT STOK KSU</h2>
+            <p class="text-xs text-slate-500 mt-1">Laporan Rekapitulasi Kelengkapan Unit & Stok Fisik Gudang</p>
           </div>
 
           <div class="flex flex-wrap gap-2">
@@ -730,13 +941,13 @@
         </div>
         <div class="no-print flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div>
-            <h2 class="text-lg font-bold text-slate-700">Daftar Barang Minus KSU</h2>
-            <p id="stat-barang-minus" class="text-xs text-slate-500 mt-1">Memuat daftar barang minus...</p>
+            <h2 class="section-title text-lg font-bold text-slate-800">Daftar Barang Minus KSU</h2>
+            <p id="stat-barang-minus" class="text-xs text-slate-500 mt-2">Memuat daftar barang minus...</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button onclick="bukaModalLaporanKSU('minus-pdf')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg">📄 Download PDF</button>
-            <button onclick="bukaModalLaporanKSU('minus-excel')" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg">📊 Download Excel</button>
-            <button onclick="muatRekapKelengkapan()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg">🔄 Perbarui Daftar</button>
+            <button onclick="bukaModalLaporanKSU('minus-pdf')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow">📄 Download PDF</button>
+            <button onclick="bukaModalLaporanKSU('minus-excel')" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg shadow">📊 Download Excel</button>
+            <button onclick="muatRekapKelengkapan()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow">🔄 Perbarui Daftar</button>
           </div>
         </div>
         <div id="list-barang-minus" class="overflow-x-auto"></div>
@@ -747,11 +958,11 @@
     </section>
 
     <!-- TAB 3: IMPOR & EKSPOR DATA LOKAL -->
-    <section id="sec-data" class="bg-white p-5 rounded-b-lg shadow-sm space-y-6 hidden">
+    <section id="sec-data" class="bg-white p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-6 hidden">
       
       <!-- Impor Excel Master -->
       <div class="border p-4 rounded-lg border-indigo-100 bg-indigo-50/50 space-y-2">
-        <h3 class="font-bold text-indigo-900">1. Impor Master Unit dari Excel</h3>
+        <h3 class="section-title font-bold text-indigo-900">1. Impor Master Unit dari Excel</h3>
         <p class="text-xs text-slate-600">Pilih file Excel master data unit motor untuk dimasukkan ke dalam database perangkat ini.</p>
         <input type="file" id="file-excel" accept=".xlsx, .xls, .csv" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700">
         <button onclick="imporExcelUnit()" class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm shadow">
@@ -761,7 +972,7 @@
 
       <!-- Download Excel Hasil Opname & Foto -->
       <div class="border p-4 rounded-lg border-emerald-100 bg-emerald-50/50 space-y-3">
-        <h3 class="font-bold text-emerald-900">2. Download Hasil Stok Opname & Foto Bukti</h3>
+        <h3 class="section-title font-bold text-emerald-900">2. Download Hasil Stok Opname & Foto Bukti</h3>
         <p class="text-xs text-slate-600">Unduh data hasil opname dalam bentuk file Excel (.xlsx) atau unduh seluruh foto fisik unit sekaligus (ZIP).</p>
         <div class="flex flex-col sm:flex-row gap-2">
           <button onclick="eksporHasilUnitLocal()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm shadow">
@@ -780,7 +991,7 @@
 
       <!-- Reset Database -->
       <div class="border p-4 rounded-lg border-red-200 bg-red-50 space-y-2">
-        <h3 class="font-bold text-red-800">3. Bersihkan Database Perangkat</h3>
+        <h3 class="section-title font-bold text-red-800">3. Bersihkan Database Perangkat</h3>
         <p class="text-xs text-slate-600">Hapus seluruh data master dan hasil opname yang tersimpan di browser ini.</p>
         <button onclick="hapusSemuaData()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg text-sm shadow">
           🗑️ Hapus Semua Data Lokal
@@ -792,7 +1003,7 @@
 
   <!-- MODAL POPUP KELENGKAPAN UNIT -->
   <div id="modal-kelengkapan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-5 transform transition-all">
+    <div class="modal-shell max-w-md w-full p-6 space-y-5">
       <div class="border-b pb-3">
         <h3 class="text-lg font-bold text-slate-800">📋 Checklist Kelengkapan Unit</h3>
         <p class="text-xs text-slate-500 mt-1" id="modal-info-tipe">Kelengkapan otomatis terdeteksi berdasarkan No. Mesin:</p>
@@ -847,7 +1058,7 @@
   </div>
 
   <div id="modal-cetak-ksu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
-    <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-5">
+    <div class="modal-shell max-w-lg w-full p-6 space-y-5">
       <div class="border-b pb-3">
         <h3 class="text-lg font-bold text-slate-800">📄 Informasi Berita Acara KSU</h3>
         <p class="text-xs text-slate-500 mt-1">Isi cabang dan periode audit sebelum mencetak atau mengunduh PDF.</p>
@@ -1460,7 +1671,7 @@
       dateRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.addRow([]).height = 8;
 
-      const headers = ['NO', 'JENIS / TIPE KLASIFIKASI', 'TOTAL FISIK', 'HARGA SATUAN', 'KODE SPAREPART', 'TOTAL HARGA'];
+      const headers = ['NO', 'JENIS / TIPE KLASIFIKASI', 'SELISIH', 'HARGA SATUAN', 'KODE SPAREPART', 'TOTAL HARGA'];
       const headerRow = worksheet.addRow(headers);
       headerRow.height = 27;
       headerRow.eachCell(cell => {
@@ -1486,24 +1697,25 @@
           .some(row => Number(row.cells[5]?.textContent.trim() || 0) < 0)
       );
       mainCards.forEach((card, cardIndex) => {
+        const minusRows = (() => {
+          const totalRow = card.querySelector('tbody tr.table-total-row');
+          const totalSelisih = totalRow ? Number(totalRow.cells[4]?.textContent.trim() || 0) : null;
+          const tampilkanItem = totalRow ? totalSelisih < 0 : hasNegativeTotalPhysical;
+          return tampilkanItem
+            ? [...card.querySelectorAll('tbody tr:not(.table-total-row):not(.category-row)')]
+              .filter(row => ['Minus', 'Plus'].includes(row.cells[6]?.textContent.trim()))
+            : [];
+        })();
+        if (!minusRows.length) {
+          return;
+        }
+
         const cardTitle = card.querySelector('.official-table-header-bar > div')?.textContent.trim() || `TABEL ${cardIndex + 1}`;
         const sectionRow = worksheet.addRow([cardTitle]);
         worksheet.mergeCells(`A${sectionRow.number}:F${sectionRow.number}`);
         sectionRow.height = 22;
         sectionRow.getCell(1).font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
         sectionRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF243D5C' } };
-
-        const minusRows = hasNegativeTotalPhysical
-          ? [...card.querySelectorAll('tbody tr:not(.table-total-row):not(.category-row)')]
-            .filter(row => ['Minus', 'Plus'].includes(row.cells[6]?.textContent.trim()))
-          : [];
-        if (!minusRows.length) {
-          const emptyRow = worksheet.addRow(['Tidak ada hasil Minus atau Plus pada kategori ini.']);
-          worksheet.mergeCells(`A${emptyRow.number}:F${emptyRow.number}`);
-          emptyRow.height = 21;
-          emptyRow.getCell(1).font = { name: 'Arial', size: 9, italic: true, color: { argb: 'FF64748B' } };
-          return;
-        }
 
         minusRows.forEach((htmlRow, index) => {
           const type = htmlRow.cells[1]?.textContent.trim() || '';
@@ -1724,15 +1936,15 @@
     function switchTab(tab) {
       ['unit', 'kelengkapan', 'belum-opname', 'data'].forEach(t => {
         document.getElementById(`sec-${t}`).classList.add('hidden');
-        document.getElementById(`tab-${t}`).className = "flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600";
+        document.getElementById(`tab-${t}`).className = "tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600";
       });
       document.getElementById(`sec-${tab}`).classList.remove('hidden');
-      document.getElementById(`tab-${tab}`).className = "flex-1 py-3 px-4 text-center font-semibold text-indigo-700 border-b-2 border-indigo-700 bg-indigo-50";
+      document.getElementById(`tab-${tab}`).className = "tab-btn active flex-1 py-3 px-4 text-center font-semibold text-indigo-700";
 
       if (tab === 'unit') {
         updateRingkasanUnit();
       } else if (tab === 'kelengkapan') {
-        switchKSUContent('berita-acara');
+        switchKSUContent('audit');
         updateSubKategori();
         loadListKelengkapan();
         muatRekapKelengkapan();
@@ -1843,7 +2055,7 @@
       Object.values(buttonByContent).forEach((id) => {
         const el = document.getElementById(id);
         if (el) {
-          el.className = 'flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg';
+          el.className = 'tab-btn flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg';
         }
       });
 
@@ -1855,7 +2067,7 @@
       }
 
       if (document.getElementById(activeButton)) {
-        document.getElementById(activeButton).className = 'flex-1 py-2.5 px-3 text-sm font-bold text-indigo-700 border-b-2 border-indigo-700 bg-indigo-50 rounded-t-lg';
+        document.getElementById(activeButton).className = 'tab-btn active flex-1 py-2.5 px-3 text-sm font-bold text-indigo-700 rounded-t-lg';
       }
 
       if (content === 'barang-minus') {
@@ -2042,8 +2254,8 @@
                     <th style="width: 90px;">STOK SISTEM</th>
                     <th style="width: 100px;">TERPASANG UNIT</th>
                     <th style="width: 90px;">FISIK GUDANG</th>
-                    <th style="width: 90px;">TOTAL FISIK</th>
                     <th style="width: 90px;">SELISIH</th>
+                    <th style="width: 90px;">STATUS</th>
                   </tr>
                 </thead>
                 <tbody>${rowsHtml}</tbody>
@@ -2103,7 +2315,10 @@
         const titleCells = card.querySelector('.official-table-header-bar')?.querySelectorAll(':scope > div') || [];
         const categoryTitle = titleCells[0]?.textContent.trim() || `TABEL ${categoryIndex + 1}`;
         const sourceRows = [...card.querySelectorAll('tbody tr:not(.table-total-row):not(.category-row)')];
-        const items = sourceRows.filter(row => ['Minus', 'Plus'].includes(row.cells[6]?.textContent.trim())).map(row => {
+        const totalRow = card.querySelector('tbody tr.table-total-row');
+        const totalSelisih = totalRow ? Number(totalRow.cells[4]?.textContent.trim() || 0) : null;
+        const tampilkanItem = totalRow ? totalSelisih < 0 : hasNegativeTotalPhysical;
+        const items = tampilkanItem ? sourceRows.filter(row => ['Minus', 'Plus'].includes(row.cells[6]?.textContent.trim())).map(row => {
           const jenis = row.cells[1]?.textContent.trim() || '';
           const kategori = Object.entries(opsiJenis).find(([, jenisList]) => jenisList.includes(jenis))?.[0];
           if (!kategori) return null;
@@ -2125,7 +2340,9 @@
           };
           minusItems.push(item);
           return item;
-        }).filter(Boolean);
+        }).filter(Boolean) : [];
+
+        if (!items.length) return '';
 
         return `
           <div class="official-table-card mb-3">
@@ -2135,7 +2352,7 @@
                 <thead><tr>
                   <th style="width: 42px;">NO</th>
                   <th>JENIS / TIPE KLASIFIKASI</th>
-                  <th style="width: 100px;">TOTAL FISIK</th>
+                  <th style="width: 100px;">SELISIH</th>
                   <th style="width: 125px;">HARGA SATUAN</th>
                   <th style="width: 145px;">KODE SPAREPART</th>
                   <th style="width: 140px;">TOTAL HARGA</th>
@@ -2364,7 +2581,7 @@
       const container = document.getElementById('hasil-cari-unit');
       
       if (keyword.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 text-sm italic">Gunakan kolom pencarian di atas untuk menemukan data unit.</p>`;
+        container.innerHTML = `<div class="empty-state"><div class="empty-emoji">🏍️</div><p>Gunakan kolom pencarian di atas untuk menemukan data unit.</p></div>`;
         return;
       }
 
@@ -2380,7 +2597,7 @@
         .toArray();
 
       if (results.length === 0) {
-        container.innerHTML = `<p class="text-red-500 font-medium text-sm">❌ Unit dengan kata kunci "${keyword}" tidak ditemukan.</p>`;
+        container.innerHTML = `<div class="empty-state"><div class="empty-emoji">🔍</div><p>Unit dengan kata kunci "${escapeHTML(keyword)}" tidak ditemukan.</p></div>`;
         return;
       }
 
