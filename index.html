@@ -822,7 +822,6 @@
       </div>
     </section>
 
-    <!-- TAB 3: UNIT BELUM OPNAME -->
     <section id="sec-belum-opname" class="bg-white p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4 hidden">
       <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
@@ -856,7 +855,6 @@
         </button>
       </div>
 
-      <!-- SUB-TAB 1: BERITA ACARA & REKAP AUDIT KSU -->
       <div id="sec-berita-acara-ksu" class="space-y-6">
         <!-- KOP LAPORAN UNTUK HASIL PRINT/PDF -->
         <div class="hidden print:block border-b-2 border-slate-800 pb-1 mb-0">
@@ -907,381 +905,2572 @@
             <p class="text-xs text-slate-500">Ringkasan data audit kelengkapan unit dan stok fisik gudang</p>
           </div>
           <div id="container-audit-ksu" class="space-y-6">
-            <!-- Tabel KSU di-render otomatis dari JS -->
+            <!-- Tabel ACCU, HELM, SPION, TOOL KIT, PLAT HOLDER, SAFETY RIDING di-render otomatis -->
           </div>
 
-          <!-- KESIMPULAN AUDIT -->
-          <div id="kesimpulan-audit-container" class="space-y-4 mt-6">
-            <h3 class="text-md font-bold text-slate-800 no-print">📌 Kesimpulan Audit</h3>
-            <div id="kesimpulan-audit-content" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Kesimpulan di-render dari JS -->
+          <!-- KESIMPULAN AUDIT (hanya tampil di layar, tidak ikut cetak) -->
+          <div id="kesimpulan-audit-ksu" class="no-print space-y-4">
+            <div class="border-b pb-2">
+              <h3 class="section-title text-lg font-extrabold text-slate-800">Kesimpulan Audit</h3>
+              <p class="text-xs text-slate-500">Ringkasan selisih tiap kategori: jenis/tipe klasifikasi, nominal selisih, dan total akhir.</p>
+            </div>
+            <div id="kesimpulan-list" class="grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
+            <div id="kesimpulan-total" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border-2 p-4 shadow-sm"></div>
+          </div>
+        </div>
+
+        <!-- KOLOM TANDA TANGAN FORMAL & PROFESIONAL -->
+        <div class="signoff-print-only pt-6 mt-8 border-t border-slate-400 page-break">
+          <div class="space-y-6 text-center text-xs">
+
+            <p class="text-sm font-black text-slate-800 uppercase tracking-wide">DISEPAKATI,</p>
+
+            <div class="signoff-4-col">
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="role">Tim Auditor / Opname</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">Auditor</p>
+                </div>
+              </div>
+
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="role">Kepala Gudang / Logistics</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">Head Warehouse</p>
+                </div>
+              </div>
+
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="role">Admin Dept. Head</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">ADH Cabang</p>
+                </div>
+              </div>
+
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="role">Kepala Cabang</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">Branch Manager</p>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-sm font-black text-slate-800 uppercase tracking-wide mt-4">MENGETAHUI,</p>
+
+            <div class="signoff-2-col">
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="role">Supervisor Audit</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">Supervisor</p>
+                </div>
+              </div>
+
+              <div class="official-signoff">
+                <div class="mt-1">
+                  <p class="role">Manager Operasional</p>
+                </div>
+                <div>
+                  <div class="line"></div>
+                  <p class="person">Manager Ops</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SUB-TAB 2: BARANG MINUS KSU -->
-      <div id="sec-barang-minus" class="space-y-6 hidden">
-        <div class="flex justify-between items-center no-print">
+      <div id="sec-input-fisik-ksu" class="hidden space-y-6">
+        <div id="form-kelengkapan-container" class="space-y-4 no-print">
+          <h3 class="font-bold text-slate-700">📦 Input Hasil Penghitungan Fisik Gudang (Loose / Sparepart)</h3>
+
+          <form id="form-kelengkapan" onsubmit="simpanKelengkapan(event)" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Kategori Items</label>
+              <select id="kel-kategori" onchange="updateSubKategori()" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+                <option value="Aki">🔋 ACCU / Aki Motor</option>
+                <option value="Helm">🪖 Helm</option>
+                <option value="Spion">🪞 Spion</option>
+                <option value="ToolKit">🧰 Tool Kit</option>
+                <option value="PlatHolder">🔲 Plat Holder</option>
+                <option value="SafetyRiding">🦺 Safety Riding</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Klasifikasi / Jenis Tipe</label>
+              <select id="kel-jenis" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+                <!-- Diisi JavaScript -->
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Jumlah Fisik di Gudang (Qty)</label>
+              <input type="number" id="kel-qty" required min="0" value="1" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-600 mb-1">Lokasi Rak / Catatan</label>
+              <input type="text" id="kel-catatan" placeholder="Contoh: Rak A-02 / Dus Segel" class="w-full p-3 border border-slate-300 rounded-lg">
+            </div>
+
+            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-lg shadow">
+              💾 Simpan Data Fisik Gudang
+            </button>
+          </form>
+
+          <h4 class="font-bold text-slate-700 pt-2">Riwayat Input Fisik Gudang</h4>
+          <div id="list-kelengkapan" class="space-y-2 text-sm"></div>
+        </div>
+      </div>
+
+      <section id="sec-barang-minus" class="hidden space-y-4">
+        <div class="minus-report-print-only border-b-2 border-slate-800 pb-2 mb-2 text-center">
+          <h1 class="text-xl font-extrabold text-slate-900">BERITA ACARA AUDIT STOK KSU</h1>
+          <h2 class="text-sm font-bold text-slate-800 mt-1">DAFTAR BARANG MINUS KSU</h2>
+          <p class="text-center font-bold mt-2" id="minus-print-cabang">-</p>
+          <div class="laporan-date-row">
+            <div class="laporan-date-field">
+              <label class="laporan-label">Tanggal Mulai Audit</label>
+              <p class="font-bold" id="minus-print-tanggal-mulai">-</p>
+            </div>
+            <div class="laporan-date-field">
+              <label class="laporan-label">Tanggal Selesai Audit</label>
+              <p class="font-bold" id="minus-print-tanggal-selesai">-</p>
+            </div>
+          </div>
+        </div>
+        <div class="no-print flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h3 class="text-lg font-extrabold text-slate-800">Daftar Barang Minus KSU</h3>
-            <p class="text-xs text-slate-500">Lengkapi harga satuan dan kode sparepart untuk barang yang minus.</p>
+            <h2 class="section-title text-lg font-bold text-slate-800">Daftar Barang Minus KSU</h2>
+            <p id="stat-barang-minus" class="text-xs text-slate-500 mt-2">Memuat daftar barang minus...</p>
           </div>
-          <button onclick="exportBarangMinusExcelKSU()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-1">
-            📊 Laporan & Export
-          </button>
-        </div>
-
-        <div class="official-table-card">
-          <div class="official-table-wrap">
-            <table class="official-table">
-              <thead>
-                <tr>
-                  <th style="width: 40%;">KATEGORI - JENIS</th>
-                  <th style="width: 20%;">QTY MINUS</th>
-                  <th style="width: 20%;">HARGA SATUAN (RP)</th>
-                  <th style="width: 20%;">KODE SPAREPART</th>
-                </tr>
-              </thead>
-              <tbody id="tbody-barang-minus">
-                <!-- Data dinamis dari JavaScript -->
-              </tbody>
-            </table>
+          <div class="flex flex-nowrap gap-2">
+            <button onclick="bukaModalLaporanKSU('minus-pdf')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow whitespace-nowrap">📄 Download PDF</button>
+            <button onclick="bukaModalLaporanKSU('minus-excel')" class="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg shadow whitespace-nowrap">📊 Download Excel</button>
+            <button onclick="muatRekapKelengkapan()" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow whitespace-nowrap">🔄 Perbarui Daftar</button>
           </div>
         </div>
-      </div>
+        <div id="list-barang-minus" class="overflow-x-auto"></div>
+        <div id="total-harga-minus-ksu" class="text-right text-base font-extrabold text-slate-900 border-t-2 border-slate-500 pt-2">TOTAL KESELURUHAN HARGA: -</div>
+        <div id="minus-signoff-print-container" class="minus-signoff-print-only"></div>
+      </section>
 
-      <!-- SUB-TAB 3: INPUT FISIK GUDANG -->
-      <div id="sec-input-fisik-ksu" class="space-y-6 hidden">
-        <div>
-          <h3 class="text-lg font-extrabold text-slate-800">Input Fisik Gudang (KSU Extra)</h3>
-          <p class="text-xs text-slate-500">Masukkan jumlah stok fisik item KSU yang tersimpan terpisah di gudang.</p>
-        </div>
-        <div id="container-input-fisik" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Form Input Stok Fisik Gudang di-render dari JS -->
-        </div>
-      </div>
     </section>
 
-    <!-- TAB 4: IMPOR & EKSPOR DATA -->
-    <section id="sec-data" class="bg-white p-6 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-6 hidden">
-      <div>
-        <h2 class="section-title text-lg font-bold text-slate-800">Pengelolaan Data & Backup</h2>
-        <p class="text-xs text-slate-500 mt-1">Impor data Excel atau lakukan backup/restore database offline.</p>
+    <!-- TAB 3: IMPOR & EKSPOR DATA LOKAL -->
+    <section id="sec-data" class="bg-white p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-6 hidden">
+      
+      <!-- Impor Excel Master -->
+      <div class="border p-4 rounded-lg border-indigo-100 bg-indigo-50/50 space-y-2">
+        <h3 class="section-title font-bold text-indigo-900">1. Impor Master Unit dari Excel</h3>
+        <p class="text-xs text-slate-600">Pilih file Excel master data unit motor untuk dimasukkan ke dalam database perangkat ini.</p>
+        <input type="file" id="file-excel" accept=".xlsx, .xls, .csv" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700">
+        <button onclick="imporExcelUnit()" class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm shadow">
+          📥 Muat Data Master Ke Perangkat
+        </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="border rounded-xl p-4 bg-slate-50 space-y-3">
-          <h3 class="font-bold text-slate-800 text-sm">📥 Impor Master Data Excel</h3>
-          <p class="text-xs text-slate-600">Unggah file Excel daftar unit motor untuk memulai stok opname.</p>
-          <input type="file" id="input-excel-unit" accept=".xlsx, .xls" class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-          <button onclick="imporExcelUnit()" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg shadow">
-            Proses Impor Unit
+      <!-- Download Excel Hasil Opname & Foto -->
+      <div class="border p-4 rounded-lg border-emerald-100 bg-emerald-50/50 space-y-3">
+        <h3 class="section-title font-bold text-emerald-900">2. Download Hasil Stok Opname & Foto Bukti</h3>
+        <p class="text-xs text-slate-600">Unduh data hasil opname dalam bentuk file Excel (.xlsx) atau unduh seluruh foto fisik unit sekaligus (ZIP).</p>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <button onclick="eksporHasilUnitLocal()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm shadow">
+            📊 Download Excel Unit
+          </button>
+          <button onclick="eksporHasilKelengkapanLocal()" class="flex-1 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-sm shadow">
+            📊 Download Excel Audit KSU
           </button>
         </div>
-
-        <div class="border rounded-xl p-4 bg-slate-50 space-y-3">
-          <h3 class="font-bold text-slate-800 text-sm">💾 Backup & Reset Database</h3>
-          <p class="text-xs text-slate-600">Ekspor seluruh data IndexedDB atau kosongkan database aplikasi.</p>
-          <div class="flex gap-2">
-            <button onclick="eksporBackupJSON()" class="flex-1 py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs rounded-lg shadow">
-              Backup JSON
-            </button>
-            <button onclick="resetDatabase()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg shadow">
-              Reset Semua Data
-            </button>
-          </div>
+        <div>
+          <button onclick="downloadSemuaFotoZip()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg text-sm shadow flex justify-center items-center gap-2">
+            🖼️ Download Semua Foto Fisik (ZIP JPG)
+          </button>
         </div>
+      </div>
+
+      <!-- Reset Database -->
+      <div class="border p-4 rounded-lg border-red-200 bg-red-50 space-y-2">
+        <h3 class="section-title font-bold text-red-800">3. Bersihkan Database Perangkat</h3>
+        <p class="text-xs text-slate-600">Hapus seluruh data master dan hasil opname yang tersimpan di browser ini.</p>
+        <button onclick="hapusSemuaData()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg text-sm shadow">
+          🗑️ Hapus Semua Data Lokal
+        </button>
       </div>
     </section>
 
   </main>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- MODAL POPUP KELENGKAPAN UNIT -->
+  <div id="modal-kelengkapan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-shell max-w-md w-full p-6 space-y-5">
+      <div class="border-b pb-3">
+        <h3 class="text-lg font-bold text-slate-800">📋 Checklist Kelengkapan Unit</h3>
+        <p class="text-xs text-slate-500 mt-1" id="modal-info-tipe">Kelengkapan otomatis terdeteksi berdasarkan No. Mesin:</p>
+      </div>
+
+      <input type="hidden" id="modal-unit-id">
+      <input type="hidden" id="modal-unit-status">
+
+      <!-- Tampilan Spesifikasi Otomatis Terdeteksi -->
+      <div class="bg-indigo-50 p-3 rounded-lg text-xs space-y-1 text-indigo-900 font-medium">
+        <p>🔋 ACCU  : <b id="preview-aki">-</b></p>
+        <p>🪖 HELM : <b id="preview-helm">-</b></p>
+        <p>🪞 SPION: <b id="preview-spion">-</b></p>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-spion" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🪞 Spion (Fisik Ada)</span>
+        </label>
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-aki" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🔋 Aki / ACCU (Fisik Ada)</span>
+        </label>
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-toolkit" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🧰 Tool Kit (Fisik Ada)</span>
+        </label>
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-plat" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🔲 Plat Holder (Fisik Ada)</span>
+        </label>
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-helm" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🪖 Helm (Fisik Ada)</span>
+        </label>
+        <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          <input type="checkbox" id="modal-safety-riding" class="w-5 h-5 text-indigo-600 rounded">
+          <span class="font-medium text-slate-700">🦺 Safety Riding (Fisik Ada)</span>
+        </label>
+      </div>
+
+      <div class="flex justify-end space-x-3 pt-3 border-t">
+        <button onclick="tutupModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-300">
+          Batal
+        </button>
+        <button onclick="konfirmasiSimpanOpname()" class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 shadow">
+          💾 Simpan & Sinkronkan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-cetak-ksu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+    <div class="modal-shell max-w-lg w-full p-6 space-y-5">
+      <div class="border-b pb-3">
+        <h3 class="text-lg font-bold text-slate-800">📄 Informasi Berita Acara KSU</h3>
+        <p class="text-xs text-slate-500 mt-1">Isi cabang dan periode audit sebelum mencetak atau mengunduh PDF.</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-600 mb-1" for="modal-cabang-nama">Nama Cabang / Pos Dealer</label>
+        <select id="modal-cabang-nama" class="w-full p-3 border border-slate-300 rounded-lg bg-white">
+          <option value="">Pilih Nama Cabang</option>
+          <option>PT Bintang Alam Jaya III Jurumudi (Tangerang)</option>
+          <option>PT Bintang Motor Jaya III Cinere</option>
+          <option>PT Bintang Motor Jaya I Cikarang</option>
+          <option>PT Bintang Motor Jaya IV Buaran</option>
+          <option>PT Bintang Mulia Jaya III Bengkulu</option>
+          <option>PT Bintang Motor Jaya V Pontianak</option>
+          <option>PT Bintang Alam Jaya I Cibitung</option>
+          <option>PT Bintang Alam Jaya II Banjaran</option>
+          <option>PT Bintang Motor Jaya II Cirebon</option>
+          <option>PT Bintang Niaga Jaya Cibinong</option>
+          <option>PT Bintang Kharisma Jaya I Bandar Lampung</option>
+          <option>PT Bintang Kharisma Jaya II Gisting</option>
+          <option>PT Bintang Mulia Jaya II Lampung Timur</option>
+          <option>PT Bintang Kharisma Jaya III Makassar</option>
+          <option>PT Bintang Kharisma Jaya IV Palopo</option>
+          <option>PT Bintang Mulia Jaya I Palembang</option>
+          <option>PT Bintang Mulia Jaya IV Lahat</option>
+          <option>PT Bintang Mulia Jaya V Sekayu</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1" for="modal-tanggal-mulai">Tanggal Mulai Audit</label>
+          <input type="date" id="modal-tanggal-mulai" class="w-full p-3 border border-slate-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-600 mb-1" for="modal-tanggal-selesai">Tanggal Selesai Audit</label>
+          <input type="date" id="modal-tanggal-selesai" class="w-full p-3 border border-slate-300 rounded-lg">
+        </div>
+      </div>
+
+      <p id="modal-cetak-error" class="hidden text-sm text-red-600" role="alert"></p>
+
+      <div class="flex justify-end gap-2 pt-3 border-t">
+        <button onclick="tutupModalCetakKSU()" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-300">Batal</button>
+        <button id="modal-laporan-confirm" onclick="konfirmasiLaporanKSU()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg">Download PDF</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // 1. Inisialisasi Database IndexedDB (Dexie)
+    // --- 1. SETUP DATABASE DEXIE ---
     const db = new Dexie('StokOpnameDB');
-    db.version(1).stores({
-      units: '++id, noRangka, noMesin, tipe, warna, warehouse, statusOpname',
-      ksuFisik: 'kategori, jenis, qty',
-      hargaSparepart: 'kategoriJenis, harga, kode'
+    db.version(4).stores({
+      unit: '++id, no_rangka, no_mesin, tipe_unit, warna, warehouse, status, waktu_opname, foto',
+      kelengkapan: '++id, kategori, jenis, qty, catatan, waktu_opname'
     });
 
-    const KATEGORI_KSU = ['ACCU', 'HELM', 'SPION', 'TOOL KIT', 'PLAT HOLDER', 'SAFETY RIDING'];
+    let currentCoords = "-";
+    let currentAddress = "";
+    let aksiLaporanKSU = 'pdf';
 
-    // 2. Tab Navigation Function
-    function switchTab(tab) {
-      const tabs = ['unit', 'kelengkapan', 'belum-opname', 'data'];
-      tabs.forEach(t => {
-        document.getElementById(`tab-${t}`).classList.remove('active', 'text-indigo-700');
-        document.getElementById(`tab-${t}`).classList.add('text-slate-500');
-        document.getElementById(`sec-${t}`).classList.add('hidden');
+    // --- 1b. KONFIGURASI FIREBASE ---
+    // GANTI NILAI DI BAWAH DENGAN KREDENSIAL PROYEK FIREBASE ANDA
+    // (Firebase Console > Project Settings > Web App > SDK setup and configuration)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDvrZUtgJZd7SqgYRGukTO4_yuVAYvHn28",
+      authDomain: "stok-opname-d1184.firebaseapp.com",
+      projectId: "stok-opname-d1184",
+      storageBucket: "stok-opname-d1184.firebasestorage.app",
+      messagingSenderId: "1034032570518",
+      appId: "1:1034032570518:web:6e36b8a4b0b9de50f0e2b7",
+      measurementId: "G-PVCJQRYGLW"
+    };
+
+    let firebaseAktif = false;
+    let dbFirestore = null;
+    let storageRef = null;
+    let antrianSync = [];
+    let sedangSync = false;
+
+    function inisialisasiFirebase() {
+      if (typeof firebase === 'undefined') {
+        console.warn('Library Firebase belum termuat. Sinkronisasi cloud dinonaktifkan.');
+        return;
+      }
+      if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'MASUKKAN_API_KEY') {
+        console.info('Firebase belum dikonfigurasi. Isi firebaseConfig untuk mengaktifkan sync cloud.');
+        return;
+      }
+      try {
+        firebase.initializeApp(firebaseConfig);
+        dbFirestore = firebase.firestore();
+        storageRef = firebase.storage().ref();
+        firebaseAktif = true;
+        muatAntrianSyncTertunda();
+        console.info('Firebase Firestore aktif. Sinkronisasi otomatis diaktifkan.');
+      } catch (error) {
+        console.error('Gagal menginisialisasi Firebase:', error);
+      }
+    }
+
+    function infoSinkronisasi() {
+      const el = document.getElementById('status-sync');
+      if (!el) return;
+      if (!firebaseAktif) {
+        el.textContent = '☁ Offline Mode';
+        el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-slate-500 text-white font-medium';
+        return;
+      }
+      if (sedangSync) {
+        el.textContent = '⏳ Sinkronisasi...';
+        el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-amber-500 text-white font-medium animate-pulse';
+        return;
+      }
+      if (antrianSync.length > 0) {
+        el.textContent = `⏳ ${antrianSync.length} menunggu sync`;
+        el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-amber-600 text-white font-medium';
+        return;
+      }
+      el.textContent = '✓ Tersinkron';
+      el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-medium';
+    }
+
+    function muatAntrianSyncTertunda() {
+      try {
+        antrianSync = JSON.parse(localStorage.getItem('ksu_antrian_sync') || '[]');
+      } catch (error) {
+        antrianSync = [];
+      }
+      infoSinkronisasi();
+      if (antrianSync.length > 0) jalankanSinkronisasi();
+    }
+
+    function tambahKeAntrianSync(tugas) {
+      // Hindari duplikat: jika tugas sejenis untuk id sama belum diproses, timpa
+      const indexSama = antrianSync.findIndex(t => t.tabel === tugas.tabel && t.id === tugas.id);
+      if (indexSama >= 0) antrianSync[indexSama] = tugas;
+      else antrianSync.push(tugas);
+      try {
+        localStorage.setItem('ksu_antrian_sync', JSON.stringify(antrianSync));
+      } catch (error) {
+        console.warn('Antrian sync tidak tersimpan permanen:', error);
+      }
+      infoSinkronisasi();
+      jalankanSinkronisasi();
+    }
+
+    async function jalankanSinkronisasi() {
+      if (!firebaseAktif || sedangSync || antrianSync.length === 0) return;
+      if (!firebase.auth().currentUser) return; // butuh login untuk sync
+      sedangSync = true;
+      infoSinkronisasi();
+      while (antrianSync.length > 0) {
+        const tugas = antrianSync[0];
+        try {
+          if (tugas.tabel === 'unit') {
+            const data = await db.unit.get(tugas.id);
+            if (data) {
+              const { id, foto, ...payload } = data;
+              // Upload foto ke Storage, simpan URL-nya di Firestore
+              if (foto) {
+                try {
+                  const refFoto = storageRef.child(`foto_unit/${tugas.id}.jpg`);
+                  await refFoto.putString(foto, 'data_url');
+                  payload.fotoUrl = await refFoto.getDownloadURL();
+                } catch (errorFoto) {
+                  console.warn('Gagal upload foto, data tetap disinkronkan:', errorFoto);
+                }
+              }
+              payload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+              await dbFirestore.collection('unit').doc(String(tugas.id)).set(payload, { merge: true });
+            }
+          } else if (tugas.tabel === 'kelengkapan') {
+            const data = await db.kelengkapan.get(tugas.id);
+            if (data) {
+              const { id, ...payload } = data;
+              payload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+              await dbFirestore.collection('kelengkapan').doc(String(tugas.id)).set(payload, { merge: true });
+            }
+          }
+          antrianSync.shift();
+        } catch (error) {
+          console.error('Gagal sinkron tugas, akan dicoba lagi nanti:', error);
+          break; // hentikan, coba lagi saat ada perubahan berikutnya / online kembali
+        }
+      }
+      try {
+        localStorage.setItem('ksu_antrian_sync', JSON.stringify(antrianSync));
+      } catch (error) {
+        console.warn('Gagal menyimpan status antrian sync:', error);
+      }
+      sedangSync = false;
+      infoSinkronisasi();
+    }
+
+    window.addEventListener('online', () => {
+      if (firebaseAktif && firebase.auth().currentUser && antrianSync.length > 0) jalankanSinkronisasi();
+    });
+
+    // --- 1c. FIREBASE AUTH (LOGIN / REGISTER) ---
+    let userSekarang = null;
+
+    function tampilkanLoadingLogin(hidup) {
+      const tombol = document.querySelector('#form-login button[type="submit"]');
+      if (tombol) {
+        tombol.disabled = hidup;
+        tombol.textContent = hidup ? '⏳ Memproses...' : '🔓 Masuk';
+      }
+    }
+
+    function tampilkanError(elementId, pesan) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      el.textContent = pesan;
+      el.classList.remove('hidden');
+    }
+
+    function sembunyikanError(elementId) {
+      const el = document.getElementById(elementId);
+      if (el) el.classList.add('hidden');
+    }
+
+    // Suffix domain otomatis: user cukup masukkan nama (mis. "budi")
+    // menjadi "budi@stok-opname.app" di backend Firebase
+    const SUFFIX_DOMAIN_LOGIN = '@stok-opname.app';
+
+    function buatEmailDariUser(namaUser) {
+      const nama = String(namaUser || '').trim().toLowerCase().replace(/\s+/g, '');
+      return `${nama}${SUFFIX_DOMAIN_LOGIN}`;
+    }
+
+    async function prosesLogin(event) {
+      event.preventDefault();
+      sembunyikanError('login-error');
+      const namaUser = document.getElementById('login-user').value.trim();
+      const password = document.getElementById('login-password').value;
+      if (!namaUser) return tampilkanError('login-error', 'Isi nama user terlebih dahulu.');
+      if (!firebaseAktif) return tampilkanError('login-error', 'Firebase belum dikonfigurasi. Hubungi admin.');
+      const email = buatEmailDariUser(namaUser);
+      tampilkanLoadingLogin(true);
+      try {
+        await firebase.auth().signInWithEmailAndPassword(email, password);
+      } catch (error) {
+        const pesan = {
+          'auth/invalid-email': 'Format nama user tidak valid.',
+          'auth/user-disabled': 'Akun ini dinonaktifkan.',
+          'auth/user-not-found': 'Nama user tidak terdaftar.',
+          'auth/wrong-password': 'Password salah.',
+          'auth/invalid-login-credentials': 'Nama user atau password salah.',
+          'auth/too-many-requests': 'Terlalu banyak percobaan. Coba lagi nanti.',
+          'auth/network-request-failed': 'Gangguan jaringan. Periksa koneksi internet.'
+        }[error.code] || 'Gagal masuk. Periksa nama user & password Anda.';
+        console.warn('Email dikirim ke Firebase:', email);
+        tampilkanError('login-error', pesan);
+      } finally {
+        tampilkanLoadingLogin(false);
+      }
+    }
+
+    async function prosesRegister(event) {
+      event.preventDefault();
+      sembunyikanError('register-error');
+      const namaUser = document.getElementById('register-user').value.trim();
+      const password = document.getElementById('register-password').value;
+      if (!namaUser) return tampilkanError('register-error', 'Isi nama user terlebih dahulu.');
+      if (!firebaseAktif) return tampilkanError('register-error', 'Firebase belum dikonfigurasi. Hubungi admin.');
+      const email = buatEmailDariUser(namaUser);
+      try {
+        await firebase.auth().createUserWithEmailAndPassword(email, password);
+      } catch (error) {
+        const pesan = {
+          'auth/email-already-in-use': 'Nama user sudah terdaftar. Silakan masuk.',
+          'auth/invalid-email': 'Format nama user tidak valid.',
+          'auth/weak-password': 'Password terlalu lemah (minimal 6 karakter).',
+          'auth/network-request-failed': 'Gangguan jaringan. Periksa koneksi internet.'
+        }[error.code] || 'Gagal mendaftar. Coba lagi.';
+        tampilkanError('register-error', pesan);
+      }
+    }
+
+    // Form register disembunyikan: akun hanya dibuat admin via Firebase Console.
+    // Fungsi ini tetap ada untuk berjaga-jaga jika nanti ingin diaktifkan kembali.
+    function bukaFormRegister() {
+      tampilkanError('login-error', 'Pendaftaran ditutup. Admin membuatkan akun lewat Firebase Console.');
+    }
+
+    function bukaFormLogin() {
+      document.getElementById('form-register').classList.add('hidden');
+      document.getElementById('form-login').classList.remove('hidden');
+      sembunyikanError('register-error');
+    }
+
+    function tampilkanInfoUser(user) {
+      const el = document.getElementById('info-user');
+      if (!el) return;
+      // Tampilkan nama user saja (tanpa suffix domain)
+      const namaTampil = user.email ? user.email.replace(SUFFIX_DOMAIN_LOGIN, '') : 'User';
+      el.textContent = `👤 ${namaTampil}`;
+      el.className = 'text-[10px] px-2 py-0.5 rounded-full bg-indigo-600 text-white font-medium max-w-[140px] truncate';
+      el.title = user.email;
+      const tombol = document.getElementById('tombol-logout');
+      if (tombol) tombol.classList.remove('hidden');
+    }
+
+    function sembunyikanInfoUser() {
+      const el = document.getElementById('info-user');
+      if (!el) return;
+      el.textContent = '';
+      el.className = 'hidden';
+      const tombol = document.getElementById('tombol-logout');
+      if (tombol) tombol.classList.add('hidden');
+    }
+
+    function prosesLogout() {
+      if (confirm('Yakin keluar dari aplikasi? Data lokal tetap tersimpan di perangkat ini.')) {
+        firebase.auth().signOut();
+      }
+    }
+
+    // Listener status auth global
+    function pantauAuth() {
+      if (!firebaseAktif) {
+        // Firebase tidak aktif → aplikasi offline murni, tidak perlu login
+        document.getElementById('modal-login').classList.add('hidden');
+        return;
+      }
+      firebase.auth().onAuthStateChanged(user => {
+        const modal = document.getElementById('modal-login');
+        if (user) {
+          userSekarang = user;
+          modal.classList.add('hidden');
+          tampilkanInfoUser(user);
+          muatAntrianSyncTertunda(); // sync antrian setelah login
+        } else {
+          userSekarang = null;
+          modal.classList.remove('hidden');
+          sembunyikanInfoUser();
+          document.getElementById('login-password').value = '';
+        }
+      });
+    }
+
+    // Set Default Tanggal Hari Ini & Load LocalStorage
+    document.addEventListener("DOMContentLoaded", () => {
+      inisialisasiFirebase();
+      pantauAuth();
+      const today = new Date().toISOString().split('T')[0];
+      const savedBranch = localStorage.getItem('ksu_cabang');
+      const branchSelect = document.getElementById('modal-cabang-nama');
+      branchSelect.value = [...branchSelect.options].some(option => option.value === savedBranch) ? savedBranch : '';
+      document.getElementById('modal-tanggal-mulai').value = localStorage.getItem('ksu_tgl_mulai') || today;
+      document.getElementById('modal-tanggal-selesai').value = localStorage.getItem('ksu_tgl_selesai') || today;
+      perbaruiRingkasanCetakKSU();
+    });
+
+    function simpanHeaderAudit() {
+      localStorage.setItem('ksu_cabang', document.getElementById('modal-cabang-nama').value);
+      localStorage.setItem('ksu_tgl_mulai', document.getElementById('modal-tanggal-mulai').value);
+      localStorage.setItem('ksu_tgl_selesai', document.getElementById('modal-tanggal-selesai').value);
+    }
+
+    function bukaModalLaporanKSU(aksi) {
+      const today = new Date().toISOString().split('T')[0];
+      aksiLaporanKSU = ['excel', 'minus-pdf', 'minus-excel'].includes(aksi) ? aksi : 'pdf';
+      const branch = document.getElementById('modal-cabang-nama');
+      const savedBranch = localStorage.getItem('ksu_cabang');
+      branch.value = [...branch.options].some(option => option.value === savedBranch) ? savedBranch : '';
+      document.getElementById('modal-tanggal-mulai').value = localStorage.getItem('ksu_tgl_mulai') || today;
+      document.getElementById('modal-tanggal-selesai').value = localStorage.getItem('ksu_tgl_selesai') || today;
+      document.getElementById('modal-cetak-error').classList.add('hidden');
+      document.getElementById('modal-laporan-confirm').textContent = aksiLaporanKSU.endsWith('excel') ? 'Download Excel' : 'Download PDF';
+      document.getElementById('modal-cetak-ksu').classList.remove('hidden');
+      branch.focus();
+    }
+
+    function tutupModalCetakKSU() {
+      document.getElementById('modal-cetak-ksu').classList.add('hidden');
+    }
+
+    function formatTanggalLaporan(value) {
+      if (!value) return '-';
+      const [year, month, day] = value.split('-');
+      return `${day}/${month}/${year}`;
+    }
+
+    function perbaruiRingkasanCetakKSU() {
+      document.getElementById('print-cabang').textContent = localStorage.getItem('ksu_cabang') || '-';
+      document.getElementById('print-tanggal-mulai').textContent = formatTanggalLaporan(localStorage.getItem('ksu_tgl_mulai'));
+      document.getElementById('print-tanggal-selesai').textContent = formatTanggalLaporan(localStorage.getItem('ksu_tgl_selesai'));
+    }
+
+    function cetakLaporanKSU() {
+      const cabang = document.getElementById('modal-cabang-nama').value.trim();
+      const tglMulai = document.getElementById('modal-tanggal-mulai').value;
+      const tglSelesai = document.getElementById('modal-tanggal-selesai').value;
+      const error = document.getElementById('modal-cetak-error');
+
+      if (!cabang) {
+        error.textContent = 'Pilih nama cabang terlebih dahulu.';
+        error.classList.remove('hidden');
+        document.getElementById('modal-cabang-nama').focus();
+        return;
+      }
+      if (!tglMulai || !tglSelesai) {
+        error.textContent = 'Isi tanggal mulai dan tanggal selesai audit.';
+        error.classList.remove('hidden');
+        return;
+      }
+      if (tglMulai > tglSelesai) {
+        error.textContent = 'Tanggal mulai audit tidak boleh setelah tanggal selesai.';
+        error.classList.remove('hidden');
+        return;
+      }
+
+      simpanHeaderAudit();
+      perbaruiRingkasanCetakKSU();
+      tutupModalCetakKSU();
+      if (aksiLaporanKSU === 'minus-pdf') {
+        document.getElementById('minus-print-cabang').textContent = cabang;
+        document.getElementById('minus-print-tanggal-mulai').textContent = formatTanggalLaporan(tglMulai);
+        document.getElementById('minus-print-tanggal-selesai').textContent = formatTanggalLaporan(tglSelesai);
+        const sourceSignatures = document.querySelector('#sec-berita-acara-ksu .signoff-print-only');
+        document.getElementById('minus-signoff-print-container').innerHTML = sourceSignatures?.outerHTML || '';
+        document.body.classList.add('print-minus-ksu');
+        window.addEventListener('afterprint', () => {
+          document.body.classList.remove('print-minus-ksu');
+          document.getElementById('minus-signoff-print-container').innerHTML = '';
+        }, { once: true });
+      }
+      window.print();
+    }
+
+    function konfirmasiCetakLaporanKSU() {
+      cetakLaporanKSU();
+    }
+
+    function konfirmasiLaporanKSU() {
+      if (aksiLaporanKSU === 'minus-excel') {
+        exportBarangMinusExcelKSU();
+        return;
+      }
+      if (aksiLaporanKSU === 'excel') {
+        exportBeritaAcaraExcelKSU();
+        return;
+      }
+      cetakLaporanKSU();
+    }
+
+    async function exportBeritaAcaraExcelKSU() {
+      const cabang = document.getElementById('modal-cabang-nama').value.trim();
+      const tglMulai = document.getElementById('modal-tanggal-mulai').value;
+      const tglSelesai = document.getElementById('modal-tanggal-selesai').value;
+      const error = document.getElementById('modal-cetak-error');
+
+      if (!cabang) {
+        error.textContent = 'Pilih nama cabang terlebih dahulu.';
+        error.classList.remove('hidden');
+        document.getElementById('modal-cabang-nama').focus();
+        return;
+      }
+      if (!tglMulai || !tglSelesai) {
+        error.textContent = 'Isi tanggal mulai dan tanggal selesai audit.';
+        error.classList.remove('hidden');
+        return;
+      }
+      if (tglMulai > tglSelesai) {
+        error.textContent = 'Tanggal mulai audit tidak boleh setelah tanggal selesai.';
+        error.classList.remove('hidden');
+        return;
+      }
+      if (typeof XLSX === 'undefined') {
+        error.textContent = 'Library Excel belum siap. Periksa koneksi internet lalu coba lagi.';
+        error.classList.remove('hidden');
+        return;
+      }
+
+      simpanHeaderAudit();
+      perbaruiRingkasanCetakKSU();
+      await muatRekapKelengkapan();
+      if (typeof ExcelJS === 'undefined') {
+        error.textContent = 'Library format Excel belum siap. Periksa koneksi internet lalu coba lagi.';
+        error.classList.remove('hidden');
+        return;
+      }
+
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = 'Sistem Stok Opname Offline Mandiri';
+      workbook.created = new Date();
+      const worksheet = workbook.addWorksheet('Berita Acara KSU', {
+        pageSetup: {
+          paperSize: 9,
+          orientation: 'portrait',
+          fitToPage: true,
+          fitToWidth: 1,
+          fitToHeight: 0,
+          margins: { left: 0.2, right: 0.2, top: 0.35, bottom: 0.35, header: 0.15, footer: 0.15 }
+        }
+      });
+      worksheet.columns = [
+        { width: 6 }, { width: 36 }, { width: 14 }, { width: 16 },
+        { width: 14 }, { width: 14 }, { width: 13 }
+      ];
+      worksheet.views = [{ state: 'frozen', ySplit: 6 }];
+      worksheet.properties.defaultRowHeight = 20;
+
+      const thinBorder = {
+        top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+      };
+      const titleRow = worksheet.addRow(['BERITA ACARA AUDIT STOK KSU']);
+      worksheet.mergeCells(`A${titleRow.number}:G${titleRow.number}`);
+      titleRow.height = 30;
+      titleRow.getCell(1).font = { name: 'Arial', size: 16, bold: true, color: { argb: 'FF0F172A' } };
+      titleRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+      titleRow.getCell(1).border = { bottom: { style: 'medium', color: { argb: 'FF1E293B' } } };
+
+      const branchRow = worksheet.addRow(['Nama Cabang / Pos Dealer', cabang]);
+      worksheet.mergeCells(`B${branchRow.number}:G${branchRow.number}`);
+      branchRow.height = 24;
+      branchRow.getCell(1).font = { name: 'Arial', size: 10, bold: true };
+      branchRow.getCell(2).font = { name: 'Arial', size: 11, bold: true };
+      branchRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+
+      const dateRow = worksheet.addRow([
+        'Tanggal Mulai Audit', formatTanggalLaporan(tglMulai), '',
+        'Tanggal Selesai Audit', formatTanggalLaporan(tglSelesai)
+      ]);
+      worksheet.mergeCells(`B${dateRow.number}:C${dateRow.number}`);
+      worksheet.mergeCells(`E${dateRow.number}:G${dateRow.number}`);
+      dateRow.height = 24;
+      [1, 4].forEach(column => { dateRow.getCell(column).font = { name: 'Arial', size: 9, bold: true }; });
+      [2, 5].forEach(column => {
+        dateRow.getCell(column).font = { name: 'Arial', size: 10, bold: true };
+        dateRow.getCell(column).alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+      worksheet.addRow([]).height = 8;
+
+      const tableCards = [...document.querySelectorAll('#container-audit-ksu .official-table-card')];
+      tableCards.forEach((card, cardIndex) => {
+        const heading = card.querySelector('.official-table-header-bar');
+        const headingCells = heading?.querySelectorAll(':scope > div') || [];
+        const categoryHeading = headingCells[0]?.textContent.trim() || `TABEL ${cardIndex + 1}`;
+        const categoryRow = worksheet.addRow([categoryHeading, '', '', '', '', '', headingCells[1]?.textContent.trim() || 'SATUAN: PCS']);
+        worksheet.mergeCells(`A${categoryRow.number}:F${categoryRow.number}`);
+        categoryRow.height = 23;
+        categoryRow.eachCell({ includeEmpty: true }, cell => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF243D5C' } };
+          cell.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+          cell.alignment = { vertical: 'middle', horizontal: cell.col === 7 ? 'right' : 'left' };
+        });
+
+        const headers = [...card.querySelectorAll('thead th')].map(cell => cell.textContent.trim());
+        const headerRow = worksheet.addRow(headers);
+        headerRow.height = 28;
+        headerRow.eachCell({ includeEmpty: true }, cell => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+          cell.font = { name: 'Arial', size: 9, bold: true, color: { argb: 'FF0F172A' } };
+          cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+          cell.border = thinBorder;
+        });
+
+        card.querySelectorAll('tbody tr').forEach(htmlRow => {
+          const sourceCells = [...htmlRow.cells];
+          if (htmlRow.classList.contains('category-row')) {
+            const label = htmlRow.innerText.replace(/\s+/g, ' ').trim();
+            const row = worksheet.addRow([label]);
+            worksheet.mergeCells(`A${row.number}:G${row.number}`);
+            row.height = 20;
+            row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF243D5C' } };
+            row.getCell(1).font = { name: 'Arial', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+            return;
+          }
+
+          let values;
+          const isTotal = htmlRow.classList.contains('table-total-row');
+          const isPriceRow = card.classList.contains('minus-price-card');
+          if (isPriceRow) {
+            const priceInput = htmlRow.querySelector('input[data-price-key]');
+            const priceValue = priceInput?.value === '' ? null : Number(priceInput?.value);
+            values = [
+              sourceCells[0]?.textContent.trim() || '',
+              Number(sourceCells[1]?.textContent.trim() || 0),
+              priceValue,
+              priceValue === null ? '-' : null
+            ];
+          } else if (isTotal) {
+            values = [
+              'TOTAL AKHIR', '',
+              Number(sourceCells[1]?.textContent.trim() || 0),
+              Number(sourceCells[2]?.textContent.trim() || 0),
+              Number(sourceCells[3]?.textContent.trim() || 0),
+              Number(sourceCells[4]?.textContent.trim() || 0),
+              ''
+            ];
+          } else {
+            values = sourceCells.map(cell => {
+              const text = cell.textContent.trim();
+              return /^-?\d+$/.test(text) ? Number(text) : text;
+            });
+          }
+          const row = worksheet.addRow(values);
+          if (isPriceRow) {
+            const priceCell = row.getCell(3);
+            const valueCell = row.getCell(4);
+            priceCell.numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+            if (priceCell.value !== null && priceCell.value !== undefined) {
+              valueCell.value = { formula: `B${row.number}*C${row.number}` };
+              valueCell.numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+            }
+          }
+          row.height = 21;
+          row.eachCell({ includeEmpty: true }, cell => {
+            cell.font = { name: 'Arial', size: 9, bold: isTotal, color: { argb: 'FF0F172A' } };
+            cell.alignment = { vertical: 'middle', horizontal: cell.col <= 2 ? (cell.col === 1 ? 'center' : 'left') : 'center', wrapText: true };
+            cell.border = thinBorder;
+            if (isTotal) {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+              cell.border = {
+                ...thinBorder,
+                top: { style: 'medium', color: { argb: 'FF94A3B8' } }
+              };
+            } else if (htmlRow.classList.contains('bg-red-100')) {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEE2E2' } };
+              cell.font = { name: 'Arial', size: 9, bold: true, color: { argb: 'FF991B1B' } };
+            } else if (htmlRow.classList.contains('bg-green-100')) {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDCFCE7' } };
+              cell.font = { name: 'Arial', size: 9, bold: true, color: { argb: 'FF166534' } };
+            }
+          });
+          if (isTotal) worksheet.mergeCells(`A${row.number}:B${row.number}`);
+        });
+        worksheet.addRow([]).height = 8;
       });
 
-      document.getElementById(`tab-${tab}`).classList.add('active', 'text-indigo-700');
-      document.getElementById(`tab-${tab}`).classList.remove('text-slate-500');
-      document.getElementById(`sec-${tab}`).classList.remove('hidden');
+      const signatureSection = document.querySelector('.signoff-print-only');
+      const sectionHeadings = [...signatureSection.querySelectorAll(':scope > div > p')];
+      const signoffs = [...signatureSection.querySelectorAll('.official-signoff')];
+      const addSignatureHeading = text => {
+        const row = worksheet.addRow([text]);
+        worksheet.mergeCells(`A${row.number}:G${row.number}`);
+        row.height = 24;
+        row.getCell(1).font = { name: 'Arial', size: 12, bold: true, color: { argb: 'FF0F172A' } };
+        row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+      };
+      const addSignatureCards = cards => {
+        for (let index = 0; index < cards.length; index += 2) {
+          const pair = cards.slice(index, index + 2);
+          const roleRow = worksheet.addRow([pair[0]?.querySelector('.role')?.textContent.trim() || '', '', '', pair[1]?.querySelector('.role')?.textContent.trim() || '']);
+          worksheet.mergeCells(`A${roleRow.number}:C${roleRow.number}`);
+          worksheet.mergeCells(`D${roleRow.number}:G${roleRow.number}`);
+          const signatureRow = worksheet.addRow(['', '', '', '', '', '', '']);
+          worksheet.mergeCells(`A${signatureRow.number}:C${signatureRow.number}`);
+          worksheet.mergeCells(`D${signatureRow.number}:G${signatureRow.number}`);
+          const namesRow = worksheet.addRow([pair[0]?.querySelector('.person')?.textContent.trim() || '', '', '', pair[1]?.querySelector('.person')?.textContent.trim() || '']);
+          worksheet.mergeCells(`A${namesRow.number}:C${namesRow.number}`);
+          worksheet.mergeCells(`D${namesRow.number}:G${namesRow.number}`);
+          [roleRow, signatureRow, namesRow].forEach(row => {
+            row.eachCell({ includeEmpty: true }, cell => {
+              cell.border = thinBorder;
+              cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+              cell.font = { name: 'Arial', size: 9, bold: row === namesRow };
+            });
+          });
+          roleRow.height = 23;
+          signatureRow.height = 34;
+          namesRow.height = 20;
+        }
+      };
 
-      if (tab === 'kelengkapan') {
+      addSignatureHeading(sectionHeadings[0]?.textContent.trim() || 'DISEPAKATI,');
+      addSignatureCards(signoffs.slice(0, 4));
+      addSignatureHeading(sectionHeadings[1]?.textContent.trim() || 'MENGETAHUI,');
+      addSignatureCards(signoffs.slice(4));
+
+      const valuationSheet = workbook.addWorksheet('Rincian Nilai KSU', {
+        pageSetup: {
+          paperSize: 9,
+          orientation: 'landscape',
+          fitToPage: true,
+          fitToWidth: 1,
+          fitToHeight: 0,
+          margins: { left: 0.2, right: 0.2, top: 0.35, bottom: 0.35, header: 0.15, footer: 0.15 }
+        }
+      });
+      valuationSheet.columns = [
+        { width: 7 }, { width: 24 }, { width: 12 }, { width: 18 },
+        { width: 12 }, { width: 12 }, { width: 16 }, { width: 20 },
+        { width: 20 }, { width: 18 }, { width: 18 }, { width: 28 }
+      ];
+      valuationSheet.views = [{ state: 'frozen', ySplit: 6 }];
+      const valuationTitle = valuationSheet.addRow(['REKAPITULASI NILAI BARANG KSU']);
+      valuationSheet.mergeCells(`A${valuationTitle.number}:L${valuationTitle.number}`);
+      valuationTitle.height = 30;
+      valuationTitle.getCell(1).font = { name: 'Arial', size: 15, bold: true, color: { argb: 'FFFFFFFF' } };
+      valuationTitle.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF243D5C' } };
+      valuationTitle.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+
+      const valuationBranch = valuationSheet.addRow(['NAMA CABANG / POS DEALER', cabang]);
+      valuationSheet.mergeCells(`B${valuationBranch.number}:L${valuationBranch.number}`);
+      valuationBranch.getCell(1).font = { name: 'Arial', size: 10, bold: true };
+      valuationBranch.getCell(2).font = { name: 'Arial', size: 10, bold: true };
+      valuationBranch.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+      const valuationDates = valuationSheet.addRow([
+        'PERIODE AUDIT', `${formatTanggalLaporan(tglMulai)} s/d ${formatTanggalLaporan(tglSelesai)}`
+      ]);
+      valuationSheet.mergeCells(`B${valuationDates.number}:L${valuationDates.number}`);
+      valuationDates.getCell(1).font = { name: 'Arial', size: 10, bold: true };
+      valuationDates.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+      valuationSheet.addRow([]);
+
+      const valuationHeaders = ['NO', 'JENIS KSU', 'SISTEM', 'GUDANG / TERPASANG', 'SELISIH', 'STATUS', 'HET DAYA', 'TOTAL SELISIH', 'NO PART', 'HARGA SUPPLIER', 'TOTAL', 'KETERANGAN'];
+      const valuationHeaderRow = valuationSheet.addRow(valuationHeaders);
+      valuationHeaderRow.height = 30;
+      valuationHeaderRow.eachCell(cell => {
+        cell.font = { name: 'Arial', size: 9, bold: true, color: { argb: 'FF0F172A' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = thinBorder;
+      });
+
+      const valuationCategories = [
+        { key: 'Aki', title: 'A. ACCU' },
+        { key: 'Helm', title: 'B. HELM' },
+        { key: 'Spion', title: 'C. SPION' }
+      ];
+      const savedHetPrices = (() => {
+        try { return JSON.parse(localStorage.getItem('ksu_harga_barang_minus') || '{}'); }
+        catch (error) { return {}; }
+      })();
+      const savedSparepartCodes = (() => {
+        try { return JSON.parse(localStorage.getItem('ksu_kode_sparepart_minus') || '{}'); }
+        catch (error) { return {}; }
+      })();
+      const auditCards = [...document.querySelectorAll('#container-audit-ksu .official-table-card:not(.minus-price-card)')];
+
+      valuationCategories.forEach((category, categoryIndex) => {
+        const sectionRow = valuationSheet.addRow([category.title]);
+        valuationSheet.mergeCells(`A${sectionRow.number}:L${sectionRow.number}`);
+        sectionRow.height = 22;
+        sectionRow.getCell(1).font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        sectionRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF243D5C' } };
+
+        const sourceCard = auditCards[categoryIndex];
+        const sourceRows = [...(sourceCard?.querySelectorAll('tbody tr') || [])]
+          .filter(row => !row.classList.contains('table-total-row') && !row.classList.contains('category-row'))
+          .filter(row => Number(row.cells[2]?.textContent.trim() || 0) + Number(row.cells[3]?.textContent.trim() || 0) + Number(row.cells[4]?.textContent.trim() || 0) > 0);
+        const categoryTotals = { system: 0, physical: 0, difference: 0, hetValue: 0, supplierValue: 0 };
+
+        sourceRows.forEach((sourceRow, index) => {
+          const cells = sourceRow.cells;
+          const type = cells[1]?.textContent.trim() || '';
+          const systemQty = Number(cells[2]?.textContent.trim() || 0);
+          const installedQty = Number(cells[3]?.textContent.trim() || 0);
+          const warehouseQty = Number(cells[4]?.textContent.trim() || 0);
+          const physicalQty = installedQty + warehouseQty;
+          const difference = physicalQty - systemQty;
+          const status = difference < 0 ? 'Minus' : difference > 0 ? 'Plus' : 'Sesuai';
+          const itemKey = `${category.key}|${type}`;
+          const unitHet = savedHetPrices[itemKey] ?? null;
+          const excelRow = valuationSheet.addRow([
+            index + 1, type, systemQty, physicalQty, difference, status,
+            unitHet, null, savedSparepartCodes[itemKey] || '', null, null, ''
+          ]);
+          excelRow.height = 22;
+          excelRow.eachCell({ includeEmpty: true }, cell => {
+            cell.font = { name: 'Arial', size: 9, color: { argb: 'FF0F172A' } };
+            cell.alignment = { vertical: 'middle', horizontal: cell.col === 2 || cell.col === 12 ? 'left' : 'center', wrapText: true };
+            cell.border = thinBorder;
+            if (status === 'Minus') {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFCE4D6' } };
+            } else if (status === 'Plus') {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2F0D9' } };
+            }
+          });
+          excelRow.getCell(7).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+          excelRow.getCell(8).value = unitHet === null ? null : { formula: `E${excelRow.number}*G${excelRow.number}` };
+          excelRow.getCell(8).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+          excelRow.getCell(10).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+          excelRow.getCell(11).value = { formula: `IF(J${excelRow.number}="","",E${excelRow.number}*J${excelRow.number})` };
+          excelRow.getCell(11).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+
+          categoryTotals.system += systemQty;
+          categoryTotals.physical += physicalQty;
+          categoryTotals.difference += difference;
+          if (unitHet !== null) categoryTotals.hetValue += difference * Number(unitHet);
+        });
+
+        const totalRow = valuationSheet.addRow([
+          'TOTAL AKHIR', '', categoryTotals.system, categoryTotals.physical, categoryTotals.difference,
+          '', '', null, '', null, null, ''
+        ]);
+        totalRow.height = 23;
+        totalRow.eachCell({ includeEmpty: true }, cell => {
+          cell.font = { name: 'Arial', size: 9, bold: true };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF200' } };
+          cell.alignment = { vertical: 'middle', horizontal: cell.col === 2 || cell.col === 12 ? 'left' : 'center' };
+          cell.border = thinBorder;
+        });
+        totalRow.getCell(8).value = sourceRows.length
+          ? { formula: `SUM(H${totalRow.number - sourceRows.length}:H${totalRow.number - 1})` }
+          : 0;
+        totalRow.getCell(8).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+        totalRow.getCell(11).value = sourceRows.length
+          ? { formula: `SUM(K${totalRow.number - sourceRows.length}:K${totalRow.number - 1})` }
+          : 0;
+        totalRow.getCell(11).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+      });
+
+      const workbookBuffer = await workbook.xlsx.writeBuffer();
+      const branchFileName = cabang.replace(/[^a-zA-Z0-9]/g, '_');
+      const blob = new Blob([workbookBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const downloadUrl = URL.createObjectURL(blob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `Berita_Acara_KSU_${branchFileName}_${tglMulai}_sd_${tglSelesai}.xlsx`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      URL.revokeObjectURL(downloadUrl);
+      tutupModalCetakKSU();
+    }
+
+    async function exportBarangMinusExcelKSU() {
+      const cabang = document.getElementById('modal-cabang-nama').value.trim();
+      const tglMulai = document.getElementById('modal-tanggal-mulai').value;
+      const tglSelesai = document.getElementById('modal-tanggal-selesai').value;
+      const error = document.getElementById('modal-cetak-error');
+
+      if (!cabang) {
+        error.textContent = 'Pilih nama cabang terlebih dahulu.';
+        error.classList.remove('hidden');
+        document.getElementById('modal-cabang-nama').focus();
+        return;
+      }
+      if (!tglMulai || !tglSelesai) {
+        error.textContent = 'Isi tanggal mulai dan tanggal selesai audit.';
+        error.classList.remove('hidden');
+        return;
+      }
+      if (tglMulai > tglSelesai) {
+        error.textContent = 'Tanggal mulai audit tidak boleh setelah tanggal selesai.';
+        error.classList.remove('hidden');
+        return;
+      }
+      if (typeof ExcelJS === 'undefined') {
+        error.textContent = 'Library format Excel belum siap. Periksa koneksi internet lalu coba lagi.';
+        error.classList.remove('hidden');
+        return;
+      }
+
+      simpanHeaderAudit();
+      await muatRekapKelengkapan();
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = 'Sistem Stok Opname Offline Mandiri';
+      const worksheet = workbook.addWorksheet('Barang Minus KSU', {
+        pageSetup: {
+          paperSize: 9,
+          orientation: 'landscape',
+          fitToPage: true,
+          fitToWidth: 1,
+          fitToHeight: 0,
+          margins: { left: 0.25, right: 0.25, top: 0.35, bottom: 0.35, header: 0.15, footer: 0.15 }
+        }
+      });
+      worksheet.columns = [
+        { width: 7 }, { width: 34 }, { width: 14 }, { width: 18 }, { width: 24 }, { width: 20 }
+      ];
+
+      const border = {
+        top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+        right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+      };
+      const title = worksheet.addRow(['BERITA ACARA AUDIT STOK KSU - DAFTAR BARANG MINUS']);
+      worksheet.mergeCells(`A${title.number}:F${title.number}`);
+      title.height = 30;
+      title.getCell(1).font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+      title.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF243D5C' } };
+      title.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+
+      const branchRow = worksheet.addRow(['Nama Cabang / Pos Dealer', cabang]);
+      worksheet.mergeCells(`B${branchRow.number}:F${branchRow.number}`);
+      branchRow.getCell(1).font = { name: 'Arial', size: 10, bold: true };
+      branchRow.getCell(2).font = { name: 'Arial', size: 10, bold: true };
+      branchRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+      const dateRow = worksheet.addRow(['Periode Audit', `${formatTanggalLaporan(tglMulai)} s/d ${formatTanggalLaporan(tglSelesai)}`]);
+      worksheet.mergeCells(`B${dateRow.number}:F${dateRow.number}`);
+      dateRow.getCell(1).font = { name: 'Arial', size: 10, bold: true };
+      dateRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.addRow([]).height = 8;
+
+      const headers = ['NO', 'JENIS / TIPE KLASIFIKASI', 'SELISIH', 'HARGA SATUAN', 'KODE SPAREPART', 'TOTAL HARGA'];
+      const headerRow = worksheet.addRow(headers);
+      headerRow.height = 27;
+      headerRow.eachCell(cell => {
+        cell.font = { name: 'Arial', size: 9, bold: true };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.border = border;
+      });
+
+      const mainCards = [...document.querySelectorAll('#container-audit-ksu .official-table-card:not(.minus-price-card)')];
+      const totalPriceRowsPlus = [];
+      const totalPriceRowsMinus = [];
+      const storedPricesForExport = (() => {
+        try { return JSON.parse(localStorage.getItem('ksu_harga_barang_minus') || '{}'); }
+        catch (error) { return {}; }
+      })();
+      const storedCodesForExport = (() => {
+        try { return JSON.parse(localStorage.getItem('ksu_kode_sparepart_minus') || '{}'); }
+        catch (error) { return {}; }
+      })();
+      const hasNegativeTotalPhysical = mainCards.some(card =>
+        [...card.querySelectorAll('tbody tr:not(.table-total-row):not(.category-row)')]
+          .some(row => Number(row.cells[5]?.textContent.trim() || 0) < 0)
+      );
+      mainCards.forEach((card, cardIndex) => {
+        const minusRows = (() => {
+          const totalRow = card.querySelector('tbody tr.table-total-row');
+          const totalSelisih = totalRow ? Number(totalRow.cells[4]?.textContent.trim() || 0) : null;
+          const tampilkanItem = totalRow ? totalSelisih < 0 : hasNegativeTotalPhysical;
+          return tampilkanItem
+            ? [...card.querySelectorAll('tbody tr:not(.table-total-row):not(.category-row)')]
+              .filter(row => ['Minus', 'Plus'].includes(row.cells[6]?.textContent.trim()))
+            : [];
+        })();
+        if (!minusRows.length) {
+          return;
+        }
+
+        const cardTitle = card.querySelector('.official-table-header-bar > div')?.textContent.trim() || `TABEL ${cardIndex + 1}`;
+        const sectionRow = worksheet.addRow([cardTitle]);
+        worksheet.mergeCells(`A${sectionRow.number}:F${sectionRow.number}`);
+        sectionRow.height = 22;
+        sectionRow.getCell(1).font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        sectionRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF243D5C' } };
+
+        minusRows.forEach((htmlRow, index) => {
+          const type = htmlRow.cells[1]?.textContent.trim() || '';
+          const itemCategory = Object.entries(opsiJenis).find(([, types]) => types.includes(type))?.[0] || '';
+          const itemKey = `${itemCategory}|${type}`;
+          const status = htmlRow.cells[6]?.textContent.trim() || '';
+          const price = storedPricesForExport[itemKey] !== undefined ? Number(storedPricesForExport[itemKey]) : null;
+          const row = worksheet.addRow([
+            index + 1,
+            type,
+            Number(htmlRow.cells[5]?.textContent.trim() || 0),
+            price,
+            storedCodesForExport[itemKey] || '',
+            null
+          ]);
+          row.height = 22;
+          row.eachCell({ includeEmpty: true }, cell => {
+            cell.font = { name: 'Arial', size: 9, color: { argb: status === 'Minus' ? 'FF991B1B' : 'FF166534' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: status === 'Minus' ? 'FFFCE4D6' : 'FFE2F0D9' } };
+            cell.alignment = { horizontal: cell.col === 2 || cell.col === 5 ? 'left' : 'center', vertical: 'middle', wrapText: true };
+            cell.border = border;
+          });
+          row.getCell(4).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+          if (price !== null) {
+            row.getCell(6).value = { formula: `ABS(C${row.number})*D${row.number}` };
+            if (status === 'Minus') totalPriceRowsMinus.push(row.number);
+            else if (status === 'Plus') totalPriceRowsPlus.push(row.number);
+          }
+          row.getCell(6).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+        });
+      });
+
+      const grandTotalRow = worksheet.addRow(['TOTAL KESELURUHAN HARGA']);
+      worksheet.mergeCells(`A${grandTotalRow.number}:E${grandTotalRow.number}`);
+      grandTotalRow.height = 26;
+      grandTotalRow.eachCell({ includeEmpty: true }, cell => {
+        cell.font = { name: 'Arial', size: 10, bold: true };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF200' } };
+        cell.alignment = { horizontal: 'right', vertical: 'middle' };
+        cell.border = border;
+      });
+      
+      const plusFormula = totalPriceRowsPlus.length ? `SUM(${totalPriceRowsPlus.map(r => `F${r}`).join(',')})` : '0';
+      const minusFormula = totalPriceRowsMinus.length ? `SUM(${totalPriceRowsMinus.map(r => `F${r}`).join(',')})` : '0';
+      grandTotalRow.getCell(6).value = { formula: `${plusFormula}-${minusFormula}` };
+      grandTotalRow.getCell(6).numFmt = '"Rp" #,##0;[Red]-"Rp" #,##0';
+
+      const signatureSection = document.querySelector('.signoff-print-only');
+      const signoffs = [...(signatureSection?.querySelectorAll('.official-signoff') || [])];
+      const addSignatureHeading = text => {
+        const row = worksheet.addRow([text]);
+        worksheet.mergeCells(`A${row.number}:F${row.number}`);
+        row.height = 24;
+        row.getCell(1).font = { name: 'Arial', size: 11, bold: true };
+        row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+      };
+      const addSignaturePair = cards => {
+        for (let index = 0; index < cards.length; index += 2) {
+          const pair = cards.slice(index, index + 2);
+          const roleRow = worksheet.addRow([pair[0]?.querySelector('.role')?.textContent.trim() || '', '', pair[1]?.querySelector('.role')?.textContent.trim() || '']);
+          worksheet.mergeCells(`A${roleRow.number}:B${roleRow.number}`);
+          worksheet.mergeCells(`C${roleRow.number}:F${roleRow.number}`);
+          const blankRow = worksheet.addRow(['', '', '', '', '', '']);
+          worksheet.mergeCells(`A${blankRow.number}:B${blankRow.number}`);
+          worksheet.mergeCells(`C${blankRow.number}:F${blankRow.number}`);
+          const nameRow = worksheet.addRow([pair[0]?.querySelector('.person')?.textContent.trim() || '', '', pair[1]?.querySelector('.person')?.textContent.trim() || '']);
+          worksheet.mergeCells(`A${nameRow.number}:B${nameRow.number}`);
+          worksheet.mergeCells(`C${nameRow.number}:F${nameRow.number}`);
+          roleRow.height = 22;
+          blankRow.height = 28;
+          nameRow.height = 20;
+          [roleRow, blankRow, nameRow].forEach(row => row.eachCell({ includeEmpty: true }, cell => {
+            cell.border = border;
+            cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+            cell.font = { name: 'Arial', size: 9, bold: row === nameRow };
+          }));
+        }
+      };
+      addSignatureHeading('DISEPAKATI,');
+      addSignaturePair(signoffs.slice(0, 4));
+      addSignatureHeading('MENGETAHUI,');
+      addSignaturePair(signoffs.slice(4));
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const branchName = cabang.replace(/[^a-zA-Z0-9]/g, '_');
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const downloadUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `Barang_Minus_KSU_${branchName}_${tglMulai}_sd_${tglSelesai}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(downloadUrl);
+      tutupModalCetakKSU();
+    }
+
+    function getRealTimeLocation() {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          currentAddress = "Lokasi Manual";
+          return resolve();
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            currentCoords = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+
+            try {
+              const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`);
+              const data = await response.json();
+              if (data && data.display_name) {
+                currentAddress = data.display_name.substring(0, 85) + "...";
+              } else {
+                currentAddress = "Lokasi Manual";
+              }
+            } catch (err) {
+              currentAddress = "Lokasi Manual";
+            }
+            resolve();
+          },
+          (err) => {
+            currentCoords = "-";
+            currentAddress = "Lokasi Manual";
+            resolve();
+          },
+          { enableHighAccuracy: true, timeout: 3000 }
+        );
+      });
+    }
+
+    getRealTimeLocation();
+
+    // Master Opsi Jenis KSU
+    const opsiJenis = {
+      'Aki': ['3A/4V', '3,5A/5V', '5A/6V', '7A', 'ICON E'],
+      'Helm': ['New', 'TRX3/HMJ', 'S', 'STYLO', 'CROSS', 'EV', 'CBR150', 'CBR250', 'CBU', 'CROSS/NEW', 'CB150R'],
+      'Spion': ['ADV (KOWA)', 'BEAT (K1AL)', 'BEAT STREET (K1AL-SS)', 'CB150 VERZA CB 150 R (K18A)', 'CBR150 (K45N)', 'CB150X (GLS)', 'CBR 250RR (K64N)', 'CUV E (K3NA)', 'ICON', 'EM1 E', 'GENIO (KOJA)', 'PCX 160 (K97G)', 'REVO SUPRA X (K03S)', 'VARIO 125 (K2VG)', 'SCOOPY (K2FA & K2FV)', 'SUPRA GTR (K56F)', 'SUPERCUB', 'ST 125 DAX', 'CT125', 'SONIC (K56A)', 'STYLO (K3VA)', 'VARIO 160 (K2S)', 'CRF (K84A)'],
+      'ToolKit': ['Tool Kit Standard'],
+      'PlatHolder': ['Plat Holder Standard'],
+      'SafetyRiding': ['Apparel / Kit Safety Riding']
+    };
+
+    // --- TABEL MAPPING KLASIFIKASI DARI TABEL MATRIKS ---
+    const mappingTabelKSU = {
+      'KD1': { aki: '3,5A/5V', helm: 'CROSS', spion: 'CRF (K84A)' },
+      'KC0': { aki: '3,5A/5V', helm: 'New', spion: 'CB150 VERZA CB 150 R (K18A)' },
+      'JMG': { aki: '3A/4V', helm: 'TRX3/HMJ', spion: 'BEAT STREET (K1AL-SS)' },
+      'JME': { aki: '3A/4V', helm: 'TRX3/HMJ', spion: 'BEAT (K1AL)' },
+      'JMA': { aki: '3A/4V', helm: 'S', spion: 'GENIO (KOJA)' },
+      'JBK': { aki: '3A/4V', helm: 'TRX3/HMJ', spion: 'REVO SUPRA X (K03S)' },
+      'EF2': { aki: '3A/4V', helm: 'EV', spion: 'EM1 E' },
+      'EF3': { aki: '3A/4V', helm: 'EV', spion: 'CUV E (K3NA)' },
+      'JBP': { aki: '3A/4V', helm: 'TRX3/HMJ', spion: 'REVO SUPRA X (K03S)' },
+      'JA5': { aki: '3A/4V', helm: 'CBU', spion: 'SUPERCUB' },
+      'KB1': { aki: '3A/4V', helm: 'TRX3/HMJ', spion: 'SONIC (K56A)' },
+      'JMF': { aki: '5A/6V', helm: 'TRX3/HMJ', spion: 'BEAT (K1AL)' },
+      'JMB': { aki: '5A/6V', helm: 'S', spion: 'GENIO (KOJA)' },
+      'KCE': { aki: '5A/6V', helm: 'CROSS/NEW', spion: 'CB150X (GLS)' },
+      'KFE': { aki: '5A/6V', helm: 'New', spion: 'PCX 160 (K97G)' },
+      'KB2': { aki: '5A/6V', helm: 'TRX3/HMJ', spion: 'SUPRA GTR (K56F)' },
+      'KFC': { aki: '5A/6V', helm: 'STYLO', spion: 'STYLO (K3VA)' },
+      'KFD': { aki: '5A/6V', helm: 'STYLO', spion: 'STYLO (K3VA)' },
+      'JMH': { aki: '5A/6V', helm: 'S', spion: 'SCOOPY (K2FA & K2FV)' },
+      'KF0': { aki: '5A/6V', helm: 'New', spion: 'VARIO 160 (K2S)' },
+      'KFA': { aki: '5A/6V', helm: 'New', spion: 'VARIO 160 (K2S)' },
+      'KFB': { aki: '5A/6V', helm: 'New', spion: 'ADV (KOWA)' },
+      'KCC': { aki: '5A/6V', helm: 'CBR150', spion: 'CBR150 (K45N)' },
+      'JMD': { aki: '5A/6V', helm: 'New', spion: 'VARIO 125 (K2VG)' },
+      'JMC': { aki: '5A/6V', helm: 'New', spion: 'VARIO 125 (K2VG)' },
+      'KCD': { aki: '5A/6V', helm: 'CB150R', spion: 'CB150 VERZA CB 150 R (K18A)' },
+      'MC7': { aki: '7A', helm: 'CBR250', spion: 'CBR 250RR (K64N)' },
+      'MC8': { aki: '7A', helm: 'CBR250', spion: 'CBR 250RR (K64N)' },
+      'EF4': { aki: 'ICON E', helm: 'EV', spion: 'ICON' },
+      'KCB': { aki: '5A/6V', helm: 'CBR150', spion: 'CBR150 (K45N)' },
+      'KF8': { aki: '5A/6V', helm: 'New', spion: 'PCX 160 (K97G)' },
+      'JB0': { aki: '3A/4V', helm: 'CBU', spion: 'ST 125 DAX' },
+      'JA55': { aki: '3A/4V', helm: 'CBU', spion: 'CT125' },
+      'JA6': { aki: '3A/4V', helm: 'CBU', spion: 'CT125' },
+      'JBN': { aki: '3A/4V', helm: 'TRX3/HMJ', spion: 'REVO SUPRA X (K03S)' },
+      'KFF': { aki: '5A/6V', helm: 'New', spion: 'ADV (KOWA)' },
+      'JMJ': { aki: '5A/6V', helm: 'New', spion: 'VARIO 125 (K2VG)' },
+      'JMK': { aki: '5A/6V', helm: 'New', spion: 'VARIO 125 (K2VG)' },
+      'KF7': { aki: '5A/6V', helm: 'New', spion: 'PCX 160 (K97G)' },
+      'EF32': { aki: '3,5A/5V', helm: 'EV', spion: 'CUV E (K3NA)' },
+      'KFG': { aki: '5A/6V', helm: 'New', spion: 'VARIO 125 (K2VG)' },
+      'KFH': { aki: '5A/6V', helm: 'New', spion: 'VARIO 125 (K2VG)' }
+    };
+
+    function getSpesifikasiKSU(noMesin) {
+      const cleanNoMesin = String(noMesin || '').trim().toUpperCase();
+      let res = null;
+      
+      let prefix4 = cleanNoMesin.substring(0, 4);
+      if (mappingTabelKSU[prefix4]) {
+        res = { prefix: prefix4, ...mappingTabelKSU[prefix4] };
+      } else {
+        let prefix3 = cleanNoMesin.substring(0, 3);
+        if (mappingTabelKSU[prefix3]) {
+          res = { prefix: prefix3, ...mappingTabelKSU[prefix3] };
+        } else {
+          res = {
+            prefix: prefix3 || '-',
+            aki: '3A/4V',
+            helm: 'TRX3/HMJ',
+            spion: 'BEAT (K1AL)'
+          };
+        }
+      }
+
+      if (res.helm === 'NEW') res.helm = 'New';
+      return res;
+    }
+
+    // --- 2. TAB NAVIGATION & RINGKASAN ---
+    function switchTab(tab) {
+      ['unit', 'kelengkapan', 'belum-opname', 'data'].forEach(t => {
+        document.getElementById(`sec-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).className = "tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600";
+      });
+      document.getElementById(`sec-${tab}`).classList.remove('hidden');
+      document.getElementById(`tab-${tab}`).className = "tab-btn active flex-1 py-3 px-4 text-center font-semibold text-indigo-700";
+
+      if (tab === 'unit') {
+        updateRingkasanUnit();
+      } else if (tab === 'kelengkapan') {
+        switchKSUContent('audit');
+        updateSubKategori();
+        loadListKelengkapan();
         muatRekapKelengkapan();
       } else if (tab === 'belum-opname') {
         muatUnitBelumOpname();
       }
     }
 
-    function switchKSUContent(subTab) {
-      const subTabs = ['audit', 'barang-minus', 'input-fisik'];
-      subTabs.forEach(s => {
-        const btn = document.getElementById(`ksu-tab-${s}`);
-        if (btn) {
-          btn.classList.remove('active', 'text-indigo-700');
-          btn.classList.add('text-slate-500');
-        }
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]);
+    }
+
+    async function muatUnitBelumOpname() {
+      const container = document.getElementById('list-unit-belum-opname');
+      const summary = document.getElementById('stat-belum-opname');
+      const query = document.getElementById('filter-belum-opname').value.trim().toLocaleLowerCase();
+      const warehouseFilter = document.getElementById('filter-warehouse-belum-opname');
+      const selectedWarehouse = warehouseFilter.value;
+      const units = await db.unit.filter(unit => unit.status == null || unit.status === '').toArray();
+      const warehouses = [...new Set(units.map(unit => String(unit.warehouse || '-').trim() || '-'))]
+        .sort((warehouseA, warehouseB) => warehouseA.localeCompare(warehouseB, 'id'));
+
+      warehouseFilter.innerHTML = '<option value="">Semua Warehouse</option>' + warehouses
+        .map(warehouse => `<option value="${escapeHTML(warehouse)}">${escapeHTML(warehouse === '-' ? 'Warehouse tidak tercantum' : warehouse)}</option>`)
+        .join('');
+      if (warehouses.includes(selectedWarehouse)) warehouseFilter.value = selectedWarehouse;
+
+      const activeWarehouse = warehouseFilter.value;
+      const filteredUnits = units.filter(unit => {
+        const warehouse = String(unit.warehouse || '-').trim() || '-';
+        const matchesWarehouse = !activeWarehouse || warehouse === activeWarehouse;
+        const matchesQuery = [unit.no_mesin, unit.tipe_unit]
+          .some(value => String(value || '').toLocaleLowerCase().includes(query));
+        return matchesWarehouse && matchesQuery;
+      });
+      const groupedUnits = new Map();
+
+      filteredUnits.forEach(unit => {
+        const warehouse = String(unit.warehouse || '-').trim() || '-';
+        if (!groupedUnits.has(warehouse)) groupedUnits.set(warehouse, []);
+        groupedUnits.get(warehouse).push(unit);
       });
 
-      document.getElementById('sec-berita-acara-ksu').classList.add('hidden');
-      document.getElementById('sec-barang-minus').classList.add('hidden');
-      document.getElementById('sec-input-fisik-ksu').classList.add('hidden');
+      summary.textContent = query || activeWarehouse
+        ? `${filteredUnits.length} dari ${units.length} unit belum opname cocok dengan filter`
+        : `${units.length} unit belum opname di ${groupedUnits.size} warehouse`;
 
-      const activeBtn = document.getElementById(`ksu-tab-${subTab}`);
-      if (activeBtn) {
-        activeBtn.classList.add('active', 'text-indigo-700');
-        activeBtn.classList.remove('text-slate-500');
-      }
-
-      if (subTab === 'audit') {
-        document.getElementById('sec-berita-acara-ksu').classList.remove('hidden');
-      } else if (subTab === 'barang-minus') {
-        document.getElementById('sec-barang-minus').classList.remove('hidden');
-        renderBarangMinusTable();
-      } else if (subTab === 'input-fisik') {
-        document.getElementById('sec-input-fisik-ksu').classList.remove('hidden');
-        renderFormFisikGudang();
-      }
-    }
-
-    // 3. Render Audit KSU & Rekapitulasi Data
-    async function muatRekapKelengkapan() {
-      const allUnits = await db.units.toArray();
-      const allFisik = await db.ksuFisik.toArray();
-      const container = document.getElementById('container-audit-ksu');
-      container.innerHTML = '';
-
-      let totalMinusCount = 0;
-
-      // Grouping KSU Data
-      let ksuSummary = {};
-      KATEGORI_KSU.forEach(kat => {
-        ksuSummary[kat] = { totalBawaanUnit: 0, totalFisikGudang: 0, totalAudit: 0 };
-      });
-
-      // Render Tabel Audit
-      let htmlAudit = `
-        <div class="official-table-card">
-          <div class="official-table-wrap">
-            <table class="official-table">
-              <thead>
-                <tr>
-                  <th>Kategori KSU</th>
-                  <th>Total Bawaan Unit</th>
-                  <th>Stok Fisik Gudang</th>
-                  <th>Selisih Audit</th>
-                </tr>
-              </thead>
-              <tbody>`;
-
-      for (let kat of KATEGORI_KSU) {
-        const fisikItem = allFisik.find(f => f.kategori === kat) || { qty: 0 };
-        const totalBawaan = allUnits.length; // Simulasi total bawaan unit
-        const selisih = fisikItem.qty - totalBawaan;
-
-        if (selisih < 0) totalMinusCount += Math.abs(selisih);
-
-        htmlAudit += `
-          <tr>
-            <td class="font-bold">${kat}</td>
-            <td class="text-center">${totalBawaan}</td>
-            <td class="text-center">${fisikItem.qty}</td>
-            <td class="text-center font-bold ${selisih < 0 ? 'text-red-600' : 'text-emerald-600'}">${selisih}</td>
-          </tr>`;
-      }
-
-      htmlAudit += `</tbody></table></div></div>`;
-      container.innerHTML = htmlAudit;
-
-      // Render Kesimpulan
-      renderKesimpulanAudit(totalMinusCount);
-    }
-
-    // 4. Render Kesimpulan Audit
-    function renderKesimpulanAudit(totalMinus) {
-      const container = document.getElementById('kesimpulan-audit-content');
-      let statusText = totalMinus > 0 ? 'MINUS' : 'SESUAI';
-      let badgeClass = totalMinus > 0 ? 'minus' : 'sesuai';
-
-      container.innerHTML = `
-        <div class="kesimpulan-card">
-          <div class="kesimpulan-head">
-            <span class="kesimpulan-title">Status Audit KSU</span>
-            <span class="kesimpulan-badge ${badgeClass}">${statusText}</span>
-          </div>
-          <div class="kesimpulan-text">
-            Total barang minus KSU terdeteksi sebanyak: <b class="${totalMinus > 0 ? 'neg' : 'pos'}">${totalMinus} Pcs</b>.
-          </div>
-        </div>`;
-    }
-
-    // 5. Render Tabel Barang Minus KSU (Dynamic from DB)
-    async function renderBarangMinusTable() {
-      const tbody = document.getElementById('tbody-barang-minus');
-      const allUnits = await db.units.toArray();
-      const allFisik = await db.ksuFisik.toArray();
-      const hargaList = await db.hargaSparepart.toArray();
-
-      tbody.innerHTML = '';
-      let hasMinus = false;
-
-      for (let kat of KATEGORI_KSU) {
-        const fisikItem = allFisik.find(f => f.kategori === kat) || { qty: 0 };
-        const totalBawaan = allUnits.length;
-        const selisih = fisikItem.qty - totalBawaan;
-
-        if (selisih < 0) {
-          hasMinus = true;
-          const key = kat;
-          const hargaItem = hargaList.find(h => h.kategoriJenis === key) || { harga: '', kode: '' };
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="font-bold">${kat}</td>
-            <td class="text-center text-red-600 font-bold">${selisih}</td>
-            <td>
-              <input type="number" placeholder="Masukkan harga..." value="${hargaItem.harga}" 
-                     onchange="simpanHargaSparepart('${key}', this.value, null)"
-                     class="w-full p-1.5 border rounded text-center">
-            </td>
-            <td>
-              <input type="text" placeholder="Masukkan kode..." value="${hargaItem.kode}" 
-                     onchange="simpanHargaSparepart('${key}', null, this.value)"
-                     class="w-full p-1.5 border rounded text-center">
-            </td>`;
-          tbody.appendChild(tr);
-        }
-      }
-
-      if (!hasMinus) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-400 italic">Tidak ada barang minus KSU.</td></tr>`;
-      }
-    }
-
-    // 6. Simpan Harga & Kode Sparepart ke IndexedDB
-    async function simpanHargaSparepart(key, harga, kode) {
-      const existing = await db.hargaSparepart.get(key);
-      const newHarga = harga !== null ? harga : (existing ? existing.harga : '');
-      const newKode = kode !== null ? kode : (existing ? existing.kode : '');
-
-      await db.hargaSparepart.put({ kategoriJenis: key, harga: newHarga, kode: newKode });
-    }
-
-    // 7. Render Form Input Stok Fisik Gudang
-    async function renderFormFisikGudang() {
-      const container = document.getElementById('container-input-fisik');
-      const allFisik = await db.ksuFisik.toArray();
-      container.innerHTML = '';
-
-      KATEGORI_KSU.forEach(kat => {
-        const item = allFisik.find(f => f.kategori === kat) || { qty: 0 };
-        const div = document.createElement('div');
-        div.className = 'border p-4 rounded-xl bg-slate-50 flex justify-between items-center';
-        div.innerHTML = `
-          <div>
-            <h4 class="font-bold text-sm text-slate-800">${kat}</h4>
-            <p class="text-xs text-slate-500">Jumlah fisik di gudang</p>
-          </div>
-          <input type="number" min="0" value="${item.qty}" 
-                 onchange="simpanFisikGudang('${kat}', this.value)" 
-                 class="w-24 p-2 border rounded-lg text-center font-bold">`;
-        container.appendChild(div);
-      });
-    }
-
-    async function simpanFisikGudang(kat, qty) {
-      await db.ksuFisik.put({ kategori: kat, qty: parseInt(qty) || 0 });
-    }
-
-    // 8. Export Barang Minus ke Excel
-    async function exportBarangMinusExcelKSU() {
-      const allUnits = await db.units.toArray();
-      const allFisik = await db.ksuFisik.toArray();
-      const hargaList = await db.hargaSparepart.toArray();
-
-      let dataExport = [];
-      for (let kat of KATEGORI_KSU) {
-        const fisikItem = allFisik.find(f => f.kategori === kat) || { qty: 0 };
-        const totalBawaan = allUnits.length;
-        const selisih = fisikItem.qty - totalBawaan;
-
-        if (selisih < 0) {
-          const hargaItem = hargaList.find(h => h.kategoriJenis === kat) || { harga: 0, kode: '-' };
-          dataExport.push({
-            'Kategori KSU': kat,
-            'Qty Minus': selisih,
-            'Harga Satuan (Rp)': hargaItem.harga || 0,
-            'Kode Sparepart': hargaItem.kode || '-'
-          });
-        }
-      }
-
-      if (dataExport.length === 0) {
-        alert('Tidak ada data barang minus untuk diekspor!');
+      if (filteredUnits.length === 0) {
+        container.innerHTML = `<p class="text-slate-500 text-sm">${units.length ? 'Tidak ada unit yang cocok dengan pencarian.' : 'Semua unit sudah memiliki status opname.'}</p>`;
         return;
       }
 
-      const ws = XLSX.utils.json_to_sheet(dataExport);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Barang Minus KSU");
-      XLSX.writeFile(wb, "Laporan_Barang_Minus_KSU.xlsx");
+      container.innerHTML = [...groupedUnits.entries()]
+        .sort(([warehouseA], [warehouseB]) => warehouseA.localeCompare(warehouseB, 'id'))
+        .map(([warehouse, warehouseUnits]) => `
+          <section class="border-t border-slate-200 pt-3">
+            <div class="flex justify-between items-center gap-2 mb-2">
+              <h3 class="font-bold text-slate-700">📍 ${escapeHTML(warehouse === '-' ? 'Warehouse tidak tercantum' : warehouse)}</h3>
+              <span class="text-xs text-slate-500">${warehouseUnits.length} unit</span>
+            </div>
+            <div class="divide-y divide-slate-200">
+              ${warehouseUnits.map(unit => `
+                <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-1 sm:gap-4 items-center py-3">
+                  <p class="text-sm text-slate-600"><span class="font-semibold text-slate-500">No. Mesin:</span> <span class="font-mono font-bold text-slate-800">${escapeHTML(unit.no_mesin || '-')}</span></p>
+                  <p class="text-sm text-slate-700"><span class="font-semibold text-slate-500">Tipe:</span> ${escapeHTML(unit.tipe_unit || '-')}</p>
+                  <button onclick="opnameUnitDariDaftar(${unit.id})" class="justify-self-start sm:justify-self-end px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded">
+                    Periksa Unit
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        `).join('');
     }
 
-    // 9. Auth Dummy & Utility Handler
-    function prosesLogin(e) {
-      e.preventDefault();
-      document.getElementById('modal-login').classList.add('hidden');
-      document.getElementById('info-user').innerText = document.getElementById('login-user').value;
-      document.getElementById('info-user').classList.remove('hidden');
-      document.getElementById('tombol-logout').classList.remove('hidden');
+    async function opnameUnitDariDaftar(id) {
+      const unit = await db.unit.get(id);
+      if (!unit) return;
+      switchTab('unit');
+      const searchInput = document.getElementById('search-unit');
+      searchInput.value = unit.no_mesin || unit.tipe_unit || '';
+      cariUnit();
     }
 
-    function prosesLogout() {
-      document.getElementById('modal-login').classList.remove('hidden');
-      document.getElementById('info-user').classList.add('hidden');
-      document.getElementById('tombol-logout').classList.add('hidden');
-    }
+    function switchKSUContent(content) {
+      const panelByContent = {
+        audit: 'sec-berita-acara-ksu',
+        'input-fisik': 'sec-input-fisik-ksu',
+        'barang-minus': 'sec-barang-minus'
+      };
+      const buttonByContent = {
+        audit: 'ksu-tab-audit',
+        'input-fisik': 'ksu-tab-input-fisik',
+        'barang-minus': 'ksu-tab-barang-minus'
+      };
 
-    function cariUnit() {
-      // Implementasi pencarian unit sederhana
-    }
+      Object.values(panelByContent).forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
 
-    function muatUnitBelumOpname() {
-      // Implementasi memuat unit belum opname
-    }
+      Object.values(buttonByContent).forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.className = 'tab-btn flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg';
+        }
+      });
 
-    function bukaModalLaporanKSU(type) {
-      if (type === 'pdf') {
-        window.print();
-      } else {
-        alert('Fitur download Excel rekap audit diproses.');
+      const target = panelByContent[content] || panelByContent.audit;
+      const activeButton = buttonByContent[content] || buttonByContent.audit;
+
+      if (document.getElementById(target)) {
+        document.getElementById(target).classList.remove('hidden');
+      }
+
+      if (document.getElementById(activeButton)) {
+        document.getElementById(activeButton).className = 'tab-btn active flex-1 py-2.5 px-3 text-sm font-bold text-indigo-700 rounded-t-lg';
+      }
+
+      if (content === 'barang-minus') {
+        muatRekapKelengkapan();
       }
     }
 
-    function imporExcelUnit() { alert('Fungsi impor Excel siap dihubungkan.'); }
-    function eksporBackupJSON() { alert('Fungsi backup JSON siap dihubungkan.'); }
-    async function resetDatabase() {
-      if (confirm('Apakah kamu yakin ingin mengosongkan seluruh database?')) {
-        await db.delete();
+    async function updateRingkasanUnit() {
+      const total = await db.unit.count();
+      const sudah = await db.unit.filter(u => u.status !== null && u.status !== '').count();
+      document.getElementById('stat-ringkasan').innerText = `Total Master: ${total} | Terperiksa: ${sudah}`;
+    }
+
+    // --- REKAP AUDIT STOK KSU OTOMATIS BERDASARKAN TABEL PEMETAAN ---
+    async function muatRekapKelengkapan() {
+      const allUnits = await db.unit.toArray();
+      const allGudang = await db.kelengkapan.toArray();
+      const container = document.getElementById('container-audit-ksu');
+
+      const sistemKSU = { Aki: {}, Helm: {}, Spion: {}, ToolKit: {}, PlatHolder: {}, SafetyRiding: {} };
+      const unitKSU = { Aki: {}, Helm: {}, Spion: {}, ToolKit: {}, PlatHolder: {}, SafetyRiding: {} };
+
+      // Set default 0 untuk semua jenis
+      Object.keys(opsiJenis).forEach(kat => {
+        if (sistemKSU[kat]) {
+          opsiJenis[kat].forEach(j => {
+            sistemKSU[kat][j] = 0;
+            unitKSU[kat][j] = 0;
+          });
+        }
+      });
+
+      // Hitung Pengecualian Tipe Khusus
+      const totalSeluruhUnit = allUnits.length;
+      
+      const unitExceptToolKit = allUnits.filter(u => {
+        const spek = getSpesifikasiKSU(u.no_mesin);
+        return ['EF4', 'EF2'].includes(spek.prefix);
+      }).length;
+
+      const unitExceptPlatHolder = allUnits.filter(u => {
+        const spek = getSpesifikasiKSU(u.no_mesin);
+        return ['EF4', 'EF3', 'EF2', 'EF32'].includes(spek.prefix);
+      }).length;
+
+      // Set Total Sistem Khusus
+      sistemKSU.ToolKit['Tool Kit Standard'] = totalSeluruhUnit - unitExceptToolKit;
+      sistemKSU.PlatHolder['Plat Holder Standard'] = totalSeluruhUnit - unitExceptPlatHolder;
+      sistemKSU.SafetyRiding['Apparel / Kit Safety Riding'] = totalSeluruhUnit;
+
+      // Hitung Total Sistem & Unit Terperiksa dari Master
+      allUnits.forEach(u => {
+        const spek = getSpesifikasiKSU(u.no_mesin);
+        
+        if (sistemKSU.Aki[spek.aki] !== undefined) sistemKSU.Aki[spek.aki] += 1;
+        if (sistemKSU.Helm[spek.helm] !== undefined) sistemKSU.Helm[spek.helm] += 1;
+        if (sistemKSU.Spion[spek.spion] !== undefined) sistemKSU.Spion[spek.spion] += 1;
+        if (spek.aki === 'ICON E' && unitKSU.Aki['ICON E'] !== undefined) unitKSU.Aki['ICON E'] += 1;
+
+        if (u.status) {
+          const k = u.kelengkapan || {};
+          if (k.aki && spek.aki !== 'ICON E' && unitKSU.Aki[spek.aki] !== undefined) unitKSU.Aki[spek.aki] += 1;
+          if (k.helm && unitKSU.Helm[spek.helm] !== undefined) unitKSU.Helm[spek.helm] += 1;
+          if (k.spion && unitKSU.Spion[spek.spion] !== undefined) unitKSU.Spion[spek.spion] += 1;
+          if (k.toolkit && unitKSU.ToolKit['Tool Kit Standard'] !== undefined) unitKSU.ToolKit['Tool Kit Standard'] += 1;
+          if (k.plat_holder && unitKSU.PlatHolder['Plat Holder Standard'] !== undefined) unitKSU.PlatHolder['Plat Holder Standard'] += 1;
+          if (k.safety_riding && unitKSU.SafetyRiding['Apparel / Kit Safety Riding'] !== undefined) unitKSU.SafetyRiding['Apparel / Kit Safety Riding'] += 1;
+        }
+      });
+
+      // Hitung Fisik Gudang
+      const gudangKSU = { Aki: {}, Helm: {}, Spion: {}, ToolKit: {}, PlatHolder: {}, SafetyRiding: {} };
+      allGudang.forEach(g => {
+        if (gudangKSU[g.kategori]) {
+          gudangKSU[g.kategori][g.jenis] = (gudangKSU[g.kategori][g.jenis] || 0) + g.qty;
+        }
+      });
+
+      const kategoriAudit = [
+        { key: 'Aki', title: 'AKI / ACCU MOTOR', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' },
+        { key: 'Helm', title: 'HELM', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' },
+        { key: 'Spion', title: 'SPION', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' },
+        { key: 'ToolKit', title: 'TOOL KIT', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' },
+        { key: 'PlatHolder', title: 'PLAT HOLDER', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' },
+        { key: 'SafetyRiding', title: 'SAFETY RIDING', labelJenis: 'JENIS / TIPE KLASIFIKASI', satuan: 'PCS' }
+      ];
+
+      const renderTableCard = (title, categories, includeCategoryRows = false, sortByStatus = true, showTotal = true) => {
+        let rowsHtml = '';
+        const detailRows = [];
+        const totals = { sistem: 0, terpasang: 0, gudang: 0 };
+
+        categories.forEach(kat => {
+          const categoryNumber = kategoriAudit.indexOf(kat) + 1;
+          if (includeCategoryRows) {
+            rowsHtml += `
+              <tr class="category-row">
+                <td colspan="7">
+                  <div class="category-row-content">
+                    <span>${categoryNumber}. ${kat.title}</span>
+                    <span>SATUAN: ${kat.satuan}</span>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }
+
+          (opsiJenis[kat.key] || []).forEach(jenis => {
+            const sQty = sistemKSU[kat.key][jenis] || 0;
+            const gQty = gudangKSU[kat.key][jenis] || 0;
+            const uQty = unitKSU[kat.key][jenis] || 0;
+            const selisih = (gQty + uQty) - sQty;
+
+            totals.sistem += sQty;
+            totals.terpasang += uQty;
+            totals.gudang += gQty;
+
+            let statusText = 'Sesuai';
+            let rowBgClass = 'bg-white';
+            let statusRank = 2;
+
+            if (selisih > 0) {
+              statusText = 'Plus';
+              rowBgClass = 'bg-green-100 text-green-900 font-medium';
+              statusRank = 1;
+            } else if (selisih < 0) {
+              statusText = 'Minus';
+              rowBgClass = 'bg-red-100 text-red-900 font-medium';
+              statusRank = 0;
+            }
+
+            detailRows.push({ jenis, sQty, uQty, gQty, selisih, statusText, rowBgClass, statusRank });
+          });
+        });
+
+        if (sortByStatus) {
+          detailRows.sort((rowA, rowB) => {
+            if (rowA.statusRank !== rowB.statusRank) return rowA.statusRank - rowB.statusRank;
+            if (rowA.statusRank === 0) return rowA.selisih - rowB.selisih;
+            if (rowA.statusRank === 1) return rowB.selisih - rowA.selisih;
+            return rowA.jenis.localeCompare(rowB.jenis, 'id');
+          });
+        }
+
+        detailRows.forEach((row, idx) => {
+          rowsHtml += `
+              <tr class="border-b border-slate-300 ${row.rowBgClass}">
+                <td class="p-2 text-center font-bold border-r border-slate-300">${idx + 1}</td>
+                <td class="p-2 font-medium border-r border-slate-300">${row.jenis}</td>
+                <td class="p-2 text-center border-r border-slate-300">${row.sQty}</td>
+                <td class="p-2 text-center border-r border-slate-300">${row.uQty}</td>
+                <td class="p-2 text-center border-r border-slate-300">${row.gQty}</td>
+                <td class="p-2 text-center font-bold border-r border-slate-300">${row.selisih}</td>
+                <td class="p-2 text-center font-bold">${row.statusText}</td>
+              </tr>
+            `;
+        });
+
+        if (showTotal) {
+          rowsHtml += `
+            <tr class="table-total-row font-bold bg-slate-50 border-t-2 border-slate-400">
+              <td colspan="2" class="p-2 text-center">TOTAL AKHIR</td>
+              <td class="p-2 text-center">${totals.sistem}</td>
+              <td class="p-2 text-center">${totals.terpasang}</td>
+              <td class="p-2 text-center">${totals.gudang}</td>
+              <td class="p-2 text-center">${totals.gudang + totals.terpasang - totals.sistem}</td>
+              <td class="p-2 text-center"></td>
+            </tr>
+          `;
+        }
+
+        const reportCard = `
+          <div class="official-table-card">
+            <div class="official-table-header-bar">
+              <div>${title}</div>
+              <div>SATUAN: PCS</div>
+            </div>
+            <div class="official-table-wrap">
+              <table class="official-table">
+                <thead>
+                  <tr>
+                    <th style="width: 42px;">NO</th>
+                    <th>JENIS / TIPE KLASIFIKASI</th>
+                    <th style="width: 90px;">STOK SISTEM</th>
+                    <th style="width: 100px;">TERPASANG UNIT</th>
+                    <th style="width: 90px;">FISIK GUDANG</th>
+                    <th style="width: 90px;">SELISIH</th>
+                    <th style="width: 90px;">STATUS</th>
+                  </tr>
+                </thead>
+                <tbody>${rowsHtml}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+
+        return reportCard;
+      };
+
+      const separateTables = kategoriAudit.slice(0, 3).map((kat, index) =>
+        renderTableCard(`${index + 1}. ${kat.title}`, [kat])
+      );
+      const combinedCategories = kategoriAudit.slice(3);
+      const combinedTable = renderTableCard('4. TOOL KIT, PLAT HOLDER & SAFETY RIDING', combinedCategories, false, false, false);
+
+      container.innerHTML = [...separateTables, combinedTable].join('');
+      muatDaftarBarangMinusKSU();
+      muatKesimpulanAuditKSU();
+    }
+
+    function muatKesimpulanAuditKSU() {
+      const listContainer = document.getElementById('kesimpulan-list');
+      const totalContainer = document.getElementById('kesimpulan-total');
+      if (!listContainer || !totalContainer) return;
+
+      const cards = [...document.querySelectorAll('#container-audit-ksu .official-table-card:not(.minus-price-card)')];
+      const shortKategori = {
+        Aki: 'ACCU', Helm: 'Helm', Spion: 'Spion',
+        ToolKit: 'TOOLKIT', PlatHolder: 'PLAT HOLDER', SafetyRiding: 'SAFETY RIDING'
+      };
+      const kategoriSingkat = ['ToolKit', 'PlatHolder', 'SafetyRiding'];
+      const formatSelisih = nilai => nilai < 0 ? `${nilai}` : `${nilai}`;
+
+      const cardData = cards.map(card => {
+        const titleCells = card.querySelector('.official-table-header-bar')?.querySelectorAll(':scope > div') || [];
+        const title = titleCells[0]?.textContent.trim() || 'TABEL';
+        const totalRow = card.querySelector('tbody tr.table-total-row');
+        const totalAkhir = totalRow
+          ? Number(totalRow.cells[4]?.textContent.trim() || 0)
+          : [...card.querySelectorAll('tbody tr:not(.table-total-row):not(.category-row)')]
+            .reduce((total, row) => total + Number(row.cells[5]?.textContent.trim() || 0), 0);
+        const selisihItems = [...card.querySelectorAll('tbody tr:not(.table-total-row):not(.category-row)')]
+          .map(row => {
+            const jenis = row.cells[1]?.textContent.trim() || '';
+            const kategori = Object.entries(opsiJenis).find(([, jenisList]) => jenisList.includes(jenis))?.[0] || '';
+            const label = kategoriSingkat.includes(kategori)
+              ? (shortKategori[kategori] || jenis)
+              : `${shortKategori[kategori] || ''} ${jenis}`.trim();
+            return { jenis: label, selisih: Number(row.cells[5]?.textContent.trim() || 0) };
+          })
+          .filter(item => item.selisih !== 0);
+        return { title, totalAkhir, selisihItems };
+      });
+
+      listContainer.innerHTML = cardData.map(data => {
+        const rincian = data.selisihItems.length
+          ? data.selisihItems.map(item =>
+              `<b>${escapeHTML(item.jenis)}</b> <span class="${item.selisih < 0 ? 'neg' : 'pos'}">${formatSelisih(item.selisih)} pcs</span>`
+            ).join(', ')
+          : 'tidak ditemukan selisih';
+        const kelasTotal = data.totalAkhir < 0 ? 'neg' : data.totalAkhir > 0 ? 'pos' : '';
+        return `
+          <div class="kesimpulan-card">
+            <div class="kesimpulan-head">
+              <span class="kesimpulan-title">${escapeHTML(data.title)}</span>
+              <span class="kesimpulan-badge ${data.totalAkhir < 0 ? 'minus' : data.totalAkhir > 0 ? 'plus' : 'sesuai'}">${data.totalAkhir < 0 ? 'MINUS' : data.totalAkhir > 0 ? 'PLUS' : 'SESUAI'}</span>
+            </div>
+            <p class="kesimpulan-text">Ditemukan selisih KSU dengan rincian: ${rincian}. <b>Total akhir:</b> <span class="${kelasTotal}">${formatSelisih(data.totalAkhir)} pcs</span>.</p>
+          </div>
+        `;
+      }).join('');
+
+      const grandTotal = cardData.reduce((total, data) => total + data.totalAkhir, 0);
+      const totalMinus = cardData.reduce((total, data) => total + data.selisihItems.filter(item => item.selisih < 0).reduce((sum, item) => sum + item.selisih, 0), 0);
+      const totalPlus = cardData.reduce((total, data) => total + data.selisihItems.filter(item => item.selisih > 0).reduce((sum, item) => sum + item.selisih, 0), 0);
+      const kategoriMinus = cardData.filter(data => data.totalAkhir < 0).length;
+      const kategoriPlus = cardData.filter(data => data.totalAkhir > 0).length;
+
+      totalContainer.className = `flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border-2 p-4 shadow-sm ${
+        grandTotal < 0 ? 'border-red-300 bg-red-50' : grandTotal > 0 ? 'border-green-300 bg-green-50' : 'border-slate-200 bg-slate-50'
+      }`;
+      totalContainer.innerHTML = `
+        <div class="text-xs text-slate-600 space-y-1">
+          <p><span class="font-bold text-red-600">${kategoriMinus} kategori minus</span> &middot; <span class="font-bold text-green-600">${kategoriPlus} kategori plus</span></p>
+          <p>Akumulasi selisih: <span class="font-bold text-red-600">${formatSelisih(totalMinus)}</span> (minus) + <span class="font-bold text-green-600">${formatSelisih(totalPlus)}</span> (plus)</p>
+        </div>
+        <div class="text-left sm:text-right">
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Keseluruhan Selisih</p>
+          <p class="kesimpulan-grand-value ${grandTotal < 0 ? 'minus' : grandTotal > 0 ? 'plus' : 'sesuai'}">${formatSelisih(grandTotal)} pcs</p>
+        </div>
+      `;
+    }
+
+    async function muatDaftarBarangMinusKSU() {
+      const container = document.getElementById('list-barang-minus');
+      const summary = document.getElementById('stat-barang-minus');
+      if (!container || !summary) return;
+
+      const categoryNames = {
+        Aki: 'AKI / ACCU MOTOR',
+        Helm: 'HELM',
+        Spion: 'SPION',
+        ToolKit: 'TOOL KIT',
+        PlatHolder: 'PLAT HOLDER',
+        SafetyRiding: 'SAFETY RIDING'
+      };
+      const readStoredObject = key => {
+        try { return JSON.parse(localStorage.getItem(key) || '{}'); }
+        catch (error) { return {}; }
+      };
+      const storedPrices = readStoredObject('ksu_harga_barang_minus');
+      const storedPartCodes = readStoredObject('ksu_kode_sparepart_minus');
+      const categoryCards = [...document.querySelectorAll('#container-audit-ksu .official-table-card:not(.minus-price-card)')];
+      const allAuditRows = categoryCards.flatMap(card => [...card.querySelectorAll('tbody tr:not(.table-total-row):not(.category-row)')]);
+      const hasNegativeTotalPhysical = allAuditRows.some(row => Number(row.cells[5]?.textContent.trim() || 0) < 0);
+      const minusItems = [];
+      let itemIndex = 0;
+
+      if (!hasNegativeTotalPhysical) {
+        summary.textContent = 'Belum ada nilai Total Fisik minus pada Rekap Audit KSU.';
+        container.innerHTML = '<p class="text-slate-500 text-sm">Daftar Minus dan Plus akan tampil setelah ada hasil Total Fisik minus.</p>';
+        const totalElement = document.getElementById('total-harga-minus-ksu');
+        if (totalElement) totalElement.textContent = 'TOTAL KESELURUHAN HARGA: Rp 0';
+        return;
+      }
+
+      const moneyFormat = value => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
+      const tablesHtml = categoryCards.map((card, categoryIndex) => {
+        const titleCells = card.querySelector('.official-table-header-bar')?.querySelectorAll(':scope > div') || [];
+        const categoryTitle = titleCells[0]?.textContent.trim() || `TABEL ${categoryIndex + 1}`;
+        const sourceRows = [...card.querySelectorAll('tbody tr:not(.table-total-row):not(.category-row)')];
+        const totalRow = card.querySelector('tbody tr.table-total-row');
+        const totalSelisih = totalRow ? Number(totalRow.cells[4]?.textContent.trim() || 0) : null;
+        const tampilkanItem = totalRow ? totalSelisih < 0 : hasNegativeTotalPhysical;
+        const items = tampilkanItem ? sourceRows.filter(row => ['Minus', 'Plus'].includes(row.cells[6]?.textContent.trim())).map(row => {
+          const jenis = row.cells[1]?.textContent.trim() || '';
+          const kategori = Object.entries(opsiJenis).find(([, jenisList]) => jenisList.includes(jenis))?.[0];
+          if (!kategori) return null;
+          const jumlahMinus = Math.abs(Number(row.cells[5]?.textContent.trim() || 0));
+          const status = row.cells[6]?.textContent.trim() || '';
+          const priceKey = `${kategori}|${jenis}`;
+          const harga = storedPrices[priceKey] ?? '';
+          const item = {
+            no: ++itemIndex,
+            kategori,
+            jenis,
+            totalFisik: Number(row.cells[5]?.textContent.trim() || 0),
+            jumlahMinus,
+            status,
+            harga,
+            kodeSparepart: storedPartCodes[priceKey] || '',
+            priceKey,
+            outputId: `nilai-minus-list-${itemIndex}`
+          };
+          minusItems.push(item);
+          return item;
+        }).filter(Boolean) : [];
+
+        if (!items.length) return '';
+
+        return `
+          <div class="official-table-card mb-3">
+            <div class="official-table-header-bar"><div>${escapeHTML(categoryTitle)}</div><div>SATUAN: PCS</div></div>
+            <div class="official-table-wrap">
+              <table class="official-table">
+                <thead><tr>
+                  <th style="width: 42px;">NO</th>
+                  <th>JENIS / TIPE KLASIFIKASI</th>
+                  <th style="width: 100px;">SELISIH</th>
+                  <th style="width: 125px;">HARGA SATUAN</th>
+                  <th style="width: 145px;">KODE SPAREPART</th>
+                  <th style="width: 140px;">TOTAL HARGA</th>
+                </tr></thead>
+                <tbody>
+                  ${items.length ? items.map(item => `
+                    <tr class="border-b border-slate-300 ${item.status === 'Minus' ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'} font-medium" data-status="${item.status}">
+                      <td class="p-2 text-center">${item.no}</td>
+                      <td class="p-2">${escapeHTML(item.jenis)}</td>
+                      <td class="p-2 text-center font-bold">${item.totalFisik}</td>
+                      <td class="p-2"><input type="number" min="0" step="1" inputmode="numeric" aria-label="Harga satuan ${escapeHTML(item.jenis)}" class="minus-field-screen w-full p-2 border border-slate-300 rounded text-right text-slate-800 bg-white" data-price-key="${escapeHTML(item.priceKey)}" data-status="${item.status}" data-jumlah-minus="${item.jumlahMinus}" data-output-id="${item.outputId}" value="${escapeHTML(item.harga)}" oninput="hitungNilaiMinusKSU(this)" placeholder="Masukkan harga"><span class="minus-field-print">${item.harga === '' ? '-' : moneyFormat(Number(item.harga))}</span></td>
+                      <td class="p-2"><input type="text" aria-label="Kode sparepart ${escapeHTML(item.jenis)}" class="minus-field-screen w-full p-2 border border-slate-300 rounded text-slate-800 bg-white" data-part-key="${escapeHTML(item.priceKey)}" value="${escapeHTML(item.kodeSparepart)}" oninput="simpanKodeSparepartKSU(this)" placeholder="Masukkan kode"><span class="minus-field-print">${escapeHTML(item.kodeSparepart || '-')}</span></td>
+                      <td class="p-2 text-right font-bold" id="${item.outputId}">${item.harga === '' ? '-' : moneyFormat(item.jumlahMinus * Number(item.harga))}</td>
+                    </tr>
+                  `).join('') : '<tr><td colspan="6" class="p-2 text-center text-slate-500">Tidak ada hasil Minus atau Plus pada kategori ini.</td></tr>'}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const minusCount = minusItems.filter(item => item.status === 'Minus').length;
+      const plusCount = minusItems.filter(item => item.status === 'Plus').length;
+      
+      // LOGIKA HITUNG NETTO (PLUS DIKURANGI MINUS)
+      const grandTotal = minusItems.reduce((total, item) => {
+        if (item.harga === '') return total;
+        const subtotal = item.jumlahMinus * Number(item.harga);
+        return item.status === 'Plus' ? total + subtotal : total - subtotal;
+      }, 0);
+
+      summary.textContent = minusItems.length
+        ? `${minusCount} Minus | ${plusCount} Plus | Total Bersih: ${moneyFormat(grandTotal)}`
+        : 'Tidak ada hasil Minus atau Plus pada rekap KSU.';
+      container.innerHTML = tablesHtml || '<p class="text-slate-500 text-sm">Rekap KSU belum tersedia.</p>';
+      const totalElement = document.getElementById('total-harga-minus-ksu');
+      if (totalElement) totalElement.textContent = `TOTAL KESELURUHAN HARGA: ${moneyFormat(grandTotal)}`;
+    }
+
+    function simpanKodeSparepartKSU(input) {
+      let codes = {};
+      try { codes = JSON.parse(localStorage.getItem('ksu_kode_sparepart_minus') || '{}'); }
+      catch (error) { codes = {}; }
+      if (!input.value.trim()) delete codes[input.dataset.partKey];
+      else codes[input.dataset.partKey] = input.value.trim();
+      localStorage.setItem('ksu_kode_sparepart_minus', JSON.stringify(codes));
+    }
+
+    function hitungNilaiMinusKSU(input) {
+      const priceKey = input.dataset.priceKey;
+      let storedPrices = {};
+      try { storedPrices = JSON.parse(localStorage.getItem('ksu_harga_barang_minus') || '{}'); }
+      catch (error) { storedPrices = {}; }
+
+      if (input.value === '') delete storedPrices[priceKey];
+      else storedPrices[priceKey] = Number(input.value);
+      localStorage.setItem('ksu_harga_barang_minus', JSON.stringify(storedPrices));
+
+      const output = document.getElementById(input.dataset.outputId);
+      if (!output) return;
+      if (input.value === '') {
+        output.textContent = '-';
+      } else {
+        const nilai = Number(input.dataset.jumlahMinus) * Number(input.value);
+        output.textContent = new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          maximumFractionDigits: 0
+        }).format(nilai);
+      }
+
+      const summary = document.getElementById('stat-barang-minus');
+      if (summary) {
+        const allValues = [...document.querySelectorAll('#list-barang-minus input[data-price-key]')]
+          .reduce((total, field) => {
+            if (field.value === '') return total;
+            const subtotal = Number(field.dataset.jumlahMinus) * Number(field.value);
+            return field.dataset.status === 'Plus' ? total + subtotal : total - subtotal;
+          }, 0);
+
+        const minusCount = document.querySelectorAll('#list-barang-minus tr[data-status="Minus"]').length;
+        const plusCount = document.querySelectorAll('#list-barang-minus tr[data-status="Plus"]').length;
+        summary.textContent = `${minusCount} Minus | ${plusCount} Plus | Total Bersih: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(allValues)}`;
+        const totalElement = document.getElementById('total-harga-minus-ksu');
+        if (totalElement) totalElement.textContent = `TOTAL KESELURUHAN HARGA: ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(allValues)}`;
+      }
+    }
+
+    // --- 3. HELPER KOMPRESI & WATERMARK FOTO ---
+    async function compressAndWatermarkImage(file, noRangka = "", maxWidth = 1024, quality = 0.75) {
+      await getRealTimeLocation();
+
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const now = new Date();
+            const timeStr = now.toLocaleDateString('id-ID', {
+              day: '2-digit', month: 'short', year: 'numeric'
+            }) + " " + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            const boxHeight = 85;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.70)';
+            ctx.fillRect(0, height - boxHeight, width, boxHeight);
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 15px sans-serif';
+            ctx.fillText(`📍 STOK OPNAME - ${noRangka}`, 15, height - 58);
+
+            ctx.fillStyle = '#FFD700';
+            ctx.font = '12px monospace';
+            ctx.fillText(`🕒 ${timeStr}  |  GPS: ${currentCoords}`, 15, height - 38);
+
+            ctx.fillStyle = '#00FFCC';
+            ctx.font = '11px sans-serif';
+            ctx.fillText(`🏠 ${currentAddress}`, 15, height - 16);
+
+            const resultBase64 = canvas.toDataURL('image/jpeg', quality);
+            resolve(resultBase64);
+          };
+        };
+      });
+    }
+
+    function downloadSingleFotoJPG(base64Data, filename) {
+      const link = document.createElement('a');
+      link.href = base64Data;
+      link.download = filename.endsWith('.jpg') ? filename : `${filename}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function handleFileSelect(unitId, isCam) {
+      const inputId = isCam ? `foto-cam-${unitId}` : `foto-gal-${unitId}`;
+      const fileInput = document.getElementById(inputId);
+      const label = document.getElementById(`foto-status-${unitId}`);
+      
+      if (fileInput.files && fileInput.files[0]) {
+        label.innerText = `⏳ Memproses foto & mencetak watermark lokasi...`;
+        label.className = "text-xs text-amber-600 font-bold mt-1";
+      }
+    }
+
+    // --- 4. IMPOR EXCEL LOKAL ---
+    async function imporExcelUnit() {
+      const fileInput = document.getElementById('file-excel');
+      if (!fileInput.files.length) return alert('Pilih file Excel terlebih dahulu!');
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const rawJson = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+          if (rawJson.length === 0) return alert('File Excel kosong!');
+
+          const mappedData = rawJson.map(row => {
+            let item = {};
+            Object.keys(row).forEach(key => {
+              const k = key.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+              const val = String(row[key] || '').trim();
+              if (k.includes('rangka') || k.includes('chasis') || k.includes('frame')) item.no_rangka = val;
+              else if (k.includes('mesin') || k.includes('engine')) item.no_mesin = val;
+              else if (k.includes('tipe') || k.includes('type') || k.includes('model')) item.tipe_unit = val;
+              else if (k.includes('warna') || k.includes('color')) item.warna = val;
+              else if (k.includes('warehouse') || k.includes('lokasi')) item.warehouse = val;
+              else if (k.includes('tahun')) item.tahun = val;
+            });
+
+            return {
+              no_rangka: item.no_rangka || '-',
+              no_mesin: item.no_mesin || '-',
+              tipe_unit: item.tipe_unit || 'Unit Motor',
+              warna: item.warna || '-',
+              warehouse: item.warehouse || '-',
+              tahun: item.tahun || '-',
+              status: null,
+              waktu_opname: null,
+              foto: null,
+              kelengkapan: { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false }
+            };
+          });
+
+          await db.unit.clear();
+          const idBaru = await db.unit.bulkAdd(mappedData, { allKeys: true });
+
+          alert(`✅ Berhasil mengimpor ${mappedData.length} data unit ke database lokal!`);
+          updateRingkasanUnit();
+          bersihkanDanSinkronkanUnit(idBaru);
+          switchTab('unit');
+        } catch (err) {
+          alert('Gagal membaca file Excel.');
+          console.error(err);
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    // --- 5. SEARCH UNIT & POPUP KELENGKAPAN ---
+    async function cariUnit() {
+      const keyword = document.getElementById('search-unit').value.trim().toLowerCase();
+      const container = document.getElementById('hasil-cari-unit');
+      
+      if (keyword.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-emoji">🏍️</div><p>Gunakan kolom pencarian di atas untuk menemukan data unit.</p></div>`;
+        return;
+      }
+
+      const matched = await db.unit
+        .filter(u => 
+          (u.no_rangka && u.no_rangka.toLowerCase().includes(keyword)) ||
+          (u.no_mesin && u.no_mesin.toLowerCase().includes(keyword)) ||
+          (u.tipe_unit && u.tipe_unit.toLowerCase().includes(keyword)) ||
+          (u.warna && u.warna.toLowerCase().includes(keyword)) ||
+          (u.warehouse && u.warehouse.toLowerCase().includes(keyword))
+        )
+        .limit(50)
+        .toArray();
+
+      const results = matched
+        .sort((a, b) => {
+          const aBelum = !a.status ? 0 : 1;
+          const bBelum = !b.status ? 0 : 1;
+          if (aBelum !== bBelum) return aBelum - bBelum;
+          if (a.no_mesin && a.no_mesin.toLowerCase().startsWith(keyword) && !(b.no_mesin && b.no_mesin.toLowerCase().startsWith(keyword))) return -1;
+          if (b.no_mesin && b.no_mesin.toLowerCase().startsWith(keyword) && !(a.no_mesin && a.no_mesin.toLowerCase().startsWith(keyword))) return 1;
+          return 0;
+        })
+        .slice(0, 20);
+
+      if (results.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-emoji">🔍</div><p>Unit dengan kata kunci "${escapeHTML(keyword)}" tidak ditemukan.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = results.map(u => {
+        const k = u.kelengkapan || { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false };
+
+        return `
+          <div class="p-4 border rounded-lg shadow-sm ${u.status ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'}">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-bold text-slate-800 text-base">${u.tipe_unit} <span class="text-xs font-normal text-slate-500">(${u.warna})</span></p>
+                <p class="text-xs font-mono text-slate-600 mt-1">Rangka: <b>${u.no_rangka}</b></p>
+                <p class="text-xs font-mono text-slate-600">Mesin &nbsp;&nbsp;: <b>${u.no_mesin}</b></p>
+                ${u.warehouse !== '-' ? `<p class="text-xs text-indigo-600 font-medium mt-1">📍 Warehouse Master: ${u.warehouse}</p>` : ''}
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full font-semibold ${u.status ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}">
+                ${u.status || 'Belum Opname'}
+              </span>
+            </div>
+
+            ${u.status ? `
+              <div class="mt-3 pt-3 border-t border-slate-200 text-xs text-slate-600">
+                <p class="font-bold mb-1">📋 Kelengkapan Terdata:</p>
+                <div class="flex flex-wrap gap-2">
+                  <span class="px-2 py-0.5 rounded ${k.spion ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Spion: ${k.spion ? '✓' : '✕'}</span>
+                  <span class="px-2 py-0.5 rounded ${k.aki ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Aki: ${k.aki ? '✓' : '✕'}</span>
+                  <span class="px-2 py-0.5 rounded ${k.toolkit ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Toolkit: ${k.toolkit ? '✓' : '✕'}</span>
+                  <span class="px-2 py-0.5 rounded ${k.plat_holder ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Plat Holder: ${k.plat_holder ? '✓' : '✕'}</span>
+                  <span class="px-2 py-0.5 rounded ${k.helm ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Helm: ${k.helm ? '✓' : '✕'}</span>
+                  <span class="px-2 py-0.5 rounded ${k.safety_riding ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}">Safety Riding: ${k.safety_riding ? '✓' : '✕'}</span>
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="mt-3 pt-3 border-t border-slate-200">
+              <label class="block text-xs font-bold text-slate-700 mb-2">📷 Upload Foto Fisik Unit <span class="text-red-500">*Wajib</span>:</label>
+              
+              <div class="flex flex-wrap gap-2">
+                <input type="file" id="foto-cam-${u.id}" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(${u.id}, true)">
+                <label for="foto-cam-${u.id}" class="inline-flex items-center gap-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg cursor-pointer shadow-sm">
+                  📷 Ambil Kamera
+                </label>
+
+                <input type="file" id="foto-gal-${u.id}" accept="image/*" class="hidden" onchange="handleFileSelect(${u.id}, false)">
+                <label for="foto-gal-${u.id}" class="inline-flex items-center gap-1 px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg cursor-pointer shadow-sm">
+                  🖼 Pilih Galeri
+                </label>
+              </div>
+
+              <div id="foto-status-${u.id}" class="text-xs text-slate-400 italic mt-1">Sistem otomatis menempelkan stempel Jam, Tanggal & Alamat di foto.</div>
+              
+              ${u.foto ? `
+                <div class="mt-2 flex items-center gap-3">
+                  <img src="${u.foto}" class="h-28 w-auto rounded border border-slate-300 object-cover shadow-sm" alt="Foto Fisik">
+                  <button onclick="downloadSingleFotoJPG('${u.foto}', 'FOTO_${u.no_rangka}.jpg')" 
+                          class="px-2.5 py-1 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded shadow">
+                    💾 Download Foto
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button onclick="prosesPilihStatus(${u.id}, 'ADA / SESUAI')" class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 shadow-sm">✓ ADA / SESUAI</button>
+              <button onclick="prosesPilihStatus(${u.id}, 'BEDA LOKASI')" class="px-3 py-1.5 bg-amber-500 text-white text-xs font-bold rounded-lg hover:bg-amber-600 shadow-sm">⚠ BEDA LOKASI</button>
+              <button onclick="prosesPilihStatus(${u.id}, 'TIDAK ADA')" class="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700 shadow-sm">✕ TIDAK ADA</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function prosesPilihStatus(id, status) {
+      const unit = await db.unit.get(id);
+      const fileCam = document.getElementById(`foto-cam-${id}`);
+      const fileGal = document.getElementById(`foto-gal-${id}`);
+      
+      if (status === 'TIDAK ADA') {
+        let fotoBase64 = unit.foto || null;
+        if (fileCam && fileCam.files.length > 0) {
+          fotoBase64 = await compressAndWatermarkImage(fileCam.files[0], unit.no_rangka);
+        } else if (fileGal && fileGal.files.length > 0) {
+          fotoBase64 = await compressAndWatermarkImage(fileGal.files[0], unit.no_rangka);
+        }
+
+        await db.unit.update(id, {
+          status: status,
+          foto: fotoBase64,
+          kelengkapan: { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false },
+          waktu_opname: new Date().toLocaleString('id-ID')
+        });
+        updateRingkasanUnit();
+        cariUnit();
+        muatRekapKelengkapan();
+        tambahKeAntrianSync({ tabel: 'unit', id });
+        return;
+      }
+
+      const adaFotoLama = unit.foto && unit.foto !== '';
+      const adaFotoCam = fileCam && fileCam.files.length > 0;
+      const adaFotoGal = fileGal && fileGal.files.length > 0;
+
+      if (!adaFotoLama && !adaFotoCam && !adaFotoGal) {
+        return alert('⚠️ Wajib mengunggah/mengambil foto fisik unit terlebih dahulu!');
+      }
+
+      document.getElementById('modal-unit-id').value = id;
+      document.getElementById('modal-unit-status').value = status;
+      
+      const spek = getSpesifikasiKSU(unit.no_mesin);
+      document.getElementById('modal-info-tipe').innerText = `Unit No. Mesin (${unit.no_mesin}):`;
+      document.getElementById('preview-aki').innerText = spek.aki;
+      document.getElementById('preview-helm').innerText = spek.helm;
+      document.getElementById('preview-spion').innerText = spek.spion;
+
+      const k = unit.kelengkapan || {};
+      document.getElementById('modal-spion').checked = !!k.spion;
+      document.getElementById('modal-aki').checked = !!k.aki;
+      document.getElementById('modal-toolkit').checked = !!k.toolkit;
+      document.getElementById('modal-plat').checked = !!k.plat_holder;
+      document.getElementById('modal-helm').checked = !!k.helm;
+      document.getElementById('modal-safety-riding').checked = !!k.safety_riding;
+
+      document.getElementById('modal-kelengkapan').classList.remove('hidden');
+    }
+
+    function tutupModal() {
+      document.getElementById('modal-kelengkapan').classList.add('hidden');
+    }
+
+    async function konfirmasiSimpanOpname() {
+      const id = parseInt(document.getElementById('modal-unit-id').value);
+      const status = document.getElementById('modal-unit-status').value;
+
+      const fileCam = document.getElementById(`foto-cam-${id}`);
+      const fileGal = document.getElementById(`foto-gal-${id}`);
+      const unit = await db.unit.get(id);
+
+      let fotoBase64 = unit.foto || null;
+      if (fileCam && fileCam.files.length > 0) {
+        fotoBase64 = await compressAndWatermarkImage(fileCam.files[0], unit.no_rangka);
+      } else if (fileGal && fileGal.files.length > 0) {
+        fotoBase64 = await compressAndWatermarkImage(fileGal.files[0], unit.no_rangka);
+      }
+
+      const kelengkapanData = {
+        spion: document.getElementById('modal-spion').checked,
+        aki: document.getElementById('modal-aki').checked,
+        toolkit: document.getElementById('modal-toolkit').checked,
+        plat_holder: document.getElementById('modal-plat').checked,
+        helm: document.getElementById('modal-helm').checked,
+        safety_riding: document.getElementById('modal-safety-riding').checked
+      };
+
+      await db.unit.update(id, {
+        status: status,
+        foto: fotoBase64,
+        kelengkapan: kelengkapanData,
+        waktu_opname: new Date().toLocaleString('id-ID')
+      });
+
+      tutupModal();
+      updateRingkasanUnit();
+      cariUnit();
+      muatRekapKelengkapan();
+      tambahKeAntrianSync({ tabel: 'unit', id });
+    }
+
+    // --- 6. MODUL OPNAME KELENGKAPAN LOOSE GUDANG ---
+    function updateSubKategori() {
+      const kat = document.getElementById('kel-kategori').value;
+      const selectJenis = document.getElementById('kel-jenis');
+      const list = opsiJenis[kat] || ['Lainnya'];
+      selectJenis.innerHTML = list.map(j => `<option value="${j}">${j}</option>`).join('');
+    }
+
+    async function simpanKelengkapan(e) {
+      e.preventDefault();
+      const idBaru = await db.kelengkapan.add({
+        kategori: document.getElementById('kel-kategori').value,
+        jenis: document.getElementById('kel-jenis').value,
+        qty: parseInt(document.getElementById('kel-qty').value),
+        catatan: document.getElementById('kel-catatan').value,
+        waktu_opname: new Date().toLocaleString('id-ID')
+      });
+
+      document.getElementById('kel-qty').value = "1";
+      document.getElementById('kel-catatan').value = "";
+      alert('Data fisik gudang berhasil disimpan!');
+      loadListKelengkapan();
+      muatRekapKelengkapan();
+      tambahKeAntrianSync({ tabel: 'kelengkapan', id: idBaru });
+    }
+
+    async function hapusKelengkapanItem(id) {
+      if (confirm('Hapus item kelengkapan ini?')) {
+        await db.kelengkapan.delete(id);
+        if (firebaseAktif) {
+          try {
+            await dbFirestore.collection('kelengkapan').doc(String(id)).delete();
+          } catch (error) {
+            console.error('Gagal menghapus data di cloud:', error);
+          }
+        }
+        loadListKelengkapan();
+        muatRekapKelengkapan();
+      }
+    }
+
+    async function loadListKelengkapan() {
+      const data = await db.kelengkapan.reverse().limit(10).toArray();
+      const container = document.getElementById('list-kelengkapan');
+      if(data.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 italic text-sm">Belum ada data fisik gudang diinput hari ini.</p>`;
+        return;
+      }
+      container.innerHTML = data.map(d => `
+        <div class="flex justify-between items-center border-b pb-2">
+          <div>
+            <p class="font-semibold text-slate-700">${d.kategori} - ${d.jenis}</p>
+            <p class="text-xs text-slate-500">${d.catatan || 'Tanpa Catatan'} (${d.waktu_opname})</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <span class="font-bold text-indigo-700 text-base">${d.qty} Pcs</span>
+            <button onclick="hapusKelengkapanItem(${d.id})" class="text-red-500 hover:text-red-700 text-xs font-semibold">✕ Hapus</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- 7. EKSPOR EXCEL & DOWNLOAD ZIP FOTO ---
+    async function eksporHasilUnitLocal() {
+      const data = await db.unit.toArray();
+      if(data.length === 0) return alert('Belum ada data unit.');
+
+      const exportData = data.map(u => {
+        const k = u.kelengkapan || {};
+
+        return {
+          "No. Rangka": u.no_rangka,
+          "No. Mesin": u.no_mesin,
+          "Tipe Unit": u.tipe_unit,
+          "Warna": u.warna,
+          "Warehouse": u.warehouse,
+          "Tahun": u.tahun,
+          "Status Opname": u.status || "Belum Opname",
+          "Spion": k.spion ? "✓" : "-",
+          "Aki": k.aki ? "✓" : "-",
+          "Tool Kit": k.toolkit ? "✓" : "-",
+          "Plat Holder": k.plat_holder ? "✓" : "-",
+          "Helm": k.helm ? "✓" : "-",
+          "Safety Riding": k.safety_riding ? "✓" : "-",
+          "Waktu Opname": u.waktu_opname || "-",
+          "Ada Foto Bukti": u.foto ? "Ya" : "Tidak"
+        };
+      });
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Opname Unit");
+      XLSX.writeFile(wb, `Hasil_Opname_Unit_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    async function eksporHasilKelengkapanLocal() {
+      const data = await db.kelengkapan.toArray();
+      if(data.length === 0) return alert('Belum ada data audit KSU.');
+
+      const cabang = localStorage.getItem('ksu_cabang') || "Cabang Utama";
+      const tglMulai = localStorage.getItem('ksu_tgl_mulai') || "-";
+      const tglSelesai = localStorage.getItem('ksu_tgl_selesai') || "-";
+
+      const exportData = data.map(k => ({
+        "Nama Cabang": cabang,
+        "Tanggal Audit": `${tglMulai} s/d ${tglSelesai}`,
+        "Kategori": k.kategori,
+        "Jenis / Spesifikasi": k.jenis,
+        "Jumlah Fisik Gudang (Qty)": k.qty,
+        "Catatan / Lokasi": k.catatan || "-",
+        "Waktu Opname": k.waktu_opname
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Audit Stok KSU");
+      XLSX.writeFile(wb, `Hasil_Audit_KSU_${cabang.replace(/[^a-zA-Z0-9]/g, '_')}_${tglMulai}_sd_${tglSelesai}.xlsx`);
+    }
+
+    async function downloadSemuaFotoZip() {
+      const dataFoto = await db.unit.filter(u => u.foto !== null && u.foto !== '').toArray();
+      
+      if (dataFoto.length === 0) {
+        return alert('⚠ Belum ada foto fisik unit yang diunggah.');
+      }
+
+      if (typeof JSZip === 'undefined') {
+        return alert('Library JSZip belum siap.');
+      }
+
+      const zip = new JSZip();
+      const folder = zip.folder("Foto_Bukti_Opname");
+
+      dataFoto.forEach(u => {
+        const base64Data = u.foto.split(',')[1];
+        const fileName = `FOTO_${u.no_rangka.replace(/[^a-zA-Z0-9]/g, '_')}.jpg`;
+        folder.file(fileName, base64Data, { base64: true });
+      });
+
+      alert(`📦 Memproses ${dataFoto.length} foto ke dalam file ZIP...`);
+
+      zip.generateAsync({ type: 'blob' }).then(function(content) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = `Foto_Fisik_Opname_${new Date().toISOString().slice(0,10)}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+
+    async function hapusSemuaData() {
+      if (confirm('Yakin ingin menghapus SELURUH data lokal di perangkat ini? Data tidak bisa dikembalikan.')) {
+        await db.unit.clear();
+        await db.kelengkapan.clear();
+        if (firebaseAktif) {
+          try {
+            const batchUnit = dbFirestore.collection('unit');
+            const batchKel = dbFirestore.collection('kelengkapan');
+            const [snapUnit, snapKel] = await Promise.all([batchUnit.get(), batchKel.get()]);
+            const hapus = firebase.firestore().batch();
+            snapUnit.docs.forEach(d => hapus.delete(d.ref));
+            snapKel.docs.forEach(d => hapus.delete(d.ref));
+            await hapus.commit();
+            console.info('Data cloud Firestore telah dibersihkan.');
+          } catch (error) {
+            console.error('Gagal membersihkan data cloud:', error);
+          }
+        }
+        alert('Database telah dibersihkan!');
         location.reload();
       }
     }
+
+    // Sinkronisasi massal (impor Excel) - upload batch ke Firestore
+    async function bersihkanDanSinkronkanUnit(daftarId) {
+      if (!firebaseAktif || !Array.isArray(daftarId) || daftarId.length === 0) return;
+      if (!firebase.auth().currentUser) return;
+      infoSinkronisasi();
+      try {
+        // Hapus dokumen unit lama di cloud karena master lokal diganti total
+        const snapUnit = await dbFirestore.collection('unit').get();
+        const batchHapus = dbFirestore.batch();
+        snapUnit.docs.forEach(d => batchHapus.delete(d.ref));
+        await batchHapus.commit();
+        console.info('Master unit lama di cloud telah dibersihkan.');
+      } catch (error) {
+        console.error('Gagal membersihkan master unit di cloud:', error);
+      }
+      await sinkronisasiMassal('unit', daftarId);
+    }
+
+    async function sinkronisasiMassal(tabel, daftarId) {
+      if (!firebaseAktif || !Array.isArray(daftarId) || daftarId.length === 0) return;
+      if (!firebase.auth().currentUser) return;
+      infoSinkronisasi();
+      try {
+        // Firestore batch maksimum 500 operasi per commit
+        for (let i = 0; i < daftarId.length; i += 450) {
+          const potongan = daftarId.slice(i, i + 450);
+          const batch = dbFirestore.batch();
+          for (const id of potongan) {
+            const data = await db[tabel].get(id);
+            if (!data) continue;
+            const { id: idData, foto, ...payload } = data;
+            payload.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+            batch.set(dbFirestore.collection(tabel).doc(String(id)), payload, { merge: true });
+          }
+          await batch.commit();
+        }
+        console.info(`Sinkronisasi massal ${tabel}: ${daftarId.length} data terkirim.`);
+      } catch (error) {
+        console.error('Sinkronisasi massal gagal:', error);
+        // Masukkan sisa ke antrian agar dicoba ulang
+        daftarId.forEach(id => tambahKeAntrianSync({ tabel, id }));
+      }
+      infoSinkronisasi();
+    }
+
+    // Inisialisasi awal
+    updateRingkasanUnit();
   </script>
 </body>
 </html>
