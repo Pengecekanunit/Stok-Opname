@@ -529,7 +529,7 @@
       to { opacity: 1; transform: none; }
     }
 
-/* Kesimpulan audit cards */
+    /* Kesimpulan audit cards */
     .kesimpulan-card {
       border: 1px solid #e2e8f0;
       border-radius: 12px;
@@ -639,7 +639,7 @@
       box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
     }
 
-    /* Modal polish */
+    /* Modal shell */
     .modal-shell {
       position: relative;
       background: #ffffff;
@@ -660,7 +660,7 @@
       to { opacity: 1; transform: none; }
     }
 
-    /* ===================== LAYOUT LANDSCAPE (TABLET / HP) ===================== */
+    /* ===================== LAYOUT LANDSCAPE RESPONSIF ===================== */
     @media (orientation: landscape) {
       main {
         max-width: 64rem;
@@ -703,35 +703,35 @@
   <!-- Header UI -->
   <header class="app-header text-white p-4 shadow-lg sticky top-0 z-40">
     <div class="max-w-4xl mx-auto flex justify-between items-center relative z-10">
-      <h1 class="text-2xl font-extrabold tracking-wide drop-shadow-sm">📦 Stok Opname System</h1>
+      <h1 class="text-xl sm:text-2xl font-extrabold tracking-wide drop-shadow-sm">📦 Stok Opname System</h1>
       <span class="sync-badge text-xs px-3 py-1.5 rounded-full bg-emerald-500 text-white font-semibold inline-flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>Auto-Sync KSU
       </span>
     </div>
   </header>
 
-  <main class="max-w-4xl mx-auto p-4 space-y-6 mt-2">
+  <main class="max-w-4xl mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6 mt-2">
 
-    <!-- Tab Navigation -->
-    <div id="tab-nav" class="tab-nav-card flex border border-slate-200 border-b-0 bg-white rounded-t-lg overflow-hidden shadow-md">
-      <button onclick="switchTab('unit')" id="tab-unit" class="tab-btn active flex-1 py-3 px-4 text-center font-semibold text-indigo-700">
+    <!-- Tab Navigation Responsif -->
+    <div id="tab-nav" class="tab-nav-card flex flex-wrap sm:flex-nowrap border border-slate-200 border-b-0 bg-white rounded-t-lg overflow-hidden shadow-md">
+      <button onclick="switchTab('unit')" id="tab-unit" class="tab-btn active flex-1 basis-1/2 sm:basis-auto py-3 px-2 sm:px-4 text-center font-semibold text-xs sm:text-base text-indigo-700">
         🏍️ Opname Unit
       </button>
-      <button onclick="switchTab('kelengkapan')" id="tab-kelengkapan" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+      <button onclick="switchTab('kelengkapan')" id="tab-kelengkapan" class="tab-btn flex-1 basis-1/2 sm:basis-auto py-3 px-2 sm:px-4 text-center font-semibold text-xs sm:text-base text-slate-500 hover:text-indigo-600">
         📊 Rekap Audit KSU
       </button>
-      <button onclick="switchTab('belum-opname')" id="tab-belum-opname" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
+      <button onclick="switchTab('belum-opname')" id="tab-belum-opname" class="tab-btn flex-1 basis-1/2 sm:basis-auto py-3 px-2 sm:px-4 text-center font-semibold text-xs sm:text-base text-slate-500 hover:text-indigo-600">
         📋 Unit Belum Opname
       </button>
-      <button onclick="switchTab('data')" id="tab-data" class="tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600">
-        ⚙️ Impor & Ekspor Data
+      <button onclick="switchTab('data')" id="tab-data" class="tab-btn flex-1 basis-1/2 sm:basis-auto py-3 px-2 sm:px-4 text-center font-semibold text-xs sm:text-base text-slate-500 hover:text-indigo-600">
+        ⚙️ Impor & Ekspor
       </button>
     </div>
 
     <!-- TAB 1: STOK OPNAME UNIT -->
-    <section id="sec-unit" class="bg-white p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4">
+    <section id="sec-unit" class="bg-white p-4 sm:p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4">
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-        <h2 class="section-title text-lg font-bold text-slate-800">Pencarian Unit Motor</h2>
+        <h2 class="section-title text-base sm:text-lg font-bold text-slate-800">Pencarian Unit Motor</h2>
         <div id="stat-ringkasan" class="text-xs font-semibold text-slate-500">
           <!-- Diisi via JavaScript -->
         </div>
@@ -740,11 +740,11 @@
       <!-- Input Pencarian -->
       <div class="space-y-3">
         <div>
-          <label class="block text-sm font-medium text-slate-600 mb-1">Cari No. Rangka / No. Mesin / Tipe / Warna</label>
+          <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">Cari No. Rangka / No. Mesin / Tipe / Warna</label>
           <div class="relative">
             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-lg pointer-events-none select-none">🔍</span>
             <input type="text" id="search-unit" onkeyup="cariUnit()" placeholder="Ketik nomor rangka, mesin, atau tipe..." 
-                   class="search-input w-full p-3.5 pl-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-lg font-medium">
+                   class="search-input w-full p-3 sm:p-3.5 pl-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-base sm:text-lg font-medium">
           </div>
         </div>
       </div>
@@ -758,35 +758,36 @@
       </div>
     </section>
 
-    <section id="sec-belum-opname" class="bg-white p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4 hidden">
+    <!-- TAB: UNIT BELUM OPNAME -->
+    <section id="sec-belum-opname" class="bg-white p-4 sm:p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4 hidden">
       <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
-          <h2 class="section-title text-lg font-bold text-slate-800">Daftar Unit Belum Opname</h2>
+          <h2 class="section-title text-base sm:text-lg font-bold text-slate-800">Daftar Unit Belum Opname</h2>
           <p id="stat-belum-opname" class="text-xs text-slate-500 mt-2">Memuat daftar unit...</p>
         </div>
-        <button onclick="muatUnitBelumOpname()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow">
+        <button onclick="muatUnitBelumOpname()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow">
           🔄 Perbarui Daftar
         </button>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <select id="filter-warehouse-belum-opname" onchange="muatUnitBelumOpname()" class="w-full p-3 border border-slate-300 rounded-lg bg-white">
+        <select id="filter-warehouse-belum-opname" onchange="muatUnitBelumOpname()" class="w-full p-3 border border-slate-300 rounded-lg bg-white text-sm">
           <option value="">Semua Warehouse</option>
         </select>
-        <input type="search" id="filter-belum-opname" oninput="muatUnitBelumOpname()" placeholder="Cari nomor mesin atau tipe unit..." class="w-full p-3 border border-slate-300 rounded-lg">
+        <input type="search" id="filter-belum-opname" oninput="muatUnitBelumOpname()" placeholder="Cari nomor mesin atau tipe unit..." class="w-full p-3 border border-slate-300 rounded-lg text-sm">
       </div>
       <div id="list-unit-belum-opname" class="space-y-4"></div>
     </section>
 
     <!-- TAB 2: REKAPITULASI AUDIT STOK KSU -->
-    <section id="sec-kelengkapan" class="bg-white p-6 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-6 hidden">
-      <div class="no-print flex gap-2 border-b border-slate-200 pb-3 mb-2">
-        <button onclick="switchKSUContent('audit')" id="ksu-tab-audit" class="tab-btn active flex-1 py-2.5 px-3 text-sm font-bold text-indigo-700 rounded-t-lg">
-          📄 Berita Acara & Rekap Audit KSU
+    <section id="sec-kelengkapan" class="bg-white p-4 sm:p-6 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-6 hidden">
+      <div class="no-print flex flex-wrap sm:flex-nowrap gap-1 border-b border-slate-200 pb-3 mb-2">
+        <button onclick="switchKSUContent('audit')" id="ksu-tab-audit" class="tab-btn active flex-1 py-2 px-2 sm:px-3 text-xs sm:text-sm font-bold text-indigo-700 rounded-t-lg">
+          📄 Berita Acara Audit
         </button>
-        <button onclick="switchKSUContent('barang-minus')" id="ksu-tab-barang-minus" class="tab-btn flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
+        <button onclick="switchKSUContent('barang-minus')" id="ksu-tab-barang-minus" class="tab-btn flex-1 py-2 px-2 sm:px-3 text-xs sm:text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
           📉 Barang Minus KSU
         </button>
-        <button onclick="switchKSUContent('input-fisik')" id="ksu-tab-input-fisik" class="tab-btn flex-1 py-2.5 px-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
+        <button onclick="switchKSUContent('input-fisik')" id="ksu-tab-input-fisik" class="tab-btn flex-1 py-2 px-2 sm:px-3 text-xs sm:text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-t-lg">
           📦 Input Fisik Gudang
         </button>
       </div>
@@ -804,15 +805,15 @@
         <!-- HEADER ACTION BAR (UI ONLY) -->
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b pb-3 gap-3 no-print">
           <div>
-            <h2 class="section-title text-xl font-extrabold text-slate-800">BERITA ACARA AUDIT STOK KSU</h2>
+            <h2 class="section-title text-lg sm:text-xl font-extrabold text-slate-800">BERITA ACARA AUDIT STOK KSU</h2>
             <p class="text-xs text-slate-500 mt-1">Laporan Rekapitulasi Kelengkapan Unit & Stok Fisik Gudang</p>
           </div>
 
           <div class="flex flex-wrap gap-2">
-            <button onclick="bukaModalLaporanKSU('pdf')" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-1">
+            <button onclick="bukaModalLaporanKSU('pdf')" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 sm:px-4 py-2 rounded-lg font-bold shadow flex items-center gap-1">
               📄 Download PDF
             </button>
-            <button onclick="bukaModalLaporanKSU('excel')" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-1">
+            <button onclick="bukaModalLaporanKSU('excel')" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 sm:px-4 py-2 rounded-lg font-bold shadow flex items-center gap-1">
               📊 Download Excel
             </button>
             <button onclick="muatRekapKelengkapan()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg font-semibold shadow">
@@ -837,17 +838,17 @@
 
         <div class="space-y-6">
           <div class="no-print border-b pb-3">
-            <h3 class="text-lg font-extrabold text-slate-800">Rekap Audit KSU</h3>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-800">Rekap Audit KSU</h3>
             <p class="text-xs text-slate-500">Ringkasan data audit kelengkapan unit dan stok fisik gudang</p>
           </div>
           <div id="container-audit-ksu" class="space-y-6">
             <!-- Tabel ACCU, HELM, SPION, TOOL KIT, PLAT HOLDER, SAFETY RIDING di-render otomatis -->
           </div>
 
-<!-- KESIMPULAN AUDIT (hanya tampil di layar, tidak ikut cetak) -->
+          <!-- KESIMPULAN AUDIT -->
           <div id="kesimpulan-audit-ksu" class="no-print space-y-4">
             <div class="border-b pb-2">
-              <h3 class="section-title text-lg font-extrabold text-slate-800">Kesimpulan Audit</h3>
+              <h3 class="section-title text-base sm:text-lg font-extrabold text-slate-800">Kesimpulan Audit</h3>
               <p class="text-xs text-slate-500">Ringkasan selisih tiap kategori: jenis/tipe klasifikasi, nominal selisih, dan total akhir.</p>
             </div>
             <div id="kesimpulan-list" class="grid grid-cols-1 lg:grid-cols-2 gap-3"></div>
@@ -932,12 +933,12 @@
 
       <div id="sec-input-fisik-ksu" class="hidden space-y-6">
         <div id="form-kelengkapan-container" class="space-y-4 no-print">
-          <h3 class="font-bold text-slate-700">📦 Input Hasil Penghitungan Fisik Gudang (Loose / Sparepart)</h3>
+          <h3 class="font-bold text-slate-700 text-sm sm:text-base">📦 Input Hasil Penghitungan Fisik Gudang (Loose / Sparepart)</h3>
 
           <form id="form-kelengkapan" onsubmit="simpanKelengkapan(event)" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-slate-600 mb-1">Kategori Items</label>
-              <select id="kel-kategori" onchange="updateSubKategori()" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+              <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">Kategori Items</label>
+              <select id="kel-kategori" onchange="updateSubKategori()" class="w-full p-3 border border-slate-300 rounded-lg text-sm sm:text-base">
                 <option value="Aki">🔋 ACCU / Aki Motor</option>
                 <option value="Helm">🪖 Helm</option>
                 <option value="Spion">🪞 Spion</option>
@@ -948,29 +949,29 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-slate-600 mb-1">Klasifikasi / Jenis Tipe</label>
-              <select id="kel-jenis" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+              <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">Klasifikasi / Jenis Tipe</label>
+              <select id="kel-jenis" class="w-full p-3 border border-slate-300 rounded-lg text-sm sm:text-base">
                 <!-- Diisi JavaScript -->
               </select>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-slate-600 mb-1">Jumlah Fisik di Gudang (Qty)</label>
-              <input type="number" id="kel-qty" required min="0" value="1" class="w-full p-3 border border-slate-300 rounded-lg text-lg">
+              <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">Jumlah Fisik di Gudang (Qty)</label>
+              <input type="number" id="kel-qty" required min="0" value="1" class="w-full p-3 border border-slate-300 rounded-lg text-sm sm:text-base">
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-slate-600 mb-1">Lokasi Rak / Catatan</label>
-              <input type="text" id="kel-catatan" placeholder="Contoh: Rak A-02 / Dus Segel" class="w-full p-3 border border-slate-300 rounded-lg">
+              <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1">Lokasi Rak / Catatan</label>
+              <input type="text" id="kel-catatan" placeholder="Contoh: Rak A-02 / Dus Segel" class="w-full p-3 border border-slate-300 rounded-lg text-sm sm:text-base">
             </div>
 
-            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-lg shadow">
+            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-sm sm:text-base shadow">
               💾 Simpan Data Fisik Gudang
             </button>
           </form>
 
-          <h4 class="font-bold text-slate-700 pt-2">Riwayat Input Fisik Gudang</h4>
-          <div id="list-kelengkapan" class="space-y-2 text-sm"></div>
+          <h4 class="font-bold text-slate-700 pt-2 text-sm sm:text-base">Riwayat Input Fisik Gudang</h4>
+          <div id="list-kelengkapan" class="space-y-2 text-xs sm:text-sm"></div>
         </div>
       </div>
 
@@ -992,49 +993,49 @@
         </div>
         <div class="no-print flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div>
-            <h2 class="section-title text-lg font-bold text-slate-800">Daftar Barang Minus KSU</h2>
+            <h2 class="section-title text-base sm:text-lg font-bold text-slate-800">Daftar Barang Minus KSU</h2>
             <p id="stat-barang-minus" class="text-xs text-slate-500 mt-2">Memuat daftar barang minus...</p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button onclick="bukaModalLaporanKSU('minus-pdf')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow">📄 Download PDF</button>
-            <button onclick="bukaModalLaporanKSU('minus-excel')" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg shadow">📊 Download Excel</button>
-            <button onclick="muatRekapKelengkapan()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow">🔄 Perbarui Daftar</button>
+            <button onclick="bukaModalLaporanKSU('minus-pdf')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow">📄 Download PDF</button>
+            <button onclick="bukaModalLaporanKSU('minus-excel')" class="px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-semibold rounded-lg shadow">📊 Download Excel</button>
+            <button onclick="muatRekapKelengkapan()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-lg shadow">🔄 Perbarui Daftar</button>
           </div>
         </div>
         <div id="list-barang-minus" class="overflow-x-auto"></div>
-        <div id="total-harga-minus-ksu" class="text-right text-base font-extrabold text-slate-900 border-t-2 border-slate-500 pt-2">TOTAL KESELURUHAN HARGA: -</div>
+        <div id="total-harga-minus-ksu" class="text-right text-sm sm:text-base font-extrabold text-slate-900 border-t-2 border-slate-500 pt-2">TOTAL KESELURUHAN HARGA: -</div>
         <div id="minus-signoff-print-container" class="minus-signoff-print-only"></div>
       </section>
 
     </section>
 
     <!-- TAB 3: IMPOR & EKSPOR DATA LOKAL -->
-    <section id="sec-data" class="bg-white p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-6 hidden">
+    <section id="sec-data" class="bg-white p-4 sm:p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-6 hidden">
       
       <!-- Impor Excel Master -->
       <div class="border p-4 rounded-lg border-indigo-100 bg-indigo-50/50 space-y-2">
-        <h3 class="section-title font-bold text-indigo-900">1. Impor Master Unit dari Excel</h3>
+        <h3 class="section-title font-bold text-sm sm:text-base text-indigo-900">1. Impor Master Unit dari Excel</h3>
         <p class="text-xs text-slate-600">Pilih file Excel master data unit motor untuk dimasukkan ke dalam database perangkat ini.</p>
-        <input type="file" id="file-excel" accept=".xlsx, .xls, .csv" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700">
-        <button onclick="imporExcelUnit()" class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm shadow">
+        <input type="file" id="file-excel" accept=".xlsx, .xls, .csv" class="block w-full text-xs sm:text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:sm:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700">
+        <button onclick="imporExcelUnit()" class="mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-xs sm:text-sm shadow">
           📥 Muat Data Master Ke Perangkat
         </button>
       </div>
 
       <!-- Download Excel Hasil Opname & Foto -->
       <div class="border p-4 rounded-lg border-emerald-100 bg-emerald-50/50 space-y-3">
-        <h3 class="section-title font-bold text-emerald-900">2. Download Hasil Stok Opname & Foto Bukti</h3>
+        <h3 class="section-title font-bold text-sm sm:text-base text-emerald-900">2. Download Hasil Stok Opname & Foto Bukti</h3>
         <p class="text-xs text-slate-600">Unduh data hasil opname dalam bentuk file Excel (.xlsx) atau unduh seluruh foto fisik unit sekaligus (ZIP).</p>
         <div class="flex flex-col sm:flex-row gap-2">
-          <button onclick="eksporHasilUnitLocal()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm shadow">
+          <button onclick="eksporHasilUnitLocal()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs sm:text-sm shadow">
             📊 Download Excel Unit
           </button>
-          <button onclick="eksporHasilKelengkapanLocal()" class="flex-1 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-sm shadow">
+          <button onclick="eksporHasilKelengkapanLocal()" class="flex-1 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-xs sm:text-sm shadow">
             📊 Download Excel Audit KSU
           </button>
         </div>
         <div>
-          <button onclick="downloadSemuaFotoZip()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg text-sm shadow flex justify-center items-center gap-2">
+          <button onclick="downloadSemuaFotoZip()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg text-xs sm:text-sm shadow flex justify-center items-center gap-2">
             🖼️ Download Semua Foto Fisik (ZIP JPG)
           </button>
         </div>
@@ -1042,9 +1043,9 @@
 
       <!-- Reset Database -->
       <div class="border p-4 rounded-lg border-red-200 bg-red-50 space-y-2">
-        <h3 class="section-title font-bold text-red-800">3. Bersihkan Database Perangkat</h3>
+        <h3 class="section-title font-bold text-sm sm:text-base text-red-800">3. Bersihkan Database Perangkat</h3>
         <p class="text-xs text-slate-600">Hapus seluruh data master dan hasil opname yang tersimpan di browser ini.</p>
-        <button onclick="hapusSemuaData()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg text-sm shadow">
+        <button onclick="hapusSemuaData()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg text-xs sm:text-sm shadow">
           🗑️ Hapus Semua Data Lokal
         </button>
       </div>
@@ -1054,9 +1055,9 @@
 
   <!-- MODAL POPUP KELENGKAPAN UNIT -->
   <div id="modal-kelengkapan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="modal-shell max-w-md w-full p-6 space-y-5">
+    <div class="modal-shell max-w-md w-full p-5 sm:p-6 space-y-4 sm:space-y-5">
       <div class="border-b pb-3">
-        <h3 class="text-lg font-bold text-slate-800">📋 Checklist Kelengkapan Unit</h3>
+        <h3 class="text-base sm:text-lg font-bold text-slate-800">📋 Checklist Kelengkapan Unit</h3>
         <p class="text-xs text-slate-500 mt-1" id="modal-info-tipe">Kelengkapan otomatis terdeteksi berdasarkan No. Mesin:</p>
       </div>
 
@@ -1070,38 +1071,38 @@
         <p>🪞 SPION: <b id="preview-spion">-</b></p>
       </div>
 
-      <div class="space-y-3 text-sm">
+      <div class="space-y-2 sm:space-y-3 text-xs sm:text-sm">
         <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-          <input type="checkbox" id="modal-spion" class="w-5 h-5 text-indigo-600 rounded">
+          <input type="checkbox" id="modal-spion" class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 rounded">
           <span class="font-medium text-slate-700">🪞 Spion (Fisik Ada)</span>
         </label>
         <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-          <input type="checkbox" id="modal-aki" class="w-5 h-5 text-indigo-600 rounded">
+          <input type="checkbox" id="modal-aki" class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 rounded">
           <span class="font-medium text-slate-700">🔋 Aki / ACCU (Fisik Ada)</span>
         </label>
         <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-          <input type="checkbox" id="modal-toolkit" class="w-5 h-5 text-indigo-600 rounded">
+          <input type="checkbox" id="modal-toolkit" class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 rounded">
           <span class="font-medium text-slate-700">🧰 Tool Kit (Fisik Ada)</span>
         </label>
         <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-          <input type="checkbox" id="modal-plat" class="w-5 h-5 text-indigo-600 rounded">
+          <input type="checkbox" id="modal-plat" class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 rounded">
           <span class="font-medium text-slate-700">🔲 Plat Holder (Fisik Ada)</span>
         </label>
         <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-          <input type="checkbox" id="modal-helm" class="w-5 h-5 text-indigo-600 rounded">
+          <input type="checkbox" id="modal-helm" class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 rounded">
           <span class="font-medium text-slate-700">🪖 Helm (Fisik Ada)</span>
         </label>
         <label class="flex items-center space-x-3 p-2.5 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
-          <input type="checkbox" id="modal-safety-riding" class="w-5 h-5 text-indigo-600 rounded">
+          <input type="checkbox" id="modal-safety-riding" class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 rounded">
           <span class="font-medium text-slate-700">🦺 Safety Riding (Fisik Ada)</span>
         </label>
       </div>
 
       <div class="flex justify-end space-x-3 pt-3 border-t">
-        <button onclick="tutupModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-300">
+        <button onclick="tutupModal()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-lg hover:bg-slate-300">
           Batal
         </button>
-        <button onclick="konfirmasiSimpanOpname()" class="px-5 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 shadow">
+        <button onclick="konfirmasiSimpanOpname()" class="px-4 sm:px-5 py-2 bg-indigo-600 text-white text-xs sm:text-sm font-bold rounded-lg hover:bg-indigo-700 shadow">
           💾 Simpan & Sinkronkan
         </button>
       </div>
@@ -1109,15 +1110,15 @@
   </div>
 
   <div id="modal-cetak-ksu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
-    <div class="modal-shell max-w-lg w-full p-6 space-y-5">
+    <div class="modal-shell max-w-lg w-full p-5 sm:p-6 space-y-4 sm:space-y-5">
       <div class="border-b pb-3">
-        <h3 class="text-lg font-bold text-slate-800">📄 Informasi Berita Acara KSU</h3>
+        <h3 class="text-base sm:text-lg font-bold text-slate-800">📄 Informasi Berita Acara KSU</h3>
         <p class="text-xs text-slate-500 mt-1">Isi cabang dan periode audit sebelum mencetak atau mengunduh PDF.</p>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-slate-600 mb-1" for="modal-cabang-nama">Nama Cabang / Pos Dealer</label>
-        <select id="modal-cabang-nama" class="w-full p-3 border border-slate-300 rounded-lg bg-white">
+        <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1" for="modal-cabang-nama">Nama Cabang / Pos Dealer</label>
+        <select id="modal-cabang-nama" class="w-full p-3 border border-slate-300 rounded-lg bg-white text-xs sm:text-sm">
           <option value="">Pilih Nama Cabang</option>
           <option>PT Bintang Alam Jaya III Jurumudi (Tangerang)</option>
           <option>PT Bintang Motor Jaya III Cinere</option>
@@ -1142,20 +1143,20 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm font-medium text-slate-600 mb-1" for="modal-tanggal-mulai">Tanggal Mulai Audit</label>
-          <input type="date" id="modal-tanggal-mulai" class="w-full p-3 border border-slate-300 rounded-lg">
+          <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1" for="modal-tanggal-mulai">Tanggal Mulai Audit</label>
+          <input type="date" id="modal-tanggal-mulai" class="w-full p-3 border border-slate-300 rounded-lg text-xs sm:text-sm">
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-600 mb-1" for="modal-tanggal-selesai">Tanggal Selesai Audit</label>
-          <input type="date" id="modal-tanggal-selesai" class="w-full p-3 border border-slate-300 rounded-lg">
+          <label class="block text-xs sm:text-sm font-medium text-slate-600 mb-1" for="modal-tanggal-selesai">Tanggal Selesai Audit</label>
+          <input type="date" id="modal-tanggal-selesai" class="w-full p-3 border border-slate-300 rounded-lg text-xs sm:text-sm">
         </div>
       </div>
 
-      <p id="modal-cetak-error" class="hidden text-sm text-red-600" role="alert"></p>
+      <p id="modal-cetak-error" class="hidden text-xs sm:text-sm text-red-600" role="alert"></p>
 
       <div class="flex justify-end gap-2 pt-3 border-t">
-        <button onclick="tutupModalCetakKSU()" class="px-4 py-2 bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-300">Batal</button>
-        <button id="modal-laporan-confirm" onclick="konfirmasiLaporanKSU()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg">Download PDF</button>
+        <button onclick="tutupModalCetakKSU()" class="px-4 py-2 bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-lg hover:bg-slate-300">Batal</button>
+        <button id="modal-laporan-confirm" onclick="konfirmasiLaporanKSU()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold rounded-lg">Download PDF</button>
       </div>
     </div>
   </div>
@@ -2329,7 +2330,6 @@
       muatKesimpulanAuditKSU();
     }
 
-
     function muatKesimpulanAuditKSU() {
       const listContainer = document.getElementById('kesimpulan-list');
       const totalContainer = document.getElementById('kesimpulan-total');
@@ -2408,14 +2408,6 @@
       const summary = document.getElementById('stat-barang-minus');
       if (!container || !summary) return;
 
-      const categoryNames = {
-        Aki: 'AKI / ACCU MOTOR',
-        Helm: 'HELM',
-        Spion: 'SPION',
-        ToolKit: 'TOOL KIT',
-        PlatHolder: 'PLAT HOLDER',
-        SafetyRiding: 'SAFETY RIDING'
-      };
       const readStoredObject = key => {
         try { return JSON.parse(localStorage.getItem(key) || '{}'); }
         catch (error) { return {}; }
@@ -2504,7 +2496,6 @@
       const minusCount = minusItems.filter(item => item.status === 'Minus').length;
       const plusCount = minusItems.filter(item => item.status === 'Plus').length;
       
-      // LOGIKA HITUNG NETTO (PLUS DIKURANGI MINUS)
       const grandTotal = minusItems.reduce((total, item) => {
         if (item.harga === '') return total;
         const subtotal = item.jumlahMinus * Number(item.harga);
@@ -2734,7 +2725,7 @@
           <div class="p-4 border rounded-lg shadow-sm ${u.status ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'}">
             <div class="flex justify-between items-start">
               <div>
-                <p class="font-bold text-slate-800 text-base">${u.tipe_unit} <span class="text-xs font-normal text-slate-500">(${u.warna})</span></p>
+                <p class="font-bold text-slate-800 text-sm sm:text-base">${u.tipe_unit} <span class="text-xs font-normal text-slate-500">(${u.warna})</span></p>
                 <p class="text-xs font-mono text-slate-600 mt-1">Rangka: <b>${u.no_rangka}</b></p>
                 <p class="text-xs font-mono text-slate-600">Mesin &nbsp;&nbsp;: <b>${u.no_mesin}</b></p>
                 ${u.warehouse !== '-' ? `<p class="text-xs text-indigo-600 font-medium mt-1">📍 Warehouse Master: ${u.warehouse}</p>` : ''}
