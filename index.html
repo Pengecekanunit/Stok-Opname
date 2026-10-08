@@ -17,10 +17,10 @@
 
   <style>
     .laporan-header {
-      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-      border: 1px solid #cbd5e1;
+      background: linear-gradient(180deg, #ffffff 0%, rgba(246, 244, 244, 0.971) 100%);
+      border: 1px solid #000205;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      box-shadow: 0 2px 8px rgba(0, 2, 7, 0.04);
       padding: 12px 16px 16px;
     }
 
@@ -29,7 +29,7 @@
       font-weight: 800;
       letter-spacing: 0.10em;
       text-transform: uppercase;
-      color: #0f172a;
+      color: #000101;
       text-align: center;
       margin: 0;
       padding-bottom: 8px;
@@ -66,7 +66,7 @@
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: #475569;
+      color: #000102;
       text-align: center;
     }
 
@@ -166,7 +166,7 @@
     }
 
     .official-table thead th {
-      background: #f3f4f6;
+      background: #eef0f1;
       color: #0f172a;
       font-weight: 800;
       text-transform: uppercase;
@@ -287,7 +287,7 @@
         page: minus-landscape;
       }
       body {
-        background-color: #fff !important;
+        background-color: #fae6e6 !important;
         color: #000 !important;
         font-family: 'Arial', sans-serif !important;
         padding: 0 !important;
@@ -421,7 +421,7 @@
         background: transparent !important;
         padding: 0 !important;
         font-weight: bold !important;
-        color: #000 !important;
+        color: #f9f9f9 !important;
       }
       #cabang-nama {
         appearance: none !important;
@@ -448,8 +448,8 @@
         font-size: 8px !important;
       }
       th {
-        background-color: #f1f5f9 !important;
-        color: #000 !important;
+        background-color: #ffffff !important;
+        color: #fffdfd !important;
       }
       *,
       *::before,
@@ -461,7 +461,7 @@
 
     /* ===================== TAMPILAN APLIKASI ===================== */
     body {
-      background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 220px, #eef1f6 100%);
+      background: linear-gradient(180deg, #f8f8f8 0%, #f7f5f5fa 220px, #ffffff 100%);
       background-attachment: fixed;
     }
 
@@ -481,7 +481,7 @@
     /* Header */
     .app-header {
       background: linear-gradient(115deg, #3730a3 0%, #6d28d9 48%, #4f46e5 100%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+      border-bottom: 5px solid rgba(249, 0, 0, 0);
     }
     .app-header::before {
       content: "";
@@ -515,9 +515,9 @@
       content: "";
       position: absolute;
       left: 22%; right: 22%; bottom: -1px;
-      height: 3px;
+      height: 5px;
       border-radius: 99px;
-      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      background: linear-gradient(90deg, #f71201, #8b5cf6);
     }
 
     /* Section cards */
@@ -545,20 +545,20 @@
     }
     .kesimpulan-card .kesimpulan-title { font-size: 0.8rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; }
     .kesimpulan-badge { font-size: 0.7rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
-    .kesimpulan-badge.minus { background: #fee2e2; color: #991b1b; }
+    .kesimpulan-badge.minus { background: #fee2e2; color: #d51a1a; }
     .kesimpulan-badge.plus { background: #dcfce7; color: #166534; }
     .kesimpulan-badge.sesuai { background: #f1f5f9; color: #475569; }
     .kesimpulan-list-item { display: flex; justify-content: space-between; gap: 10px; font-size: 0.78rem; padding: 4px 0; }
     .kesimpulan-list-item .jenis { color: #334155; font-weight: 600; }
     .kesimpulan-list-item .selisih { font-weight: 800; white-space: nowrap; }
-    .kesimpulan-list-item .selisih.minus { color: #b91c1c; }
+    .kesimpulan-list-item .selisih.minus { color: #d51a1a; }
     .kesimpulan-list-item .selisih.plus { color: #15803d; }
     .kesimpulan-empty { font-size: 0.75rem; color: #94a3b8; font-style: italic; }
     .kesimpulan-text {
       font-size: 0.82rem; line-height: 1.6; color: #334155;
     }
     .kesimpulan-text b { color: #0f172a; }
-    .kesimpulan-text .neg { color: #b91c1c; font-weight: 700; }
+    .kesimpulan-text .neg { color: #d51a1a; font-weight: 700; }
     .kesimpulan-text .pos { color: #15803d; font-weight: 700; }
     .kesimpulan-total-row {
       display: flex; justify-content: space-between; align-items: center; gap: 10px;
@@ -566,7 +566,7 @@
       font-size: 0.8rem; font-weight: 800; color: #0f172a;
     }
     .kesimpulan-grand-value { font-size: 1.05rem; font-weight: 800; white-space: nowrap; }
-    .kesimpulan-grand-value.minus { color: #b91c1c; }
+    .kesimpulan-grand-value.minus { color: #d51a1a; }
     .kesimpulan-grand-value.plus { color: #15803d; }
     .kesimpulan-grand-value.sesuai { color: #475569; }
 
