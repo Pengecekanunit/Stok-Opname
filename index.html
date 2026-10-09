@@ -295,7 +295,7 @@
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
-      header, #tab-nav, #sec-unit, #sec-data, #sec-belum-opname, #sec-barang-minus, #form-kelengkapan-container, .no-print {
+      header, #tab-nav, #sec-unit, #sec-data, #sec-belum-opname, #sec-barang-minus, #form-kelengkapan-container, #sec-panduan, .no-print {
         display: none !important;
       }
       main {
@@ -726,6 +726,9 @@
       <button onclick="switchTab('data')" id="tab-data" class="tab-btn flex-1 basis-1/2 sm:basis-auto py-3 px-2 sm:px-4 text-center font-semibold text-xs sm:text-base text-slate-500 hover:text-indigo-600">
         ⚙️ Impor & Ekspor
       </button>
+      <button onclick="switchTab('panduan')" id="tab-panduan" class="tab-btn flex-1 basis-1/2 sm:basis-auto py-3 px-2 sm:px-4 text-center font-semibold text-xs sm:text-base text-slate-500 hover:text-indigo-600">
+        📖 Panduan
+      </button>
     </div>
 
     <!-- TAB 1: STOK OPNAME UNIT -->
@@ -1074,6 +1077,137 @@
         <button onclick="hapusSemuaData()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg text-xs sm:text-sm shadow">
           🗑️ Hapus Semua Data Lokal
         </button>
+      </div>
+    </section>
+
+    <!-- TAB: PANDUAN PENGGUNAAN -->
+    <section id="sec-panduan" class="bg-white p-4 sm:p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+        <div>
+          <h2 class="section-title text-base sm:text-lg font-bold text-slate-800">Panduan Penggunaan Aplikasi</h2>
+          <p class="text-xs text-slate-500 mt-1">Langkah singkat pengoperasian Sistem Stok Opname Offline Mandiri.</p>
+        </div>
+        <span class="inline-flex items-center gap-1.5 self-start sm:self-auto px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-xs font-bold text-indigo-700 whitespace-nowrap">📖 4 Fitur Utama</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        <!-- 1. OPNAME UNIT -->
+        <div class="border border-slate-200 rounded-xl p-4 sm:p-5 bg-gradient-to-b from-indigo-50/50 to-white space-y-4 transition-shadow hover:shadow-md">
+          <div class="flex items-center gap-3">
+            <span class="flex-none w-10 h-10 rounded-xl bg-indigo-600 text-white font-extrabold text-base flex items-center justify-center shadow-sm">1</span>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-tight">Opname Unit</h3>
+              <p class="text-[11px] sm:text-xs text-slate-500">Pemeriksaan Fisik Unit</p>
+            </div>
+          </div>
+          <ol class="space-y-2.5 text-xs sm:text-sm text-slate-700">
+            <li class="flex gap-2.5">
+              <span class="flex-none mt-0.5 w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold flex items-center justify-center">1</span>
+              <span><b class="text-slate-900">Cari Unit:</b> Masukkan nomor mesin atau nomor rangka (lengkap / beberapa angka) pada kolom pencarian.</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="flex-none mt-0.5 w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold flex items-center justify-center">2</span>
+              <span><b class="text-slate-900">Ambil Foto:</b> Foto nomor rangka/mesin (serta KSU jika ada) via kamera/galeri.</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="flex-none mt-0.5 w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold flex items-center justify-center">3</span>
+              <span><b class="text-slate-900">Simpan Data:</b> Pilih "Ada/Sesuai", isi checklist KSU pada pop-up kelengkapan unit, lalu klik <b class="text-indigo-700">"Simpan &amp; Sinkronkan"</b>.</span>
+            </li>
+          </ol>
+        </div>
+
+        <!-- 2. REKAP AUDIT KSU -->
+        <div class="border border-slate-200 rounded-xl p-4 sm:p-5 bg-gradient-to-b from-violet-50/50 to-white space-y-4 transition-shadow hover:shadow-md">
+          <div class="flex items-center gap-3">
+            <span class="flex-none w-10 h-10 rounded-xl bg-violet-600 text-white font-extrabold text-base flex items-center justify-center shadow-sm">2</span>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-tight">Rekap Audit KSU</h3>
+              <p class="text-[11px] sm:text-xs text-slate-500">Rekapitulasi Kelengkapan &amp; Stok Gudang</p>
+            </div>
+          </div>
+          <div class="space-y-2.5 text-xs sm:text-sm text-slate-700">
+            <div class="flex gap-2.5">
+              <span class="flex-none mt-0.5 w-5 h-5 rounded-full bg-violet-100 text-violet-700 text-[10px] font-bold flex items-center justify-center">a</span>
+              <span><b class="text-slate-900">Berita Acara Audit:</b> Menampilkan rekap KSU terpasang &amp; fisik gudang secara otomatis, lengkap dengan kesimpulan selisih. Setelah selesai, klik <b class="text-violet-700">"Download PDF"</b> (atau <b class="text-violet-700">"Download Excel"</b> untuk pembaruan data).</span>
+            </div>
+            <div class="flex gap-2.5">
+              <span class="flex-none mt-0.5 w-5 h-5 rounded-full bg-violet-100 text-violet-700 text-[10px] font-bold flex items-center justify-center">b</span>
+              <span><b class="text-slate-900">Barang Minus KSU:</b> Khusus rekap KSU yang bernilai minus. Wajib menginput <b class="text-slate-900">Harga Satuan</b> &amp; <b class="text-slate-900">Kode Part</b>, lalu unduh laporan dalam bentuk PDF/Excel.</span>
+            </div>
+            <div class="flex gap-2.5">
+              <span class="flex-none mt-0.5 w-5 h-5 rounded-full bg-violet-100 text-violet-700 text-[10px] font-bold flex items-center justify-center">c</span>
+              <span><b class="text-slate-900">Input Fisik Gudang:</b> Untuk menginput stok KSU loose/eceran di gudang/pos.</span>
+            </div>
+            <div class="ml-7 flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-violet-800">
+              <span class="px-2 py-1 rounded-md bg-violet-100 border border-violet-200">Pilih Kategori Item</span>
+              <span class="text-violet-400">→</span>
+              <span class="px-2 py-1 rounded-md bg-violet-100 border border-violet-200">Pilih Klasifikasi/Tipe</span>
+              <span class="text-violet-400">→</span>
+              <span class="px-2 py-1 rounded-md bg-violet-100 border border-violet-200">Input Jumlah Qty Fisik</span>
+              <span class="text-violet-400">→</span>
+              <span class="px-2 py-1 rounded-md bg-violet-100 border border-violet-200">Lokasi/Catatan (Opsional)</span>
+              <span class="text-violet-400">→</span>
+              <span class="px-2 py-1 rounded-md bg-violet-600 text-white shadow-sm">Klik "Simpan Data Fisik Gudang"</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. UNIT BELUM OPNAME -->
+        <div class="border border-slate-200 rounded-xl p-4 sm:p-5 bg-gradient-to-b from-amber-50/50 to-white space-y-4 transition-shadow hover:shadow-md">
+          <div class="flex items-center gap-3">
+            <span class="flex-none w-10 h-10 rounded-xl bg-amber-500 text-white font-extrabold text-base flex items-center justify-center shadow-sm">3</span>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-tight">Unit Belum Opname</h3>
+              <p class="text-[11px] sm:text-xs text-slate-500">Monitoring Unit Out-of-Stock Check</p>
+            </div>
+          </div>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-slate-700">
+            <li class="flex gap-2.5">
+              <span class="flex-none mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              <span>Memantau daftar unit yang belum diperiksa beserta lokasi warehousenya.</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="flex-none mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              <span>Unit yang telah di-opname akan <b class="text-slate-900">otomatis hilang</b> dari daftar ini.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 4. IMPOR & EKSPOR -->
+        <div class="border border-slate-200 rounded-xl p-4 sm:p-5 bg-gradient-to-b from-emerald-50/50 to-white space-y-4 transition-shadow hover:shadow-md">
+          <div class="flex items-center gap-3">
+            <span class="flex-none w-10 h-10 rounded-xl bg-emerald-600 text-white font-extrabold text-base flex items-center justify-center shadow-sm">4</span>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm sm:text-base leading-tight">Impor &amp; Ekspor</h3>
+              <p class="text-[11px] sm:text-xs text-slate-500">Manajemen Data Master &amp; Laporan</p>
+            </div>
+          </div>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-slate-700">
+            <li class="flex gap-2.5">
+              <span class="flex-none mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              <span><b class="text-slate-900">Impor Master (File 1):</b> Unggah data master unit utama.</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="flex-none mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              <span><b class="text-slate-900">Impor File Hari Ke-2 s/d N:</b> Untuk penyesuaian lokasi/warehouse jika audit berlangsung beberapa hari. Unit yang tidak ada di File 1 tetap muncul tanpa merusak Rekap Audit KSU.</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="flex-none mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              <span><b class="text-slate-900">Download Hasil:</b> Unduh Excel hasil opname unit, Excel rekap KSU, serta ZIP seluruh foto bukti fisik.</span>
+            </li>
+            <li class="flex gap-2.5">
+              <span class="flex-none mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              <span><b class="text-slate-900">Reset Database:</b> Fitur pembersihan seluruh data lokal pada perangkat.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="flex items-start gap-2.5 rounded-lg bg-slate-50 border border-slate-200 px-4 py-3 text-[11px] sm:text-xs text-slate-600">
+        <span class="text-base leading-none">💡</span>
+        <span>Seluruh data tersimpan <b class="text-slate-800">offline</b> di perangkat ini (IndexedDB) dan tersinkronisasi otomatis antar menu — tanpa memerlukan koneksi internet.</span>
       </div>
     </section>
 
@@ -2031,12 +2165,12 @@
 
     // --- 2. TAB NAVIGATION & RINGKASAN ---
     function switchTab(tab) {
-      ['unit', 'kelengkapan', 'belum-opname', 'data'].forEach(t => {
+      ['unit', 'kelengkapan', 'belum-opname', 'data', 'panduan'].forEach(t => {
         document.getElementById(`sec-${t}`).classList.add('hidden');
-        document.getElementById(`tab-${t}`).className = "tab-btn flex-1 py-3 px-4 text-center font-semibold text-slate-500 hover:text-indigo-600";
+        document.getElementById(`tab-${t}`).className = "tab-btn flex-1 basis-1/2 sm:basis-auto py-3 px-2 sm:px-4 text-center font-semibold text-xs sm:text-base text-slate-500 hover:text-indigo-600";
       });
       document.getElementById(`sec-${tab}`).classList.remove('hidden');
-      document.getElementById(`tab-${tab}`).className = "tab-btn active flex-1 py-3 px-4 text-center font-semibold text-indigo-700";
+      document.getElementById(`tab-${tab}`).className = "tab-btn active flex-1 basis-1/2 sm:basis-auto py-3 px-2 sm:px-4 text-center font-semibold text-xs sm:text-base text-indigo-700";
 
       if (tab === 'unit') {
         updateRingkasanUnit();
