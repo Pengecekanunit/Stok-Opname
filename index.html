@@ -157,7 +157,7 @@
 
     .official-table th,
     .official-table td {
-      border: 1px solid #cbd5e1;
+      border: 1px solid #64748b;
       padding: 5px 6px;
       vertical-align: middle;
       overflow: hidden;
@@ -448,8 +448,8 @@
         font-size: 8px !important;
       }
       th {
-        background-color: #ffffff !important;
-        color: #fffdfd !important;
+        background-color: #eef0f1 !important;
+        color: #0f172a !important;
       }
       *,
       *::before,
@@ -1022,9 +1022,35 @@
         </button>
       </div>
 
+      <!-- Impor Excel Warehouse Pendukung (File ke-2 s/d ke-6) -->
+      <div class="border p-4 rounded-lg border-sky-100 bg-sky-50/50 space-y-2">
+        <h3 class="section-title font-bold text-sm sm:text-base text-sky-900">2. Impor Warehouse Pendukung (File ke-2 s/d ke-6)</h3>
+        <p class="text-xs text-slate-600">Unggah file Excel pendukung (ke-2 s/d ke-6). Sistem membaca kolom <b>Warehouse/Lokasi</b> lalu mencocokkannya dengan unit pada File ke-1 (Master) berdasarkan <b>Nomor Rangka &amp; Nomor Mesin</b>. Unit yang <b>tidak ditemukan / tidak cocok</b> di File ke-1 <b>tidak akan diabaikan</b> — unit tersebut otomatis ditambahkan dengan status <b>Belum Opname</b>, Warehouse Master bernilai <b>"Tidak Terdata di File 1"</b>, dan keterangan lokasi mengikuti nomor file (<i>Warehouse 2, Warehouse 3, ... s/d Warehouse 6</i>) agar segera dapat diperiksa di lapangan. Data master &amp; hasil opname yang sudah ada <b>tidak akan ikut terhapus / berubah</b>.</p>
+        <div class="flex flex-col sm:flex-row gap-3 sm:items-end">
+          <div class="flex-1 min-w-[150px]">
+            <label for="slot-warehouse-tambahan" class="block text-xs font-bold text-slate-700 mb-1">Nomor File / Slot Warehouse</label>
+            <select id="slot-warehouse-tambahan" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 bg-white">
+              <option value="2">Warehouse 2 (File ke-2)</option>
+              <option value="3">Warehouse 3 (File ke-3)</option>
+              <option value="4">Warehouse 4 (File ke-4)</option>
+              <option value="5">Warehouse 5 (File ke-5)</option>
+              <option value="6">Warehouse 6 (File ke-6)</option>
+            </select>
+          </div>
+          <div class="flex-[2] min-w-0">
+            <label for="file-excel-wh" class="block text-xs font-bold text-slate-700 mb-1">File Excel Pendukung (Warehouse)</label>
+            <input type="file" id="file-excel-wh" accept=".xlsx, .xls, .csv" class="block w-full text-xs sm:text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:sm:text-sm file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-700">
+          </div>
+        </div>
+        <button onclick="imporExcelWarehouseTambahan()" class="mt-1 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-lg text-xs sm:text-sm shadow">
+          📥 Muat Warehouse Pendukung Ke Perangkat
+        </button>
+        <p id="status-warehouse-tambahan" class="text-xs text-slate-500 font-medium"></p>
+      </div>
+
       <!-- Download Excel Hasil Opname & Foto -->
       <div class="border p-4 rounded-lg border-emerald-100 bg-emerald-50/50 space-y-3">
-        <h3 class="section-title font-bold text-sm sm:text-base text-emerald-900">2. Download Hasil Stok Opname & Foto Bukti</h3>
+        <h3 class="section-title font-bold text-sm sm:text-base text-emerald-900">3. Download Hasil Stok Opname & Foto Bukti</h3>
         <p class="text-xs text-slate-600">Unduh data hasil opname dalam bentuk file Excel (.xlsx) atau unduh seluruh foto fisik unit sekaligus (ZIP).</p>
         <div class="flex flex-col sm:flex-row gap-2">
           <button onclick="eksporHasilUnitLocal()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs sm:text-sm shadow">
@@ -1043,7 +1069,7 @@
 
       <!-- Reset Database -->
       <div class="border p-4 rounded-lg border-red-200 bg-red-50 space-y-2">
-        <h3 class="section-title font-bold text-sm sm:text-base text-red-800">3. Bersihkan Database Perangkat</h3>
+        <h3 class="section-title font-bold text-sm sm:text-base text-red-800">4. Bersihkan Database Perangkat</h3>
         <p class="text-xs text-slate-600">Hapus seluruh data master dan hasil opname yang tersimpan di browser ini.</p>
         <button onclick="hapusSemuaData()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg text-xs sm:text-sm shadow">
           🗑️ Hapus Semua Data Lokal
@@ -1164,8 +1190,27 @@
   <script>
     // --- 1. SETUP DATABASE DEXIE ---
     const db = new Dexie('StokOpnameDB');
+
+    // Keterangan Warehouse Master (File ke-1) untuk unit dari File ke-2 s/d ke-6
+    // yang TIDAK terdaftar / TIDAK cocok dengan File ke-1 (Master Unit Utama).
+    const WAREHOUSE_TIDAK_TERDATA = 'Tidak Terdata di File 1';
+
+    // Schema versi 4 (versi sebelumnya).
     db.version(4).stores({
       unit: '++id, no_rangka, no_mesin, tipe_unit, warna, warehouse, status, waktu_opname, foto',
+      kelengkapan: '++id, kategori, jenis, qty, catatan, waktu_opname'
+    });
+
+    // Schema versi 5: menambahkan index `sumber_file` pada tabel unit.
+    // Field sumber_file menyimpan nomor file (2 s/d 6) asal unit yang TIDAK
+    // terdaftar di File ke-1. Unit dari File ke-1 (Master) bernilai null.
+    //
+    // warehouse_tambahan (field objek, tidak di-index) menyimpan lokasi Warehouse 2-6:
+    // contoh isi: { "2": "GUDANG CIKARANG", "3": "GUDANG TAMBUN", ... }
+    // Penambahan field tidak di-index TIDAK memerlukan perubahan versi schema Dexie,
+    // sehingga data master & hasil opname yang sudah tersimpan tetap aman.
+    db.version(5).stores({
+      unit: '++id, no_rangka, no_mesin, tipe_unit, warna, warehouse, status, waktu_opname, foto, sumber_file',
       kelengkapan: '++id, kategori, jenis, qty, catatan, waktu_opname'
     });
 
@@ -2066,8 +2111,15 @@
             <div class="divide-y divide-slate-200">
               ${warehouseUnits.map(unit => `
                 <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-1 sm:gap-4 items-center py-3">
-                  <p class="text-sm text-slate-600"><span class="font-semibold text-slate-500">No. Mesin:</span> <span class="font-mono font-bold text-slate-800">${escapeHTML(unit.no_mesin || '-')}</span></p>
-                  <p class="text-sm text-slate-700"><span class="font-semibold text-slate-500">Tipe:</span> ${escapeHTML(unit.tipe_unit || '-')}</p>
+                  <div class="space-y-0.5">
+                    <p class="text-sm text-slate-600"><span class="font-semibold text-slate-500">No. Mesin:</span> <span class="font-mono font-bold text-slate-800">${escapeHTML(unit.no_mesin || '-')}</span></p>
+                    <p class="text-sm text-slate-600"><span class="font-semibold text-slate-500">No. Rangka:</span> <span class="font-mono text-slate-700">${escapeHTML(unit.no_rangka || '-')}</span></p>
+                  </div>
+                  <div class="space-y-0.5">
+                    <p class="text-sm text-slate-700"><span class="font-semibold text-slate-500">Tipe:</span> ${escapeHTML(unit.tipe_unit || '-')}</p>
+                    ${renderWarehouseTambahan(unit.warehouse_tambahan)}
+                    ${unit.sumber_file ? `<p class="text-xs text-amber-600 font-semibold">⚠ Tidak terdata di File 1 (dari File ke-${unit.sumber_file})</p>` : ''}
+                  </div>
                   <button onclick="opnameUnitDariDaftar(${unit.id})" class="justify-self-start sm:justify-self-end px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded">
                     Periksa Unit
                   </button>
@@ -2130,12 +2182,15 @@
     async function updateRingkasanUnit() {
       const total = await db.unit.count();
       const sudah = await db.unit.filter(u => u.status !== null && u.status !== '').count();
-      document.getElementById('stat-ringkasan').innerText = `Total Master: ${total} | Terperiksa: ${sudah}`;
+      document.getElementById('stat-ringkasan').innerText = `Total Unit: ${total} | Terperiksa: ${sudah}`;
     }
 
     // --- REKAP AUDIT STOK KSU OTOMATIS BERDASARKAN TABEL PEMETAAN ---
     async function muatRekapKelengkapan() {
-      const allUnits = await db.unit.toArray();
+      // Stok Sistem pada Rekap Audit KSU HANYA berfokus pada File ke-1
+      // (Master Unit Utama). Unit dari File ke-2 s/d ke-N (field sumber_file
+      // terisi) dikecualikan dari seluruh perhitungan stok sistem KSU.
+      const allUnits = (await db.unit.toArray()).filter(u => !u.sumber_file);
       const allGudang = await db.kelengkapan.toArray();
       const container = document.getElementById('container-audit-ksu');
 
@@ -2243,11 +2298,11 @@
 
             if (selisih > 0) {
               statusText = 'Plus';
-              rowBgClass = 'bg-green-100 text-green-900 font-medium';
+              rowBgClass = 'bg-green-200 text-green-900 font-medium';
               statusRank = 1;
             } else if (selisih < 0) {
               statusText = 'Minus';
-              rowBgClass = 'bg-red-100 text-red-900 font-medium';
+              rowBgClass = 'bg-red-200 text-red-900 font-medium';
               statusRank = 0;
             }
 
@@ -2650,6 +2705,25 @@
 
           if (rawJson.length === 0) return alert('File Excel kosong!');
 
+          // Snapshot warehouse_tambahan (File 2-6) yang sudah ada agar tidak hilang
+          // saat File ke-1 (Master) di-impor ulang. Dicocokkan dengan Rangka + Mesin.
+          const normalizeKey = val => String(val || '').trim().toUpperCase();
+          const existingUnits = await db.unit.toArray();
+          const snapshotWarehouseTambahan = new Map();
+          existingUnits.forEach(u => {
+            if (u.warehouse_tambahan && Object.keys(u.warehouse_tambahan).length > 0) {
+              const key = `${normalizeKey(u.no_rangka)}|${normalizeKey(u.no_mesin)}`;
+              snapshotWarehouseTambahan.set(key, u.warehouse_tambahan);
+            }
+          });
+
+          // Snapshot unit pendukung (File ke-2 s/d ke-6) yang tidak terdaftar di
+          // File ke-1, agar tidak hilang ketika File ke-1 (Master) di-impor ulang.
+          // Field id dilepas agar Dexie men-generate id baru saat di tambahkan.
+          const snapshotUnitPendukung = existingUnits
+            .filter(u => u.sumber_file)
+            .map(({ id, ...dataUnit }) => dataUnit);
+
           const mappedData = rawJson.map(row => {
             let item = {};
             Object.keys(row).forEach(key => {
@@ -2673,14 +2747,30 @@
               status: null,
               waktu_opname: null,
               foto: null,
-              kelengkapan: { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false }
+              kelengkapan: { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false },
+              warehouse_tambahan: snapshotWarehouseTambahan.get(`${normalizeKey(item.no_rangka)}|${normalizeKey(item.no_mesin)}`) || {},
+              sumber_file: null
             };
           });
 
           await db.unit.clear();
           await db.unit.bulkAdd(mappedData);
 
-          alert(`✅ Berhasil mengimpor ${mappedData.length} data unit ke database lokal!`);
+          // Kembalikan unit pendukung (File ke-2 s/d ke-6) yang rangka+mesin-nya
+          // tidak ada di File ke-1. Jika rangka+mesin-nya sudah masuk ke File ke-1
+          // (master), maka warehouse_tambahan-nya sudah dipulihkan ke unit master
+          // di atas lewat snapshotWarehouseTambahan, sehingga tidak perlu ditambah
+          // ulang (mencegah duplikasi unit).
+          const masterKeys = new Set(mappedData.map(u => `${normalizeKey(u.no_rangka)}|${normalizeKey(u.no_mesin)}`));
+          const unitPendukungAman = snapshotUnitPendukung.filter(u =>
+            !masterKeys.has(`${normalizeKey(u.no_rangka)}|${normalizeKey(u.no_mesin)}`)
+          );
+          if (unitPendukungAman.length > 0) {
+            await db.unit.bulkAdd(unitPendukungAman);
+          }
+
+          alert(`✅ Berhasil mengimpor ${mappedData.length} data unit ke database lokal!` +
+            (unitPendukungAman.length ? `\n📦 ${unitPendukungAman.length} unit pendukung (File 2-6) tetap dipertahankan.` : ''));
           updateRingkasanUnit();
           switchTab('unit');
         } catch (err) {
@@ -2692,7 +2782,185 @@
       reader.readAsArrayBuffer(file);
     }
 
+    // --- 4b. IMPOR EXCEL WAREHOUSE PENDUKUNG (FILE KE-2 s/d KE-6) ---
+    async function imporExcelWarehouseTambahan() {
+      const fileInput = document.getElementById('file-excel-wh');
+      const slotSelect = document.getElementById('slot-warehouse-tambahan');
+      const statusEl = document.getElementById('status-warehouse-tambahan');
+
+      if (!fileInput.files.length) {
+        alert('Pilih file Excel pendukung (Warehouse) terlebih dahulu!');
+        return;
+      }
+      if (typeof XLSX === 'undefined') {
+        alert('Library Excel belum siap. Periksa koneksi internet lalu coba lagi.');
+        return;
+      }
+
+      const slot = parseInt(slotSelect.value, 10);
+      if (!(slot >= 2 && slot <= 6)) {
+        alert('Nomor file / slot warehouse tidak valid (hanya 2 s/d 6).');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const rawJson = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+          if (rawJson.length === 0) {
+            alert('File Excel pendukung kosong!');
+            return;
+          }
+
+          const allUnits = await db.unit.toArray();
+          if (allUnits.length === 0) {
+            alert('Belum ada data master (File ke-1). Silakan impor File ke-1 (Master Unit) terlebih dahulu.');
+            return;
+          }
+
+          // Siapkan indeks pencocokan dari data master (File ke-1)
+          const normalizeKey = val => String(val || '').trim().toUpperCase();
+          const byRangka = new Map();
+          const byMesin = new Map();
+          allUnits.forEach(u => {
+            if (u.no_rangka && normalizeKey(u.no_rangka) !== '-') byRangka.set(normalizeKey(u.no_rangka), u);
+            if (u.no_mesin && normalizeKey(u.no_mesin) !== '-') byMesin.set(normalizeKey(u.no_mesin), u);
+          });
+
+          const updates = new Map(); // id unit -> nilai warehouse untuk slot ini
+          const newUnits = [];       // unit baru yg tidak terdaftar di File ke-1 (Master)
+          const newUnitKeys = new Set(); // cegah duplikasi unit baru dalam satu impor
+          let cocok = 0, ganda = 0, tanpaWarehouse = 0;
+
+          rawJson.forEach(row => {
+            let noRangka = '', noMesin = '', warehouse = '', tipeUnit = '', warnaUnit = '';
+            Object.keys(row).forEach(key => {
+              const k = key.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+              const val = String(row[key] || '').trim();
+              if (k.includes('rangka') || k.includes('chasis') || k.includes('frame')) noRangka = val;
+              else if (k.includes('mesin') || k.includes('engine')) noMesin = val;
+              else if (k.includes('warehouse') || k.includes('lokasi')) warehouse = val;
+              else if (k.includes('tipe') || k.includes('type') || k.includes('model')) tipeUnit = val;
+              else if (k.includes('warna') || k.includes('color')) warnaUnit = val;
+            });
+
+            // Abaikan baris yang tidak memiliki nilai Warehouse/Lokasi
+            if (!warehouse) { tanpaWarehouse++; return; }
+
+            const keyRangka = normalizeKey(noRangka);
+            const keyMesin = normalizeKey(noMesin);
+            let target = null;
+
+            if (keyRangka && keyMesin && keyRangka !== '-' && keyMesin !== '-') {
+              // Cocokkan Rangka DAN Mesin ke unit yang sama
+              const byR = byRangka.get(keyRangka);
+              const byM = byMesin.get(keyMesin);
+              if (byR && byM && byR.id === byM.id) target = byR;
+            } else if (keyRangka && keyRangka !== '-') {
+              target = byRangka.get(keyRangka);
+            } else if (keyMesin && keyMesin !== '-') {
+              target = byMesin.get(keyMesin);
+            }
+
+            if (target) {
+              updates.set(target.id, warehouse);
+              cocok++;
+              return;
+            }
+
+            // Kombinasi Rangka + Mesin tidak persis cocok. Pastikan ini benar-benar
+            // unit baru: baik Rangka maupun Mesin tidak boleh sudah ada di File ke-1.
+            const rangkaAda = keyRangka && keyRangka !== '-' && byRangka.has(keyRangka);
+            const mesinAda = keyMesin && keyMesin !== '-' && byMesin.has(keyMesin);
+            if (rangkaAda || mesinAda) {
+              // Salah satu identitas sudah terdaftar di File ke-1 (kombinasi tidak
+              // konsisten). Tetap tag warehouse ke unit tersebut agar data tidak
+              // hilang dan tidak terjadi duplikasi unit di database.
+              const unitTerdaftar = byRangka.get(keyRangka) || byMesin.get(keyMesin);
+              updates.set(unitTerdaftar.id, warehouse);
+              cocok++;
+              return;
+            }
+
+            // Unit benar-benar TIDAK ADA di File ke-1 -> JANGAN diabaikan.
+            // Tambahkan sebagai unit baru dengan status opname kosong (Belum Opname).
+            const newKey = `${keyRangka || '-'}|${keyMesin || '-'}`;
+            if (newUnitKeys.has(newKey)) { ganda++; return; }
+            newUnitKeys.add(newKey);
+            newUnits.push({
+              no_rangka: noRangka || '-',
+              no_mesin: noMesin || '-',
+              tipe_unit: tipeUnit || 'Unit Motor',
+              warna: warnaUnit || '-',
+              // Warehouse Master (File ke-1) dikosongkan karena tidak terdata di File 1
+              warehouse: WAREHOUSE_TIDAK_TERDATA,
+              status: null,
+              waktu_opname: null,
+              foto: null,
+              kelengkapan: { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false },
+              // Keterangan lokasi otomatis mengikuti nomor file upload:
+              // "Warehouse 2: [Nama Warehouse]", "Warehouse 3: ...", s/d Warehouse 6.
+              warehouse_tambahan: { [String(slot)]: warehouse },
+              sumber_file: slot
+            });
+          });
+
+          // Update hanya field warehouse_tambahan untuk unit yang cocok, dan
+          // tambahkan unit baru (tidak terdaftar di File ke-1) ke dalam database.
+          // Data master, status opname, & hasil audit KSU TIDAK ikut terhapus.
+          await db.transaction('rw', db.unit, async () => {
+            for (const [id, warehouse] of updates) {
+              const unit = await db.unit.get(id);
+              if (!unit) continue;
+              const warehouseTambahan = unit.warehouse_tambahan || {};
+              warehouseTambahan[String(slot)] = warehouse;
+              await db.unit.update(id, { warehouse_tambahan: warehouseTambahan });
+            }
+            if (newUnits.length > 0) {
+              await db.unit.bulkAdd(newUnits);
+            }
+          });
+
+          fileInput.value = '';
+          const pesan = `Warehouse ${slot}: ${cocok} unit cocok` +
+            (newUnits.length ? `, ${newUnits.length} unit baru ditambahkan (Belum Opname)` : '') +
+            (ganda ? `, ${ganda} baris ganda dilewati` : '') +
+            (tanpaWarehouse ? `, ${tanpaWarehouse} baris tanpa warehouse` : '') +
+            ` (dari ${rawJson.length} baris).`;
+          statusEl.textContent = '✅ ' + pesan;
+          alert(`✅ Berhasil memproses ${pesan}`);
+          updateRingkasanUnit();
+          // Rekap Audit KSU tidak perlu di-refresh di sini karena stok sistem
+          // KSU hanya berfokus pada File ke-1, sehingga tidak dipengaruhi oleh
+          // penambahan unit dari File ke-2 s/d ke-N.
+        } catch (err) {
+          alert('Gagal membaca file Excel pendukung.');
+          console.error(err);
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
     // --- 5. SEARCH UNIT & POPUP KELENGKAPAN ---
+    // Merender daftar Warehouse pendukung (File ke-2 s/d ke-6) tepat di bawah Warehouse Master.
+    function renderWarehouseTambahan(warehouseTambahan) {
+      if (!warehouseTambahan || typeof warehouseTambahan !== 'object') return '';
+      const slotTerisi = Object.keys(warehouseTambahan)
+        .filter(slot => warehouseTambahan[slot] && String(warehouseTambahan[slot]).trim() !== '')
+        .sort((a, b) => Number(a) - Number(b));
+      if (slotTerisi.length === 0) return '';
+      return slotTerisi
+        .map(slot => `<p class="text-xs text-sky-600 font-medium">📍 Warehouse ${escapeHTML(slot)}: ${escapeHTML(warehouseTambahan[slot])}</p>`)
+        .join('');
+    }
+
     async function cariUnit() {
       const keyword = document.getElementById('search-unit').value.trim().toLowerCase();
       const container = document.getElementById('hasil-cari-unit');
@@ -2708,7 +2976,8 @@
           (u.no_mesin && u.no_mesin.toLowerCase().includes(keyword)) ||
           (u.tipe_unit && u.tipe_unit.toLowerCase().includes(keyword)) ||
           (u.warna && u.warna.toLowerCase().includes(keyword)) ||
-          (u.warehouse && u.warehouse.toLowerCase().includes(keyword))
+          (u.warehouse && u.warehouse.toLowerCase().includes(keyword)) ||
+          (u.warehouse_tambahan && Object.keys(u.warehouse_tambahan).some(slot => String(u.warehouse_tambahan[slot] || '').toLowerCase().includes(keyword)))
         )
         .limit(20)
         .toArray();
@@ -2728,7 +2997,9 @@
                 <p class="font-bold text-slate-800 text-sm sm:text-base">${u.tipe_unit} <span class="text-xs font-normal text-slate-500">(${u.warna})</span></p>
                 <p class="text-xs font-mono text-slate-600 mt-1">Rangka: <b>${u.no_rangka}</b></p>
                 <p class="text-xs font-mono text-slate-600">Mesin &nbsp;&nbsp;: <b>${u.no_mesin}</b></p>
-                ${u.warehouse !== '-' ? `<p class="text-xs text-indigo-600 font-medium mt-1">📍 Warehouse Master: ${u.warehouse}</p>` : ''}
+                ${u.warehouse !== '-' ? `<p class="text-xs text-indigo-600 font-medium mt-1">📍 Warehouse Master: ${escapeHTML(u.warehouse)}</p>` : ''}
+                ${renderWarehouseTambahan(u.warehouse_tambahan)}
+                ${u.sumber_file ? `<p class="text-xs text-amber-600 font-semibold mt-1">⚠ Tidak terdata di File 1 — ditambahkan dari File ke-${u.sumber_file}</p>` : ''}
               </div>
               <span class="text-xs px-2.5 py-1 rounded-full font-semibold ${u.status ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}">
                 ${u.status || 'Belum Opname'}
@@ -2942,6 +3213,7 @@
 
       const exportData = data.map(u => {
         const k = u.kelengkapan || {};
+        const wt = u.warehouse_tambahan || {};
 
         return {
           "No. Rangka": u.no_rangka,
@@ -2949,8 +3221,14 @@
           "Tipe Unit": u.tipe_unit,
           "Warna": u.warna,
           "Warehouse": u.warehouse,
+          "Warehouse 2": wt["2"] || "-",
+          "Warehouse 3": wt["3"] || "-",
+          "Warehouse 4": wt["4"] || "-",
+          "Warehouse 5": wt["5"] || "-",
+          "Warehouse 6": wt["6"] || "-",
           "Tahun": u.tahun,
           "Status Opname": u.status || "Belum Opname",
+          "Sumber File": u.sumber_file ? `File ke-${u.sumber_file} (Warehouse Pendukung)` : "File ke-1 (Master)",
           "Spion": k.spion ? "✓" : "-",
           "Aki": k.aki ? "✓" : "-",
           "Tool Kit": k.toolkit ? "✓" : "-",
