@@ -198,7 +198,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 170px;
+      min-height: 150px;
       border: 1px solid #cbd5e1;
       border-radius: 8px;
       background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
@@ -375,8 +375,8 @@
         gap: 3mm !important;
       }
       .official-signoff {
-        min-height: 130px !important;
-        padding: 6px 8px !important;
+        min-height: 110px !important;
+        padding: 4px 6px !important;
       }
       .official-signoff .title {
         font-size: 0.62rem !important;
@@ -385,14 +385,14 @@
         font-size: 0.5rem !important;
       }
       .official-signoff .line {
-        margin: 6px 12px 3px !important;
-        min-height: 8px !important;
+        margin: 4px 8px 2px !important;
+        min-height: 6px !important;
       }
       .official-signoff .person {
         font-size: 0.5rem !important;
       }
       .signoff-print-only .space-y-6 > :not([hidden]) ~ :not([hidden]) {
-        margin-top: 6px !important;
+        margin-top: 4px !important;
       }
       .laporan-date-row {
         display: flex !important;
@@ -2625,7 +2625,9 @@
         const totalRow = card.querySelector('tbody tr.table-total-row');
         const totalSelisih = totalRow ? Number(totalRow.cells[4]?.textContent.trim() || 0) : null;
         const tampilkanItem = totalRow ? totalSelisih < 0 : hasNegativeTotalPhysical;
-        const items = tampilkanItem ? sourceRows.filter(row => ['Minus', 'Plus'].includes(row.cells[6]?.textContent.trim())).map(row => {
+        const hanyaMinus = /TOOL KIT/.test(categoryTitle.toUpperCase());
+        const statusDiizinkan = hanyaMinus ? ['Minus'] : ['Minus', 'Plus'];
+        const items = tampilkanItem ? sourceRows.filter(row => statusDiizinkan.includes(row.cells[6]?.textContent.trim())).map(row => {
           const jenis = row.cells[1]?.textContent.trim() || '';
           const kategori = Object.entries(opsiJenis).find(([, jenisList]) => jenisList.includes(jenis))?.[0];
           if (!kategori) return null;
@@ -2666,7 +2668,7 @@
                 </tr></thead>
                 <tbody>
                   ${items.length ? items.map(item => `
-                    <tr class="border-b border-slate-300 ${item.status === 'Minus' ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'} font-medium" data-status="${item.status}">
+                    <tr class="border-b border-slate-300 ${item.status === 'Minus' ? 'bg-red-200 text-red-900' : 'bg-green-200 text-green-900'} font-medium" data-status="${item.status}">
                       <td class="p-2 text-center">${item.no}</td>
                       <td class="p-2">${escapeHTML(item.jenis)}</td>
                       <td class="p-2 text-center font-bold">${item.totalFisik}</td>
@@ -2674,7 +2676,7 @@
                       <td class="p-2"><input type="text" aria-label="Kode sparepart ${escapeHTML(item.jenis)}" class="minus-field-screen w-full p-2 border border-slate-300 rounded text-slate-800 bg-white" data-part-key="${escapeHTML(item.priceKey)}" value="${escapeHTML(item.kodeSparepart)}" oninput="simpanKodeSparepartKSU(this)" placeholder="Masukkan kode"><span class="minus-field-print">${escapeHTML(item.kodeSparepart || '-')}</span></td>
                       <td class="p-2 text-right font-bold" id="${item.outputId}">${item.harga === '' ? '-' : moneyFormat(item.jumlahMinus * Number(item.harga))}</td>
                     </tr>
-                  `).join('') : '<tr><td colspan="6" class="p-2 text-center text-slate-500">Tidak ada hasil Minus atau Plus pada kategori ini.</td></tr>'}
+                  `).join('') : `<tr><td colspan="6" class="p-2 text-center text-slate-500">Tidak ada hasil ${hanyaMinus ? 'Minus' : 'Minus atau Plus'} pada kategori ini.</td></tr>`}
                 </tbody>
               </table>
             </div>
