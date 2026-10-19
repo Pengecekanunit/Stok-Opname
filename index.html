@@ -3507,6 +3507,7 @@ function gisLoaded() {
       btn.innerText = 'Google OK';
       status.textContent = 'Terautentikasi';
       status.className = 'ml-2 text-xs text-emerald-600 font-medium';
+      syncSheetToIndexedDB();
     }
   });
   gisInited = true;
@@ -3584,9 +3585,78 @@ async function syncOpnameToGoogle(unit, fotoBase64, status, kelengkapan) {
     alert('❌ Gagal sinkron ke Google: ' + e.message);
   }
 }
-window.addEventListener('load', () => {
+async function fetchSheetValues() {
+  const res = await gapi.client.sheets.spreadsheets.values.get({
+    spreadsheetId: SHEETS_ID,
+    range: 'Sheet1!A:I'
+  });
+  return res.result.values || [];
+}
+function extractDriveFileId(webViewLink) {
+  if (!webViewLink) return null;
+  const match = String(webViewLink).match(/\/file\/d\/([^/]+)/);
+  return match ? match[1] : null;
+}
+async function syncSheetToIndexedDB() {
+  if (!accessToken || !gapiInited) return;
+  const btn = document.getElementById('btn-google-login');
+  const statusEl = document.getElementById('google-status');
+  btn.innerText = 'Sinkron...';
+  statusEl.textContent = 'Mengambil data dari Google Sheets...';
+  statusEl.className = 'ml-2 text-xs text-amber-600 font-medium';
+  try {
+    const rows = await fetchSheetValues();
+    const dataRows = rows.slice(1);
+    let synced = 0;
+    let skipped = 0;
+    for (const row of dataRows) {
+      const noRangka = row[1] || '';
+      if (!noRangka) continue;
+      const existing = await db.unit.where('no_rangka').equals(noRangka).first();
+      if (existing) {
+        skipped++;
+        continue;
+      }
+      const kelengkapan = { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false };
+      try {
+        const parsed = JSON.parse(row[7] || '{}');
+        Object.assign(kelengkapan, parsed);
+      } catch (e) {}
+      const fileId = extractDriveFileId(row[8] || '');
+      const fotoUrl = fileId ? 'https://drive.google.com/uc?export=view&id=' + fileId : (row[8] || null);
+      await db.unit.add({
+        no_rangka: noRangka,
+        no_mesin: row[2] || '',
+        tipe_unit: row[3] || '',
+        warna: row[4] || '',
+        warehouse: row[5] || '',
+        status: row[6] || '',
+        waktu_opname: row[0] || '',
+        foto: fotoUrl,
+        kelengkapan: kelengkapan,
+        sumber_file: null
+      });
+      synced++;
+    }
+    btn.innerText = 'Google OK';
+    statusEl.textContent = 'Sinkron selesai: ' + synced + ' baru, ' + skipped + ' dilewati';
+    statusEl.className = 'ml-2 text-xs text-emerald-600 font-medium';
+    updateRingkasanUnit();
+    cariUnit();
+  } catch (e) {
+    console.error(e);
+    btn.innerText = 'Google OK';
+    statusEl.textContent = 'Gagal sinkron: ' + e.message;
+    statusEl.className = 'ml-2 text-xs text-red-600 font-medium';
+  }
+}
+window.addEventListener('load', async () => {
   if (typeof gapi !== 'undefined') gapiLoaded();
   if (typeof google !== 'undefined') gisLoaded();
+  await new Promise(r => setTimeout(r, 1500));
+  if (accessToken && gapiInited) {
+    syncSheetToIndexedDB();
+  }
 });
 </script>
 </body>
