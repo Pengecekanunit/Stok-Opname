@@ -710,9 +710,6 @@
       }
     }
   </style>
-  <!-- Google API Client & GIS -->
-  <script src="https://apis.google.com/js/api.js" async defer></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen pb-12">
 
@@ -720,10 +717,10 @@
   <header class="app-header text-white p-4 shadow-lg sticky top-0 z-40">
     <div class="max-w-4xl mx-auto flex justify-between items-center relative z-10">
       <h1 class="text-xl sm:text-2xl font-extrabold tracking-wide drop-shadow-sm">📦 Stok Opname System</h1>
-       <button id="btn-google-login" onclick="handleGoogleLogin()" class="ml-2 px-3 py-1.5 bg-white text-indigo-700 text-xs font-bold rounded-lg shadow">Login Google</button>
- <button id="btn-sync-sheet" onclick="handleSyncSheet()" class="ml-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow opacity-50 pointer-events-none" title="Sinkron data dari Google Sheets ke perangkat ini">Sinkron Sheets</button>
- <span id="google-status" class="ml-2 text-xs text-slate-500 font-medium">Belum login</span>
-     </div>
+      <span class="sync-badge text-xs px-3 py-1.5 rounded-full bg-emerald-500 text-white font-semibold inline-flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>Auto-Sync KSU
+      </span>
+    </div>
   </header>
 
   <main class="max-w-4xl mx-auto p-3 sm:p-4 space-y-4 sm:space-y-6 mt-2">
@@ -3223,17 +3220,16 @@
           fotoBase64 = await compressAndWatermarkImage(fileGal.files[0], unit.no_rangka);
         }
 
-       await db.unit.update(id, {
-         status: status,
-         foto: fotoBase64,
-         kelengkapan: { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false },
-         waktu_opname: new Date().toLocaleString('id-ID')
-       });
-       updateRingkasanUnit();
-       cariUnit();
-       muatRekapKelengkapan();
-       if (fotoBase64) syncOpnameToGoogle(unit, fotoBase64, status, { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false });
-       return;
+        await db.unit.update(id, {
+          status: status,
+          foto: fotoBase64,
+          kelengkapan: { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false },
+          waktu_opname: new Date().toLocaleString('id-ID')
+        });
+        updateRingkasanUnit();
+        cariUnit();
+        muatRekapKelengkapan();
+        return;
       }
 
       const adaFotoLama = unit.foto && unit.foto !== '';
@@ -3292,18 +3288,17 @@
         safety_riding: document.getElementById('modal-safety-riding').checked
       };
 
-       await db.unit.update(id, {
-         status: status,
-         foto: fotoBase64,
-         kelengkapan: kelengkapanData,
-         waktu_opname: new Date().toLocaleString('id-ID')
-       });
+      await db.unit.update(id, {
+        status: status,
+        foto: fotoBase64,
+        kelengkapan: kelengkapanData,
+        waktu_opname: new Date().toLocaleString('id-ID')
+      });
 
-       tutupModal();
-       updateRingkasanUnit();
-       cariUnit();
-       muatRekapKelengkapan();
-       if (fotoBase64) syncOpnameToGoogle(unit, fotoBase64, status, kelengkapanData);
+      tutupModal();
+      updateRingkasanUnit();
+      cariUnit();
+      muatRekapKelengkapan();
     }
 
     // --- 6. MODUL OPNAME KELENGKAPAN LOOSE GUDANG ---
@@ -3468,262 +3463,5 @@
     // Inisialisasi awal
     updateRingkasanUnit();
   </script>
-<script>
-const G_CLIENT_ID = '634070668358-dtlgasbbjg38opr5eorltvdus6vf1kut.apps.googleusercontent.com';
-const G_API_KEY = 'AIzaSyBiFMHKA4qUimS0lHnseAynKBVMWuKWzf0';
-const DRIVE_FOLDER_ID = '1FeeUb57Nvml9A6eQsb0ChtOSbkDjfgiS';
-const SHEETS_ID = '190xaC0XwxvGbhoJd8Ev4PyEq61iy1l3T1NNaMcbyr-U';
-const SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets';
-
-let tokenClient = null;
-let accessToken = null;
-let gapiInited = false;
-let gisInited = false;
-
-function debugLog(msg) {
-  const d = new Date().toLocaleTimeString('id-ID');
-  console.log('[GoogleSync][' + d + '] ' + msg);
-}
-function validateSheetsId() {
-  const id = String(SHEETS_ID || '');
-  if (!id || id.length < 10) {
-    debugLog('PERINGATAN: SHEETS_ID terlalu pendek atau kosong.');
-    return false;
-  }
-  if (id.startsWith('AIza')) {
-    debugLog('PERINGATAN: SHEETS_ID terdeteksi sebagai API Key (diawali AIza), bukan Spreadsheet ID.');
-    return false;
-  }
-  if (id === DRIVE_FOLDER_ID) {
-    debugLog('PERINGATAN: SHEETS_ID sama dengan DRIVE_FOLDER_ID. Pastikan SHEETS_ID adalah ID spreadsheet yang benar.');
-    return false;
-  }
-  debugLog('SHEETS_ID valid: ' + id);
-  return true;
-}
-
-function gapiLoaded() { gapi.load('client', initializeGapiClient); }
-function initializeGapiClient() {
-  gapi.client.init({
-    apiKey: G_API_KEY,
-    discoveryDocs: [
-      'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
-      'https://sheets.googleapis.com/$discovery/rest?version=v4'
-    ]
-  }).then(() => { gapiInited = true; });
-}
-function gisLoaded() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: G_CLIENT_ID,
-    scope: SCOPES,
-    callback: (resp) => {
-      const btn = document.getElementById('btn-google-login');
-      const status = document.getElementById('google-status');
-      if (resp.error) {
-        btn.innerText = 'Login Google';
-        status.textContent = 'Login gagal: ' + resp.error;
-        status.className = 'ml-2 text-xs text-red-600 font-medium';
-        return;
-      }
-      accessToken = resp.access_token;
-      if (gapi.client) gapi.client.setToken({ access_token: resp.access_token });
-      btn.innerText = 'Google OK';
-      status.textContent = 'Terautentikasi';
-      status.className = 'ml-2 text-xs text-emerald-600 font-medium';
-      document.getElementById('btn-sync-sheet').className = 'ml-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow';
-      debugLog('Login berhasil, token diperoleh. Sinkronisasi otomatis dimulai...');
-      syncSheetToIndexedDB();
-    }
-  });
-  gisInited = true;
-  debugLog('GIS siap.');
-}
-function handleGoogleLogin() {
-  debugLog('handleGoogleLogin dipanggil. tokenClient=' + !!tokenClient);
-  if (!tokenClient) { alert('Google belum siap'); return; }
-  const btn = document.getElementById('btn-google-login');
-  const status = document.getElementById('google-status');
-  btn.innerText = 'Memuat...';
-  status.textContent = 'Sedang memuat autentikasi...';
-  status.className = 'ml-2 text-xs text-amber-600 font-medium';
-  if (gapi.client.getToken() === null) tokenClient.requestAccessToken({ prompt: 'consent' });
-  else tokenClient.requestAccessToken({ prompt: '' });
-}
-function handleSyncSheet() {
-  if (!accessToken) {
-    alert('Silakan login Google terlebih dahulu sebelum sinkron.');
-    return;
-  }
-  if (!validateSheetsId()) {
-    alert('SHEETS_ID tidak valid. Periksa konfigurasi di skrip.');
-    return;
-  }
-  syncSheetToIndexedDB();
-}
-async function uploadPhotoToDrive(fileBlob, fileName) {
-  debugLog('Mengunggah foto ke Drive... fileName=' + fileName + ', folderId=' + DRIVE_FOLDER_ID);
-  const metadata = { name: fileName, parents: [DRIVE_FOLDER_ID] };
-  const form = new FormData();
-  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-  form.append('file', fileBlob);
-  const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink', {
-    method: 'POST',
-    headers: { Authorization: 'Bearer ' + accessToken },
-    body: form
-  });
-  if (!res.ok) {
-    const errText = await res.text();
-    debugLog('Drive upload gagal (' + res.status + '): ' + errText);
-    throw new Error('Drive upload gagal (' + res.status + '): ' + errText);
-  }
-  const data = await res.json();
-  debugLog('Foto terupload. fileId=' + data.id + ', webViewLink=' + data.webViewLink);
-  return data.webViewLink || ('https://drive.google.com/file/d/' + data.id + '/view');
-}
-async function appendToSheet(values) {
-  debugLog('Menambahkan baris ke Sheets... spreadsheetId=' + SHEETS_ID + ', values=' + JSON.stringify(values));
-  await gapi.client.sheets.spreadsheets.values.append({
-    spreadsheetId: SHEETS_ID,
-    range: 'Sheet1!A1',
-    valueInputOption: 'USER_ENTERED',
-    resource: { values: [values] }
-  });
-  debugLog('Baris berhasil ditambahkan ke Sheets.');
-}
-async function syncOpnameToGoogle(unit, fotoBase64, status, kelengkapan) {
-  const btn = document.getElementById('btn-google-login');
-  const statusEl = document.getElementById('google-status');
-  debugLog('syncOpnameToGoogle dipanggil. unit.no_rangka=' + unit.no_rangka + ', accessToken=' + !!accessToken);
-  if (!accessToken) {
-    alert('Silakan login Google terlebih dahulu');
-    return;
-  }
-  btn.innerText = 'Mengunggah...';
-  statusEl.textContent = 'Mengunggah foto ke Drive...';
-  statusEl.className = 'ml-2 text-xs text-amber-600 font-medium';
-  try {
-    const blob = await (await fetch(fotoBase64)).blob();
-    const link = await uploadPhotoToDrive(blob, 'FOTO_' + unit.no_rangka + '.jpg');
-    statusEl.textContent = 'Menyimpan data ke Sheets...';
-    const values = [
-      new Date().toLocaleString('id-ID'),
-      unit.no_rangka || '',
-      unit.no_mesin || '',
-      unit.tipe_unit || '',
-      unit.warna || '',
-      unit.warehouse || '',
-      status,
-      JSON.stringify(kelengkapan),
-      link
-    ];
-    await appendToSheet(values);
-    btn.innerText = 'Google OK';
-    statusEl.textContent = 'Terupload ke Drive & Tersimpan di Sheets';
-    statusEl.className = 'ml-2 text-xs text-emerald-600 font-medium';
-    alert('✅ Data & foto berhasil disimpan ke Google Sheets/Drive');
-  } catch (e) {
-    console.error(e);
-    btn.innerText = 'Login Google';
-    statusEl.textContent = 'Gagal: ' + e.message;
-    statusEl.className = 'ml-2 text-xs text-red-600 font-medium';
-    alert('❌ Gagal sinkron ke Google: ' + e.message);
-  }
-}
-async function fetchSheetValues() {
-  debugLog('Mengambil data dari Sheets API... SHEETS_ID=' + SHEETS_ID);
-  const res = await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: SHEETS_ID,
-    range: 'Sheet1!A:I'
-  });
-  const rows = res.result.values || [];
-  debugLog('Sheets API mengembalikan ' + rows.length + ' baris (termasuk header).');
-  return rows;
-}
-function extractDriveFileId(webViewLink) {
-  if (!webViewLink) return null;
-  const match = String(webViewLink).match(/\/file\/d\/([^/]+)/);
-  return match ? match[1] : null;
-}
-async function syncSheetToIndexedDB() {
-  if (!accessToken || !gapiInited) {
-    debugLog('Sinkron dibatalkan: accessToken=' + !!accessToken + ', gapiInited=' + gapiInited);
-    return;
-  }
-  const btn = document.getElementById('btn-google-login');
-  const syncBtn = document.getElementById('btn-sync-sheet');
-  const statusEl = document.getElementById('google-status');
-  btn.innerText = 'Sinkron...';
-  syncBtn.innerText = 'Sinkron...';
-  syncBtn.className = 'ml-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow opacity-50 pointer-events-none';
-  statusEl.textContent = 'Mengambil data dari Google Sheets...';
-  statusEl.className = 'ml-2 text-xs text-amber-600 font-medium';
-  debugLog('Sinkronisasi mulai...');
-  try {
-    const rows = await fetchSheetValues();
-    const dataRows = rows.slice(1);
-    let synced = 0;
-    let skipped = 0;
-    for (const row of dataRows) {
-      const noRangka = row[1] || '';
-      if (!noRangka) continue;
-      const existing = await db.unit.where('no_rangka').equals(noRangka).first();
-      if (existing) {
-        skipped++;
-        continue;
-      }
-      const kelengkapan = { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false };
-      try {
-        const parsed = JSON.parse(row[7] || '{}');
-        Object.assign(kelengkapan, parsed);
-      } catch (e) {}
-      const fileId = extractDriveFileId(row[8] || '');
-      const fotoUrl = fileId ? 'https://drive.google.com/uc?export=view&id=' + fileId : (row[8] || null);
-      await db.unit.add({
-        no_rangka: noRangka,
-        no_mesin: row[2] || '',
-        tipe_unit: row[3] || '',
-        warna: row[4] || '',
-        warehouse: row[5] || '',
-        status: row[6] || '',
-        waktu_opname: row[0] || '',
-        foto: fotoUrl,
-        kelengkapan: kelengkapan,
-        sumber_file: null
-      });
-      synced++;
-      debugLog('Disinkronkan: no_rangka=' + noRangka);
-    }
-    btn.innerText = 'Google OK';
-    syncBtn.innerText = 'Sinkron Sheets';
-    syncBtn.className = 'ml-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow';
-    statusEl.textContent = 'Sinkron selesai: ' + synced + ' baru, ' + skipped + ' dilewati';
-    statusEl.className = 'ml-2 text-xs text-emerald-600 font-medium';
-    debugLog('Sinkronisasi selesai: ' + synced + ' baru, ' + skipped + ' dilewati.');
-    updateRingkasanUnit();
-    cariUnit();
-  } catch (e) {
-    console.error(e);
-    btn.innerText = 'Google OK';
-    syncBtn.innerText = 'Sinkron Sheets';
-    syncBtn.className = 'ml-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow';
-    statusEl.textContent = 'Gagal sinkron: ' + e.message;
-    statusEl.className = 'ml-2 text-xs text-red-600 font-medium';
-    debugLog('Sinkronisasi gagal: ' + e.message);
-  }
-}
-window.addEventListener('load', async () => {
-  debugLog('Halaman dimuat. Memulai inisialisasi Google API...');
-  validateSheetsId();
-  if (typeof gapi !== 'undefined') gapiLoaded();
-  if (typeof google !== 'undefined') gisLoaded();
-  await new Promise(r => setTimeout(r, 1500));
-  if (accessToken && gapiInited) {
-    debugLog('Token tersedia saat load, memulai sinkron otomatis...');
-    syncSheetToIndexedDB();
-  } else {
-    debugLog('Tidak ada token saat load. Pengguna harus klik Login Google terlebih dahulu.');
-  }
-});
-</script>
 </body>
 </html>
