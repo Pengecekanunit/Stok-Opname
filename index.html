@@ -721,6 +721,7 @@
     <div class="max-w-4xl mx-auto flex justify-between items-center relative z-10">
       <h1 class="text-xl sm:text-2xl font-extrabold tracking-wide drop-shadow-sm">📦 Stok Opname System</h1>
        <button id="btn-google-login" onclick="handleGoogleLogin()" class="ml-2 px-3 py-1.5 bg-white text-indigo-700 text-xs font-bold rounded-lg shadow">Login Google</button>
+ <button id="btn-sync-sheet" onclick="handleSyncSheet()" class="ml-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow opacity-50 pointer-events-none" title="Sinkron data dari Google Sheets ke perangkat ini">Sinkron Sheets</button>
  <span id="google-status" class="ml-2 text-xs text-slate-500 font-medium">Belum login</span>
      </div>
   </header>
@@ -3479,6 +3480,28 @@ let accessToken = null;
 let gapiInited = false;
 let gisInited = false;
 
+function debugLog(msg) {
+  const d = new Date().toLocaleTimeString('id-ID');
+  console.log('[GoogleSync][' + d + '] ' + msg);
+}
+function validateSheetsId() {
+  const id = String(SHEETS_ID || '');
+  if (!id || id.length < 10) {
+    debugLog('PERINGATAN: SHEETS_ID terlalu pendek atau kosong.');
+    return false;
+  }
+  if (id.startsWith('AIza')) {
+    debugLog('PERINGATAN: SHEETS_ID terdeteksi sebagai API Key (diawali AIza), bukan Spreadsheet ID.');
+    return false;
+  }
+  if (id === DRIVE_FOLDER_ID) {
+    debugLog('PERINGATAN: SHEETS_ID sama dengan DRIVE_FOLDER_ID. Pastikan SHEETS_ID adalah ID spreadsheet yang benar.');
+    return false;
+  }
+  debugLog('SHEETS_ID valid: ' + id);
+  return true;
+}
+
 function gapiLoaded() { gapi.load('client', initializeGapiClient); }
 function initializeGapiClient() {
   gapi.client.init({
@@ -3507,12 +3530,16 @@ function gisLoaded() {
       btn.innerText = 'Google OK';
       status.textContent = 'Terautentikasi';
       status.className = 'ml-2 text-xs text-emerald-600 font-medium';
+      document.getElementById('btn-sync-sheet').className = 'ml-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow';
+      debugLog('Login berhasil, token diperoleh. Sinkronisasi otomatis dimulai...');
       syncSheetToIndexedDB();
     }
   });
   gisInited = true;
+  debugLog('GIS siap.');
 }
 function handleGoogleLogin() {
+  debugLog('handleGoogleLogin dipanggil. tokenClient=' + !!tokenClient);
   if (!tokenClient) { alert('Google belum siap'); return; }
   const btn = document.getElementById('btn-google-login');
   const status = document.getElementById('google-status');
@@ -3522,7 +3549,19 @@ function handleGoogleLogin() {
   if (gapi.client.getToken() === null) tokenClient.requestAccessToken({ prompt: 'consent' });
   else tokenClient.requestAccessToken({ prompt: '' });
 }
+function handleSyncSheet() {
+  if (!accessToken) {
+    alert('Silakan login Google terlebih dahulu sebelum sinkron.');
+    return;
+  }
+  if (!validateSheetsId()) {
+    alert('SHEETS_ID tidak valid. Periksa konfigurasi di skrip.');
+    return;
+  }
+  syncSheetToIndexedDB();
+}
 async function uploadPhotoToDrive(fileBlob, fileName) {
+  debugLog('Mengunggah foto ke Drive... fileName=' + fileName + ', folderId=' + DRIVE_FOLDER_ID);
   const metadata = { name: fileName, parents: [DRIVE_FOLDER_ID] };
   const form = new FormData();
   form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
@@ -3534,22 +3573,27 @@ async function uploadPhotoToDrive(fileBlob, fileName) {
   });
   if (!res.ok) {
     const errText = await res.text();
+    debugLog('Drive upload gagal (' + res.status + '): ' + errText);
     throw new Error('Drive upload gagal (' + res.status + '): ' + errText);
   }
   const data = await res.json();
+  debugLog('Foto terupload. fileId=' + data.id + ', webViewLink=' + data.webViewLink);
   return data.webViewLink || ('https://drive.google.com/file/d/' + data.id + '/view');
 }
 async function appendToSheet(values) {
+  debugLog('Menambahkan baris ke Sheets... spreadsheetId=' + SHEETS_ID + ', values=' + JSON.stringify(values));
   await gapi.client.sheets.spreadsheets.values.append({
     spreadsheetId: SHEETS_ID,
     range: 'Sheet1!A1',
     valueInputOption: 'USER_ENTERED',
     resource: { values: [values] }
   });
+  debugLog('Baris berhasil ditambahkan ke Sheets.');
 }
 async function syncOpnameToGoogle(unit, fotoBase64, status, kelengkapan) {
   const btn = document.getElementById('btn-google-login');
   const statusEl = document.getElementById('google-status');
+  debugLog('syncOpnameToGoogle dipanggil. unit.no_rangka=' + unit.no_rangka + ', accessToken=' + !!accessToken);
   if (!accessToken) {
     alert('Silakan login Google terlebih dahulu');
     return;
@@ -3586,11 +3630,14 @@ async function syncOpnameToGoogle(unit, fotoBase64, status, kelengkapan) {
   }
 }
 async function fetchSheetValues() {
+  debugLog('Mengambil data dari Sheets API... SHEETS_ID=' + SHEETS_ID);
   const res = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: SHEETS_ID,
     range: 'Sheet1!A:I'
   });
-  return res.result.values || [];
+  const rows = res.result.values || [];
+  debugLog('Sheets API mengembalikan ' + rows.length + ' baris (termasuk header).');
+  return rows;
 }
 function extractDriveFileId(webViewLink) {
   if (!webViewLink) return null;
@@ -3598,12 +3645,19 @@ function extractDriveFileId(webViewLink) {
   return match ? match[1] : null;
 }
 async function syncSheetToIndexedDB() {
-  if (!accessToken || !gapiInited) return;
+  if (!accessToken || !gapiInited) {
+    debugLog('Sinkron dibatalkan: accessToken=' + !!accessToken + ', gapiInited=' + gapiInited);
+    return;
+  }
   const btn = document.getElementById('btn-google-login');
+  const syncBtn = document.getElementById('btn-sync-sheet');
   const statusEl = document.getElementById('google-status');
   btn.innerText = 'Sinkron...';
+  syncBtn.innerText = 'Sinkron...';
+  syncBtn.className = 'ml-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow opacity-50 pointer-events-none';
   statusEl.textContent = 'Mengambil data dari Google Sheets...';
   statusEl.className = 'ml-2 text-xs text-amber-600 font-medium';
+  debugLog('Sinkronisasi mulai...');
   try {
     const rows = await fetchSheetValues();
     const dataRows = rows.slice(1);
@@ -3637,25 +3691,37 @@ async function syncSheetToIndexedDB() {
         sumber_file: null
       });
       synced++;
+      debugLog('Disinkronkan: no_rangka=' + noRangka);
     }
     btn.innerText = 'Google OK';
+    syncBtn.innerText = 'Sinkron Sheets';
+    syncBtn.className = 'ml-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow';
     statusEl.textContent = 'Sinkron selesai: ' + synced + ' baru, ' + skipped + ' dilewati';
     statusEl.className = 'ml-2 text-xs text-emerald-600 font-medium';
+    debugLog('Sinkronisasi selesai: ' + synced + ' baru, ' + skipped + ' dilewati.');
     updateRingkasanUnit();
     cariUnit();
   } catch (e) {
     console.error(e);
     btn.innerText = 'Google OK';
+    syncBtn.innerText = 'Sinkron Sheets';
+    syncBtn.className = 'ml-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow';
     statusEl.textContent = 'Gagal sinkron: ' + e.message;
     statusEl.className = 'ml-2 text-xs text-red-600 font-medium';
+    debugLog('Sinkronisasi gagal: ' + e.message);
   }
 }
 window.addEventListener('load', async () => {
+  debugLog('Halaman dimuat. Memulai inisialisasi Google API...');
+  validateSheetsId();
   if (typeof gapi !== 'undefined') gapiLoaded();
   if (typeof google !== 'undefined') gisLoaded();
   await new Promise(r => setTimeout(r, 1500));
   if (accessToken && gapiInited) {
+    debugLog('Token tersedia saat load, memulai sinkron otomatis...');
     syncSheetToIndexedDB();
+  } else {
+    debugLog('Tidak ada token saat load. Pengguna harus klik Login Google terlebih dahulu.');
   }
 });
 </script>
