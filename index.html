@@ -14,10 +14,6 @@
   <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
   <!-- JSZip (Untuk Download Banyak Foto Sekaligus) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <!-- html5-qrcode (Scan Barcode / QR) -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <!-- Tesseract.js (OCR gambar) -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
 
   <style>
     .laporan-header {
@@ -766,14 +762,6 @@
             <input type="text" id="search-unit" onkeyup="cariUnit()" placeholder="Ketik nomor rangka, mesin, atau tipe..." 
                    class="search-input w-full p-3 sm:p-3.5 pl-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-200 focus:border-indigo-500 text-base sm:text-lg font-medium">
           </div>
-          <div class="flex flex-col sm:flex-row gap-2 mt-3">
-            <button type="button" onclick="bukaPemindaiBarcode()" class="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-sm">
-              📷 Scan Barcode / QR
-            </button>
-            <button type="button" onclick="bukaPemindaiOCR()" class="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-sm">
-              🖼️ Scan Teks (OCR) dari Foto
-            </button>
-          </div>
         </div>
       </div>
 
@@ -785,39 +773,6 @@
         </div>
       </div>
     </section>
-
-    <!-- Modal Scan Barcode / QR -->
-    <div id="modal-barcode" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 p-4" role="dialog" aria-modal="true" aria-labelledby="judul-modal-barcode">
-      <div class="w-full max-w-lg rounded-2xl bg-white p-4 sm:p-6 shadow-2xl">
-        <div class="flex items-center justify-between gap-3 mb-3">
-          <h2 id="judul-modal-barcode" class="text-lg font-bold text-slate-800">📷 Scan Barcode / QR</h2>
-          <button type="button" onclick="tutupPemindaiBarcode()" aria-label="Tutup pemindai barcode" class="px-3 py-1 text-xl font-bold text-slate-500 hover:text-slate-800">×</button>
-        </div>
-        <p class="text-sm text-slate-600 mb-3">Arahkan kamera ke barcode atau QR code pada unit.</p>
-        <div id="barcode-reader" class="w-full overflow-hidden rounded-xl border border-slate-200"></div>
-        <p id="barcode-status" class="mt-3 text-sm text-slate-600" role="status">Menyiapkan kamera...</p>
-        <div class="flex justify-end mt-4">
-          <button type="button" onclick="tutupPemindaiBarcode()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold rounded-lg">Tutup</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal OCR -->
-    <div id="modal-ocr" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 p-4" role="dialog" aria-modal="true" aria-labelledby="judul-modal-ocr">
-      <div class="w-full max-w-lg rounded-2xl bg-white p-4 sm:p-6 shadow-2xl">
-        <div class="flex items-center justify-between gap-3 mb-3">
-          <h2 id="judul-modal-ocr" class="text-lg font-bold text-slate-800">🖼️ Scan Teks dari Foto</h2>
-          <button type="button" onclick="tutupPemindaiOCR()" aria-label="Tutup OCR" class="px-3 py-1 text-xl font-bold text-slate-500 hover:text-slate-800">×</button>
-        </div>
-        <p class="text-sm text-slate-600 mb-3">Ambil foto atau pilih gambar yang menampilkan nomor rangka, nomor mesin, atau teks unit.</p>
-        <input id="ocr-image-input" type="file" accept="image/*" capture="environment" onchange="prosesGambarOCR(event)" class="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-600 file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-emerald-700">
-        <img id="ocr-image-preview" alt="Pratinjau foto untuk OCR" class="hidden mt-3 max-h-56 w-full rounded-lg border border-slate-200 object-contain">
-        <p id="ocr-status" class="mt-3 text-sm text-slate-600" role="status">Pilih foto untuk mulai membaca teks.</p>
-        <div class="flex justify-end mt-4">
-          <button type="button" onclick="tutupPemindaiOCR()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold rounded-lg">Tutup</button>
-        </div>
-      </div>
-    </div>
 
     <!-- TAB: UNIT BELUM OPNAME -->
     <section id="sec-belum-opname" class="bg-white p-4 sm:p-5 rounded-b-lg border border-slate-200 border-t-0 shadow-md space-y-4 hidden">
@@ -3507,150 +3462,6 @@
 
     // Inisialisasi awal
     updateRingkasanUnit();
-  </script>
-  <script>
-    let pemindaiBarcode = null;
-    let scanBarcodeSelesai = false;
-    let urlPratinjauOCR = '';
-
-    function masukkanHasilScan(teks) {
-      const inputPencarian = document.getElementById('search-unit');
-      inputPencarian.value = teks;
-      inputPencarian.focus();
-      cariUnit();
-    }
-
-    async function bukaPemindaiBarcode() {
-      const modal = document.getElementById('modal-barcode');
-      const status = document.getElementById('barcode-status');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      status.textContent = 'Meminta akses kamera...';
-      scanBarcodeSelesai = false;
-
-      if (typeof Html5Qrcode === 'undefined') {
-        status.textContent = 'Library pemindai barcode tidak dapat dimuat. Periksa koneksi internet lalu muat ulang halaman.';
-        return;
-      }
-
-      try {
-        pemindaiBarcode = new Html5Qrcode('barcode-reader');
-        await pemindaiBarcode.start(
-          { facingMode: 'environment' },
-          {
-            fps: 10,
-            qrbox: (lebar, tinggi) => {
-              const sisi = Math.min(280, Math.floor(lebar * 0.8), Math.floor(tinggi * 0.6));
-              return { width: sisi, height: sisi };
-            }
-          },
-          teks => {
-            if (scanBarcodeSelesai) return;
-            scanBarcodeSelesai = true;
-            masukkanHasilScan(teks);
-            status.textContent = `Kode terdeteksi: ${teks}`;
-            tutupPemindaiBarcode();
-          },
-          () => {}
-        );
-        status.textContent = 'Kamera aktif. Arahkan ke barcode atau QR code.';
-      } catch (error) {
-        status.textContent = `Kamera tidak dapat dibuka: ${error.message || error}. Pastikan izin kamera diberikan dan halaman dibuka melalui HTTPS atau localhost.`;
-        console.error('Gagal memulai pemindai barcode:', error);
-      }
-    }
-
-    async function tutupPemindaiBarcode() {
-      const modal = document.getElementById('modal-barcode');
-      const scanner = pemindaiBarcode;
-      pemindaiBarcode = null;
-
-      if (scanner) {
-        try {
-          if (scanner.isScanning) await scanner.stop();
-          scanner.clear();
-        } catch (error) {
-          console.error('Gagal menghentikan pemindai barcode:', error);
-          document.getElementById('barcode-status').textContent = `Pemindai ditutup, tetapi kamera gagal dihentikan dengan normal: ${error.message || error}`;
-        }
-      }
-
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    function bukaPemindaiOCR() {
-      const modal = document.getElementById('modal-ocr');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      document.getElementById('ocr-status').textContent = 'Pilih foto untuk mulai membaca teks.';
-    }
-
-    function tutupPemindaiOCR() {
-      const modal = document.getElementById('modal-ocr');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    async function prosesGambarOCR(event) {
-      const file = event.target.files && event.target.files[0];
-      const status = document.getElementById('ocr-status');
-      const inputFile = document.getElementById('ocr-image-input');
-      const preview = document.getElementById('ocr-image-preview');
-
-      if (!file) return;
-      if (!file.type.startsWith('image/')) {
-        status.textContent = 'File yang dipilih bukan gambar. Silakan pilih file gambar.';
-        inputFile.value = '';
-        return;
-      }
-      if (typeof Tesseract === 'undefined') {
-        status.textContent = 'Library OCR tidak dapat dimuat. Periksa koneksi internet lalu muat ulang halaman.';
-        return;
-      }
-
-      if (urlPratinjauOCR) URL.revokeObjectURL(urlPratinjauOCR);
-      urlPratinjauOCR = URL.createObjectURL(file);
-      preview.src = urlPratinjauOCR;
-      preview.classList.remove('hidden');
-      inputFile.disabled = true;
-      status.textContent = 'Memuat OCR...';
-
-      let worker;
-      try {
-        worker = await Tesseract.createWorker('eng', 1, {
-          logger: info => {
-            if (info.status) {
-              const persen = typeof info.progress === 'number' ? ` (${Math.round(info.progress * 100)}%)` : '';
-              status.textContent = `${info.status}${persen}`;
-            }
-          }
-        });
-        const hasil = await worker.recognize(file);
-        const teks = hasil.data.text.trim().replace(/\s+/g, ' ');
-
-        if (!teks) {
-          status.textContent = 'Tidak ada teks yang terbaca. Coba foto yang lebih jelas dan fokus pada nomor unit.';
-          return;
-        }
-
-        masukkanHasilScan(teks);
-        status.textContent = `Teks terbaca dan dicari: ${teks}`;
-      } catch (error) {
-        status.textContent = `OCR gagal memproses gambar: ${error.message || error}`;
-        console.error('Gagal menjalankan OCR:', error);
-      } finally {
-        try {
-          if (worker) await worker.terminate();
-        } catch (error) {
-          status.textContent = `Worker OCR gagal dihentikan dengan normal: ${error.message || error}`;
-          console.error('Gagal menghentikan worker OCR:', error);
-        } finally {
-          inputFile.disabled = false;
-          inputFile.value = '';
-        }
-      }
-    }
   </script>
 </body>
 </html>
