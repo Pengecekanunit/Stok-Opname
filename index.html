@@ -14,8 +14,6 @@
   <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
   <!-- JSZip (Untuk Download Banyak Foto Sekaligus) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="google-sheets-config.js"></script>
-  <script src="google-sheets-sync.js"></script>
 
   <style>
     .laporan-header {
@@ -1222,7 +1220,7 @@
 
       <div class="flex items-start gap-2.5 rounded-lg bg-slate-50 border border-slate-200 px-4 py-3 text-[11px] sm:text-xs text-slate-600">
         <span class="text-base leading-none">💡</span>
-        <span>Data tetap tersimpan lokal di perangkat (IndexedDB). Setelah Google dihubungkan, data unit dan hasil opname otomatis dikirim ke spreadsheet saat koneksi internet tersedia. Foto tetap disimpan lokal dan tidak dikirim.</span>
+        <span>Seluruh data tersimpan <b class="text-slate-800">offline</b> di perangkat ini (IndexedDB) dan tersinkronisasi otomatis antar menu — tanpa memerlukan koneksi internet.</span>
       </div>
     </section>
 
@@ -1362,33 +1360,6 @@
       unit: '++id, no_rangka, no_mesin, tipe_unit, warna, warehouse, status, waktu_opname, foto, sumber_file',
       kelengkapan: '++id, kategori, jenis, qty, catatan, waktu_opname'
     });
-
-    async function syncStokUnitRecords(sheetName, eventName, records) {
-      try {
-        await window.GoogleSheetsSync.enqueue(sheetName, eventName, records);
-        return true;
-      } catch (error) {
-        console.error('Sinkronisasi Stok Unit gagal.', error);
-        return false;
-      }
-    }
-
-    window.onGoogleSheetsConnected = async function() {
-      const baselineKey = 'stokUnitBaseline:' + window.GOOGLE_SHEETS_CONFIG.spreadsheetId;
-      if (localStorage.getItem(baselineKey)) return;
-
-      const unitRows = await db.unit.toArray();
-      const looseRows = await db.kelengkapan.toArray();
-      if (unitRows.length) {
-        const unitQueued = await syncStokUnitRecords('StokUnit_Unit', 'baseline_lokal', unitRows);
-        if (!unitQueued) throw new Error('Data unit lokal tidak dapat dimasukkan ke antrean sinkronisasi.');
-      }
-      if (looseRows.length) {
-        const looseQueued = await syncStokUnitRecords('StokUnit_Kelengkapan', 'baseline_lokal', looseRows);
-        if (!looseQueued) throw new Error('Data kelengkapan lokal tidak dapat dimasukkan ke antrean sinkronisasi.');
-      }
-      localStorage.setItem(baselineKey, 'terkirim');
-    };
 
     let currentCoords = "-";
     let currentAddress = "";
@@ -2947,7 +2918,6 @@
             await db.unit.bulkAdd(unitPendukungAman);
           }
 
-          void syncStokUnitRecords('StokUnit_Unit', 'impor_master', await db.unit.toArray());
           alert(`✅ Berhasil mengimpor ${mappedData.length} data unit ke database lokal!` +
             (unitPendukungAman.length ? `\n📦 ${unitPendukungAman.length} unit pendukung (File 2-6) tetap dipertahankan.` : ''));
           updateRingkasanUnit();
@@ -3106,13 +3076,6 @@
             }
           });
 
-          const updatedUnits = await Promise.all(Array.from(updates.keys()).map(id => db.unit.get(id)));
-          void syncStokUnitRecords(
-            'StokUnit_Unit',
-            'impor_warehouse_' + slot,
-            updatedUnits.filter(Boolean).concat(newUnits)
-          );
-
           fileInput.value = '';
           const pesan = `Warehouse ${slot}: ${cocok} unit cocok` +
             (newUnits.length ? `, ${newUnits.length} unit baru ditambahkan (Belum Opname)` : '') +
@@ -3263,7 +3226,6 @@
           kelengkapan: { spion: false, aki: false, toolkit: false, plat_holder: false, helm: false, safety_riding: false },
           waktu_opname: new Date().toLocaleString('id-ID')
         });
-        void syncStokUnitRecords('StokUnit_Unit', 'hasil_opname', [await db.unit.get(id)]);
         updateRingkasanUnit();
         cariUnit();
         muatRekapKelengkapan();
@@ -3333,7 +3295,6 @@
         waktu_opname: new Date().toLocaleString('id-ID')
       });
 
-      void syncStokUnitRecords('StokUnit_Unit', 'hasil_opname', [await db.unit.get(id)]);
       tutupModal();
       updateRingkasanUnit();
       cariUnit();
@@ -3350,15 +3311,13 @@
 
     async function simpanKelengkapan(e) {
       e.preventDefault();
-      const item = {
+      await db.kelengkapan.add({
         kategori: document.getElementById('kel-kategori').value,
         jenis: document.getElementById('kel-jenis').value,
         qty: parseInt(document.getElementById('kel-qty').value),
         catatan: document.getElementById('kel-catatan').value,
         waktu_opname: new Date().toLocaleString('id-ID')
-      };
-      item.id = await db.kelengkapan.add(item);
-      void syncStokUnitRecords('StokUnit_Kelengkapan', 'tambah_kelengkapan', [item]);
+      });
 
       document.getElementById('kel-qty').value = "1";
       document.getElementById('kel-catatan').value = "";
@@ -3369,15 +3328,6 @@
 
     async function hapusKelengkapanItem(id) {
       if (confirm('Hapus item kelengkapan ini?')) {
-        const queued = await syncStokUnitRecords(
-          'StokUnit_Kelengkapan',
-          'hapus_kelengkapan',
-          [{ id: id, dihapus: true }]
-        );
-        if (!queued) {
-          alert('Data tidak dihapus karena antrean sinkronisasi gagal disimpan.');
-          return;
-        }
         await db.kelengkapan.delete(id);
         loadListKelengkapan();
         muatRekapKelengkapan();
@@ -3503,12 +3453,6 @@
 
     async function hapusSemuaData() {
       if (confirm('Yakin ingin menghapus SELURUH data lokal di perangkat ini? Data tidak bisa dikembalikan.')) {
-        const unitQueued = await syncStokUnitRecords('StokUnit_Unit', 'hapus_semua_data_lokal', [{ tindakan: 'seluruh data unit lokal dihapus' }]);
-        const kelengkapanQueued = await syncStokUnitRecords('StokUnit_Kelengkapan', 'hapus_semua_data_lokal', [{ tindakan: 'seluruh data kelengkapan lokal dihapus' }]);
-        if (!unitQueued || !kelengkapanQueued) {
-          alert('Data lokal tidak dihapus karena antrean sinkronisasi gagal disimpan.');
-          return;
-        }
         await db.unit.clear();
         await db.kelengkapan.clear();
         alert('Database telah dibersihkan!');
